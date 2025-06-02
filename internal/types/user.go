@@ -1,33 +1,53 @@
 package types
 
+import (
+	"fmt"
+
+	"github.com/samber/lo"
+)
+
+type UserRole string
+
+var (
+	UserRoleStudent    UserRole = "STUDENT"
+	UserRoleInstructor UserRole = "INSTRUCTOR"
+	UserRoleAdmin      UserRole = "ADMIN"
+)
+
+var UserRoles = []string{
+	string(UserRoleStudent),
+	string(UserRoleInstructor),
+	string(UserRoleAdmin),
+}
+
 type UserFilter struct {
 	*QueryFilter
 	*TimeRangeFilter
-	// able to expand the user with the following fields
-	// - station
-	Expand *Expand `json:"expand" form:"expand"`
 
 	// custom filters
-	StationIds []string `json:"station_ids" form:"station_ids" validate:"omitempty"`
-	Ranks      []string `json:"ranks" form:"ranks" validate:"omitempty"`
-	Email      string   `json:"email" form:"email" validate:"omitempty,email"`
-	Phone      string   `json:"phone" form:"phone" validate:"omitempty,e164"`
-	FullName   string   `json:"full_name" form:"full_name" validate:"omitempty"`
+	Roles  []string `json:"roles" form:"roles" validate:"omitempty"`
+	Email  []string `json:"email" form:"email" validate:"omitempty,email"`
+	Phone  []string `json:"phone" form:"phone" validate:"omitempty"`
+	Status Status   `json:"status" form:"status" validate:"omitempty"`
 }
 
 func (f *UserFilter) Validate() error {
 	if err := f.QueryFilter.Validate(); err != nil {
 		return err
 	}
+
 	if err := f.TimeRangeFilter.Validate(); err != nil {
 		return err
 	}
 
-	if f.Expand != nil {
-		if err := f.Expand.Validate(UserExpandConfig); err != nil {
-			return err
+	if len(f.Roles) > 0 {
+		for _, role := range f.Roles {
+			if !lo.Contains(UserRoles, role) {
+				return fmt.Errorf("invalid role: %s", role)
+			}
 		}
 	}
+
 	return nil
 }
 

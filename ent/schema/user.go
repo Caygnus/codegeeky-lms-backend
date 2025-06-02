@@ -42,8 +42,12 @@ func (User) Fields() []ent.Field {
 		field.String("phone_number").
 			SchemaType(map[string]string{
 				"postgres": "varchar(255)",
+			}),
+		field.Strings("roles").
+			SchemaType(map[string]string{
+				"postgres": "text[]",
 			}).
-			NotEmpty(),
+			Default([]string{}),
 	}
 }
 

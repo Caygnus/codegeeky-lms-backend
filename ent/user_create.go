@@ -108,6 +108,12 @@ func (uc *UserCreate) SetPhoneNumber(s string) *UserCreate {
 	return uc
 }
 
+// SetRoles sets the "roles" field.
+func (uc *UserCreate) SetRoles(s []string) *UserCreate {
+	uc.mutation.SetRoles(s)
+	return uc
+}
+
 // SetID sets the "id" field.
 func (uc *UserCreate) SetID(s string) *UserCreate {
 	uc.mutation.SetID(s)
@@ -169,6 +175,10 @@ func (uc *UserCreate) defaults() {
 		v := user.DefaultUpdatedAt()
 		uc.mutation.SetUpdatedAt(v)
 	}
+	if _, ok := uc.mutation.Roles(); !ok {
+		v := user.DefaultRoles
+		uc.mutation.SetRoles(v)
+	}
 	if _, ok := uc.mutation.ID(); !ok {
 		v := user.DefaultID()
 		uc.mutation.SetID(v)
@@ -205,10 +215,8 @@ func (uc *UserCreate) check() error {
 	if _, ok := uc.mutation.PhoneNumber(); !ok {
 		return &ValidationError{Name: "phone_number", err: errors.New(`ent: missing required field "User.phone_number"`)}
 	}
-	if v, ok := uc.mutation.PhoneNumber(); ok {
-		if err := user.PhoneNumberValidator(v); err != nil {
-			return &ValidationError{Name: "phone_number", err: fmt.Errorf(`ent: validator failed for field "User.phone_number": %w`, err)}
-		}
+	if _, ok := uc.mutation.Roles(); !ok {
+		return &ValidationError{Name: "roles", err: errors.New(`ent: missing required field "User.roles"`)}
 	}
 	return nil
 }
@@ -276,6 +284,10 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 	if value, ok := uc.mutation.PhoneNumber(); ok {
 		_spec.SetField(user.FieldPhoneNumber, field.TypeString, value)
 		_node.PhoneNumber = value
+	}
+	if value, ok := uc.mutation.Roles(); ok {
+		_spec.SetField(user.FieldRoles, field.TypeJSON, value)
+		_node.Roles = value
 	}
 	return _node, _spec
 }
