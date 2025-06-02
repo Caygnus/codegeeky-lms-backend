@@ -64,9 +64,6 @@ func main() {
 			// auth provider
 			auth.NewSupabaseProvider,
 
-			// encryption
-			security.NewEncryptionService,
-
 			// user repository
 			repository.NewUserRepository,
 		),
@@ -76,7 +73,9 @@ func main() {
 	opts = append(opts, fx.Provide(
 
 		// all services
+		security.NewEncryptionService,
 		service.NewAuthService,
+		service.NewUserService,
 		service.NewOnboardingService,
 	))
 
@@ -110,10 +109,11 @@ func startServer(
 	startAPIServer(lc, r, cfg, log)
 }
 
-func provideHandlers(logger *logger.Logger, authService service.AuthService) *api.Handlers {
+func provideHandlers(logger *logger.Logger, authService service.AuthService, userService service.UserService) *api.Handlers {
 	return &api.Handlers{
 		Health: v1.NewHealthHandler(logger),
 		Auth:   v1.NewAuthHandler(authService),
+		User:   v1.NewUserHandler(userService),
 	}
 }
 

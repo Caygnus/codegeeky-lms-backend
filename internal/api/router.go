@@ -1,14 +1,11 @@
 package api
 
 import (
-	"net/http"
-
 	"github.com/gin-gonic/gin"
 	v1 "github.com/omkar273/codegeeky/internal/api/v1"
 	"github.com/omkar273/codegeeky/internal/config"
 	"github.com/omkar273/codegeeky/internal/logger"
 	"github.com/omkar273/codegeeky/internal/rest/middleware"
-	"github.com/omkar273/codegeeky/internal/types"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
@@ -16,6 +13,7 @@ import (
 type Handlers struct {
 	Health *v1.HealthHandler
 	Auth   *v1.AuthHandler
+	User   *v1.UserHandler
 }
 
 func NewRouter(handlers *Handlers, cfg *config.Configuration, logger *logger.Logger) *gin.Engine {
@@ -43,11 +41,8 @@ func NewRouter(handlers *Handlers, cfg *config.Configuration, logger *logger.Log
 	v1Private := v1Router.Group("/")
 	v1Private.Use(middleware.AuthenticateMiddleware(cfg, logger))
 	{
-		v1Private.GET("/me", func(c *gin.Context) {
-			userID := types.GetUserID(c.Request.Context())
-			userEmail := types.GetUserEmail(c.Request.Context())
-			c.JSON(http.StatusOK, gin.H{"user_id": userID, "user_email": userEmail})
-		})
+		v1Private.GET("/user/me", handlers.User.Me)
+		v1Private.PUT("/user", handlers.User.Update)
 	}
 
 	return router

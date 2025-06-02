@@ -29,6 +29,9 @@ func (s *onboardingService) Onboard(ctx context.Context, req *dto.OnboardingRequ
 
 	user := req.ToUser(ctx)
 
+	// update user with provider user id
+	user.ID = req.ProviderUserID
+
 	// create user
 	err := s.ServiceParams.UserRepo.Create(ctx, user)
 	if err != nil {

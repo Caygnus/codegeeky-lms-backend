@@ -39,9 +39,7 @@ func (h *AuthHandler) Signup(c *gin.Context) {
 
 	resp, err := h.authService.Signup(c.Request.Context(), &req)
 	if err != nil {
-		c.Error(ierr.WithError(err).
-			WithHint("Failed to signup").
-			Mark(ierr.ErrDatabase))
+		c.Error(err)
 		return
 	}
 

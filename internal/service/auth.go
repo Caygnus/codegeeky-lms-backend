@@ -48,9 +48,7 @@ func (s *authService) Signup(ctx context.Context, req *dto.SignupRequest) (*dto.
 	// check using supabase provider
 	claims, err := s.AuthProvider.SignUp(ctx, req)
 	if err != nil {
-		return nil, ierr.NewError("Failed to signup with auth provider").
-			WithHint("Failed to signup with auth provider").
-			Mark(ierr.ErrDatabase)
+		return nil, err
 	}
 
 	// create user
@@ -60,7 +58,8 @@ func (s *authService) Signup(ctx context.Context, req *dto.SignupRequest) (*dto.
 		// it handles the creation of user if not exists
 		onboardingService := NewOnboardingService(s.ServiceParams)
 		err = onboardingService.Onboard(ctx, &dto.OnboardingRequest{
-			SignupRequest: *req,
+			SignupRequest:  *req,
+			ProviderUserID: claims.ID,
 		})
 
 		if err != nil {

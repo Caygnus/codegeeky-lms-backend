@@ -203,10 +203,9 @@ func (r *UserRepository) Update(ctx context.Context, userData *domainUser.User) 
 		SetPhoneNumber(userData.Phone).
 		SetFullName(userData.FullName).
 		SetRole(string(userData.Role)).
+		SetStatus(string(userData.Status)).
 		SetUpdatedAt(time.Now().UTC()).
-
-		// TODO: Fix this by adding a user id to the context
-		SetUpdatedBy(userData.UpdatedBy).
+		SetUpdatedBy(types.GetUserID(ctx)).
 		Save(ctx)
 
 	if err != nil {
@@ -248,7 +247,7 @@ func (r *UserRepository) Delete(ctx context.Context, userData *domainUser.User) 
 	_, err := client.User.UpdateOneID(userData.ID).
 		SetStatus(string(types.StatusDeleted)).
 		SetUpdatedAt(time.Now().UTC()).
-		SetUpdatedBy(userData.UpdatedBy).
+		SetUpdatedBy(types.GetUserID(ctx)).
 		Save(ctx)
 
 	if err != nil {
