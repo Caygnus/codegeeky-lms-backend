@@ -44,8 +44,8 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "200": {
-                        "description": "OK",
+                    "201": {
+                        "description": "Created",
                         "schema": {
                             "$ref": "#/definitions/dto.SignupResponse"
                         }
@@ -80,7 +80,11 @@ const docTemplate = `{
                 },
                 "role": {
                     "description": "role",
-                    "type": "string"
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/types.UserRole"
+                        }
+                    ]
                 }
             }
         },
@@ -94,6 +98,27 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
+        },
+        "types.UserRole": {
+            "type": "string",
+            "enum": [
+                "STUDENT",
+                "INSTRUCTOR",
+                "ADMIN"
+            ],
+            "x-enum-varnames": [
+                "UserRoleStudent",
+                "UserRoleInstructor",
+                "UserRoleAdmin"
+            ]
+        }
+    },
+    "securityDefinitions": {
+        "Authorization": {
+            "description": "Enter the token with the ` + "`" + `Bearer ` + "`" + ` prefix, e.g. ` + "`" + `Bearer \u003ctoken\u003e` + "`" + `.",
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
         }
     }
 }`
@@ -104,8 +129,8 @@ var SwaggerInfo = &swag.Spec{
 	Host:             "localhost:8080",
 	BasePath:         "/api/v1",
 	Schemes:          []string{},
-	Title:            "Police API",
-	Description:      "API for Police Performance and Resource Management System",
+	Title:            "CodeGeeky API",
+	Description:      "API for CodeGeeky",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 }

@@ -25,7 +25,7 @@ func NewAuthHandler(authService service.AuthService) *AuthHandler {
 // @Accept json
 // @Produce json
 // @Param signupRequest body dto.SignupRequest true "Signup request"
-// @Success 200 {object} dto.SignupResponse
+// @Success 201 {object} dto.SignupResponse
 // @Router /auth/signup [post]
 func (h *AuthHandler) Signup(c *gin.Context) {
 
@@ -45,6 +45,6 @@ func (h *AuthHandler) Signup(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, resp)
+	c.JSON(http.StatusCreated, resp)
 
 }

@@ -19,9 +19,9 @@ import (
 	"go.uber.org/fx"
 )
 
-// @title           Police API
+// @title           CodeGeeky API
 // @version         1.0
-// @description     API for Police Performance and Resource Management System
+// @description     API for CodeGeeky
 // @termsOfService  http://example.com/terms/
 
 // @contact.name   API Support
@@ -29,6 +29,13 @@ import (
 
 // @host      localhost:8080
 // @BasePath  /api/v1
+
+// @securityDefinitions.apikey Authorization
+// @in header
+// @name Authorization
+// @description Enter the token with the `Bearer ` prefix, e.g. `Bearer <token>`.
+// @type apiKey
+// @required
 
 func init() {
 	// set time to UTC

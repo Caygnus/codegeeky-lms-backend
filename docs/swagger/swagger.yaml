@@ -13,8 +13,9 @@ definitions:
       phone:
         type: string
       role:
+        allOf:
+        - $ref: '#/definitions/types.UserRole'
         description: role
-        type: string
     required:
     - access_token
     - email
@@ -28,14 +29,24 @@ definitions:
       id:
         type: string
     type: object
+  types.UserRole:
+    enum:
+    - STUDENT
+    - INSTRUCTOR
+    - ADMIN
+    type: string
+    x-enum-varnames:
+    - UserRoleStudent
+    - UserRoleInstructor
+    - UserRoleAdmin
 host: localhost:8080
 info:
   contact:
     email: support@example.com
     name: API Support
-  description: API for Police Performance and Resource Management System
+  description: API for CodeGeeky
   termsOfService: http://example.com/terms/
-  title: Police API
+  title: CodeGeeky API
   version: "1.0"
 paths:
   /auth/signup:
@@ -53,11 +64,17 @@ paths:
       produces:
       - application/json
       responses:
-        "200":
-          description: OK
+        "201":
+          description: Created
           schema:
             $ref: '#/definitions/dto.SignupResponse'
       summary: Signup
       tags:
       - Auth
+securityDefinitions:
+  Authorization:
+    description: Enter the token with the `Bearer ` prefix, e.g. `Bearer <token>`.
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

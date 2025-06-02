@@ -8,7 +8,7 @@ import (
 
 type UserRole string
 
-var (
+const (
 	UserRoleStudent    UserRole = "STUDENT"
 	UserRoleInstructor UserRole = "INSTRUCTOR"
 	UserRoleAdmin      UserRole = "ADMIN"

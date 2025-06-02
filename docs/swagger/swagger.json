@@ -1,8 +1,8 @@
 {
     "swagger": "2.0",
     "info": {
-        "description": "API for Police Performance and Resource Management System",
-        "title": "Police API",
+        "description": "API for CodeGeeky",
+        "title": "CodeGeeky API",
         "termsOfService": "http://example.com/terms/",
         "contact": {
             "name": "API Support",
@@ -38,8 +38,8 @@
                     }
                 ],
                 "responses": {
-                    "200": {
-                        "description": "OK",
+                    "201": {
+                        "description": "Created",
                         "schema": {
                             "$ref": "#/definitions/dto.SignupResponse"
                         }
@@ -74,7 +74,7 @@
                 },
                 "role": {
                     "description": "role",
-                    "type": "string"
+                    "$ref": "#/definitions/types.UserRole"
                 }
             }
         },
@@ -88,6 +88,27 @@
                     "type": "string"
                 }
             }
+        },
+        "types.UserRole": {
+            "type": "string",
+            "enum": [
+                "STUDENT",
+                "INSTRUCTOR",
+                "ADMIN"
+            ],
+            "x-enum-varnames": [
+                "UserRoleStudent",
+                "UserRoleInstructor",
+                "UserRoleAdmin"
+            ]
+        }
+    },
+    "securityDefinitions": {
+        "Authorization": {
+            "description": "Enter the token with the `Bearer ` prefix, e.g. `Bearer \u003ctoken\u003e`.",
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
         }
     }
 }
