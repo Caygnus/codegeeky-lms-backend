@@ -9,6 +9,7 @@ const (
 	CtxRequestID     ContextKey = "ctx_request_id"
 	CtxUserID        ContextKey = "ctx_user_id"
 	CtxJWT           ContextKey = "ctx_jwt"
+	CtxUserEmail     ContextKey = "ctx_user_email"
 	CtxDBTransaction ContextKey = "ctx_db_transaction"
 
 	// Default values
@@ -25,6 +26,13 @@ func GetUserID(ctx context.Context) string {
 func GetRequestID(ctx context.Context) string {
 	if requestID, ok := ctx.Value(CtxRequestID).(string); ok {
 		return requestID
+	}
+	return ""
+}
+
+func GetUserEmail(ctx context.Context) string {
+	if userEmail, ok := ctx.Value(CtxUserEmail).(string); ok {
+		return userEmail
 	}
 	return ""
 }
