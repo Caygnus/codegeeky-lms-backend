@@ -1,4 +1,33 @@
 basePath: /api/v1
+definitions:
+  dto.SignupRequest:
+    properties:
+      access_token:
+        description: access token
+        type: string
+      email:
+        description: basic info
+        type: string
+      full_name:
+        type: string
+      phone:
+        type: string
+      role:
+        description: role
+        type: string
+    required:
+    - access_token
+    - email
+    - full_name
+    - role
+    type: object
+  dto.SignupResponse:
+    properties:
+      access_token:
+        type: string
+      id:
+        type: string
+    type: object
 host: localhost:8080
 info:
   contact:
@@ -8,5 +37,27 @@ info:
   termsOfService: http://example.com/terms/
   title: Police API
   version: "1.0"
-paths: {}
+paths:
+  /auth/signup:
+    post:
+      consumes:
+      - application/json
+      description: Signup
+      parameters:
+      - description: Signup request
+        in: body
+        name: signupRequest
+        required: true
+        schema:
+          $ref: '#/definitions/dto.SignupRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.SignupResponse'
+      summary: Signup
+      tags:
+      - Auth
 swagger: "2.0"

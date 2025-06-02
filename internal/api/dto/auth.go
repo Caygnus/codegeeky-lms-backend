@@ -12,9 +12,9 @@ import (
 
 type SignupRequest struct {
 	// basic info
-	Email    string `json:"email" validate:"email"`
+	Email    string `json:"email" validate:"email,required"`
 	Phone    string `json:"phone"`
-	FullName string `json:"full_name"`
+	FullName string `json:"full_name" validate:"required"`
 
 	// role
 	Role types.UserRole `json:"role" validate:"required"`
@@ -29,7 +29,7 @@ func (r *SignupRequest) ToUser(ctx context.Context) *user.User {
 		Email:     r.Email,
 		Phone:     r.Phone,
 		FullName:  r.FullName,
-		Role:      r.Role,	
+		Role:      r.Role,
 		BaseModel: types.GetDefaultBaseModel(ctx),
 	}
 }

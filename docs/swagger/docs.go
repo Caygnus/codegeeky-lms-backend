@@ -18,7 +18,84 @@ const docTemplate = `{
     },
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
-    "paths": {}
+    "paths": {
+        "/auth/signup": {
+            "post": {
+                "description": "Signup",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Signup",
+                "parameters": [
+                    {
+                        "description": "Signup request",
+                        "name": "signupRequest",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.SignupRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.SignupResponse"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "dto.SignupRequest": {
+            "type": "object",
+            "required": [
+                "access_token",
+                "email",
+                "full_name",
+                "role"
+            ],
+            "properties": {
+                "access_token": {
+                    "description": "access token",
+                    "type": "string"
+                },
+                "email": {
+                    "description": "basic info",
+                    "type": "string"
+                },
+                "full_name": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "role": {
+                    "description": "role",
+                    "type": "string"
+                }
+            }
+        },
+        "dto.SignupResponse": {
+            "type": "object",
+            "properties": {
+                "access_token": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                }
+            }
+        }
+    }
 }`
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
