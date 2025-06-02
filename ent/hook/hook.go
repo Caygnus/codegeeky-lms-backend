@@ -6,7 +6,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/omkar273/police/ent"
+	"github.com/omkar273/codegeeky/ent"
 )
 
 // The UserFunc type is an adapter to allow the use of ordinary

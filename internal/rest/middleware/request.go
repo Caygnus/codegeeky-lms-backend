@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/gin-gonic/gin"
-	"github.com/omkar273/police/internal/types"
+	"github.com/omkar273/codegeeky/internal/types"
 )
 
 func RequestIDMiddleware(c *gin.Context) {

@@ -3,14 +3,13 @@
 package ent
 
 import (
-	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/omkar273/police/ent/user"
+	"github.com/omkar273/codegeeky/ent/user"
 )
 
 // User is the model entity for the User schema.
@@ -34,8 +33,8 @@ type User struct {
 	Email string `json:"email,omitempty"`
 	// PhoneNumber holds the value of the "phone_number" field.
 	PhoneNumber string `json:"phone_number,omitempty"`
-	// Roles holds the value of the "roles" field.
-	Roles        []string `json:"roles,omitempty"`
+	// Role holds the value of the "role" field.
+	Role         string `json:"role,omitempty"`
 	selectValues sql.SelectValues
 }
 
@@ -44,9 +43,7 @@ func (*User) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case user.FieldRoles:
-			values[i] = new([]byte)
-		case user.FieldID, user.FieldStatus, user.FieldCreatedBy, user.FieldUpdatedBy, user.FieldFullName, user.FieldEmail, user.FieldPhoneNumber:
+		case user.FieldID, user.FieldStatus, user.FieldCreatedBy, user.FieldUpdatedBy, user.FieldFullName, user.FieldEmail, user.FieldPhoneNumber, user.FieldRole:
 			values[i] = new(sql.NullString)
 		case user.FieldCreatedAt, user.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
@@ -119,13 +116,11 @@ func (u *User) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				u.PhoneNumber = value.String
 			}
-		case user.FieldRoles:
-			if value, ok := values[i].(*[]byte); !ok {
-				return fmt.Errorf("unexpected type %T for field roles", values[i])
-			} else if value != nil && len(*value) > 0 {
-				if err := json.Unmarshal(*value, &u.Roles); err != nil {
-					return fmt.Errorf("unmarshal field roles: %w", err)
-				}
+		case user.FieldRole:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field role", values[i])
+			} else if value.Valid {
+				u.Role = value.String
 			}
 		default:
 			u.selectValues.Set(columns[i], values[i])
@@ -187,8 +182,8 @@ func (u *User) String() string {
 	builder.WriteString("phone_number=")
 	builder.WriteString(u.PhoneNumber)
 	builder.WriteString(", ")
-	builder.WriteString("roles=")
-	builder.WriteString(fmt.Sprintf("%v", u.Roles))
+	builder.WriteString("role=")
+	builder.WriteString(u.Role)
 	builder.WriteByte(')')
 	return builder.String()
 }

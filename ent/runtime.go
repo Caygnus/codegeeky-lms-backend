@@ -5,8 +5,8 @@ package ent
 import (
 	"time"
 
-	"github.com/omkar273/police/ent/schema"
-	"github.com/omkar273/police/ent/user"
+	"github.com/omkar273/codegeeky/ent/schema"
+	"github.com/omkar273/codegeeky/ent/user"
 )
 
 // The init function reads all schema descriptors with runtime code
@@ -40,10 +40,10 @@ func init() {
 	userDescEmail := userFields[2].Descriptor()
 	// user.EmailValidator is a validator for the "email" field. It is called by the builders before save.
 	user.EmailValidator = userDescEmail.Validators[0].(func(string) error)
-	// userDescRoles is the schema descriptor for roles field.
-	userDescRoles := userFields[4].Descriptor()
-	// user.DefaultRoles holds the default value on creation for the roles field.
-	user.DefaultRoles = userDescRoles.Default.([]string)
+	// userDescRole is the schema descriptor for role field.
+	userDescRole := userFields[4].Descriptor()
+	// user.RoleValidator is a validator for the "role" field. It is called by the builders before save.
+	user.RoleValidator = userDescRole.Validators[0].(func(string) error)
 	// userDescID is the schema descriptor for id field.
 	userDescID := userFields[0].Descriptor()
 	// user.DefaultID holds the default value on creation for the id field.

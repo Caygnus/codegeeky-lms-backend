@@ -5,13 +5,17 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	_ "github.com/omkar273/police/docs/swagger"
-	"github.com/omkar273/police/internal/api"
-	v1 "github.com/omkar273/police/internal/api/v1"
-	"github.com/omkar273/police/internal/config"
-	"github.com/omkar273/police/internal/logger"
-	"github.com/omkar273/police/internal/postgres"
-	"github.com/omkar273/police/internal/validator"
+	_ "github.com/omkar273/codegeeky/docs/swagger"
+	"github.com/omkar273/codegeeky/internal/api"
+	v1 "github.com/omkar273/codegeeky/internal/api/v1"
+	"github.com/omkar273/codegeeky/internal/auth"
+	"github.com/omkar273/codegeeky/internal/config"
+	"github.com/omkar273/codegeeky/internal/logger"
+	"github.com/omkar273/codegeeky/internal/postgres"
+	"github.com/omkar273/codegeeky/internal/repository"
+	"github.com/omkar273/codegeeky/internal/security"
+	"github.com/omkar273/codegeeky/internal/service"
+	"github.com/omkar273/codegeeky/internal/validator"
 	"go.uber.org/fx"
 )
 
@@ -49,12 +53,24 @@ func main() {
 			// postgres
 			postgres.NewEntClient,
 			postgres.NewClient,
+
+			// auth provider
+			auth.NewSupabaseProvider,
+
+			// encryption
+			security.NewEncryptionService,
+
+			// user repository
+			repository.NewUserRepository,
 		),
 	)
 
 	// services
 	opts = append(opts, fx.Provide(
-	// all services
+
+		// all services
+		service.NewAuthService,
+		service.NewOnboardingService,
 	))
 
 	// factory layer
@@ -87,9 +103,10 @@ func startServer(
 	startAPIServer(lc, r, cfg, log)
 }
 
-func provideHandlers(logger *logger.Logger) *api.Handlers {
+func provideHandlers(logger *logger.Logger, authService service.AuthService) *api.Handlers {
 	return &api.Handlers{
 		Health: v1.NewHealthHandler(logger),
+		Auth:   v1.NewAuthHandler(authService),
 	}
 }
 

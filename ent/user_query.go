@@ -11,8 +11,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/omkar273/police/ent/predicate"
-	"github.com/omkar273/police/ent/user"
+	"github.com/omkar273/codegeeky/ent/predicate"
+	"github.com/omkar273/codegeeky/ent/user"
 )
 
 // UserQuery is the builder for querying User entities.

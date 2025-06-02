@@ -1,15 +1,14 @@
 package config
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
-	"os"
-	"path/filepath"
 	"strings"
 
 	"github.com/joho/godotenv"
-	"github.com/omkar273/police/internal/types"
-	"github.com/omkar273/police/internal/validator"
+	"github.com/omkar273/codegeeky/internal/types"
+	"github.com/omkar273/codegeeky/internal/validator"
 	"github.com/spf13/viper"
 )
 
@@ -52,8 +51,7 @@ type PostgresConfig struct {
 }
 
 type SecretsConfig struct {
-	PrivateKey string `mapstructure:"private_key" validate:"required"`
-	PublicKey  string `mapstructure:"public_key" validate:"required"`
+	EncryptionKey string `mapstructure:"encryption_key" validate:"required"`
 }
 
 type SupabaseConfig struct {
@@ -105,14 +103,18 @@ func NewConfig() (*Configuration, error) {
 		return nil, fmt.Errorf("unable to decode into config struct, %v", err)
 	}
 
-	// Step 6: Load keys from files if not provided via config/env
-	if err := cfg.loadKeysFromFiles(); err != nil {
-		return nil, fmt.Errorf("error loading keys from files: %v", err)
-	}
-
 	// Step 7: Validate the configuration
 	if err := cfg.Validate(); err != nil {
-		return nil, fmt.Errorf("configuration validation failed: %v\n\nPlease ensure you have either:\n1. A valid config.yaml file in ./internal/config/ or ./config/\n2. A .env file with required variables\n3. Environment variables with CAYGNUS_ prefix\n4. Key files in ./keys/ folder (private_key.pem, public_key.pem)\n\nRequired fields: server.address, logging.level, postgres.host, postgres.port, postgres.user, postgres.password, postgres.dbname, postgres.sslmode, supabase.url, supabase.key, supabase.jwt_secret, secrets.private_key, secrets.public_key", err)
+		return nil, fmt.Errorf("configuration validation failed: %v\n\nPlease ensure you have either:\n1. A valid config.yaml file in ./internal/config/ or ./config/\n2. A .env file with required variables\n3. Environment variables with CAYGNUS_ prefix\n\nRequired fields: server.address, logging.level, postgres.host, postgres.port, postgres.user, postgres.password, postgres.dbname, postgres.sslmode, supabase.url, supabase.key, supabase.jwt_secret, secrets.encryption_key", err)
+	}
+
+	// print the config in json format for debugging during development
+	jsonConfig, err := json.MarshalIndent(cfg, "", "  ")
+	if err != nil {
+		fmt.Printf("Error marshalling config to JSON: %v\n", err)
+	}
+	if cfg.Server.Env == EnvDev {
+		fmt.Printf("Config: %s\n\n", string(jsonConfig))
 	}
 
 	return &cfg, nil
@@ -144,60 +146,4 @@ func (p PostgresConfig) GetDSN() string {
 		p.DBName,
 		p.SSLMode,
 	)
-}
-
-// loadKeysFromFiles attempts to load private and public keys from the keys folder
-// if they are not already provided via configuration or environment variables
-func (c *Configuration) loadKeysFromFiles() error {
-	keysDir := "keys"
-
-	// Load private key if not already set
-	if c.Secrets.PrivateKey == "" {
-		privateKeyPath := filepath.Join(keysDir, "private_key.pem")
-		if content, err := os.ReadFile(privateKeyPath); err == nil {
-			c.Secrets.PrivateKey = string(content)
-			fmt.Printf("Loaded private key from: %s\n", privateKeyPath)
-		} else {
-			// Try alternative naming conventions
-			altPaths := []string{
-				filepath.Join(keysDir, "private.pem"),
-				filepath.Join(keysDir, "id_rsa"),
-				filepath.Join(keysDir, "private_key"),
-			}
-
-			for _, altPath := range altPaths {
-				if content, err := os.ReadFile(altPath); err == nil {
-					c.Secrets.PrivateKey = string(content)
-					fmt.Printf("Loaded private key from: %s\n", altPath)
-					break
-				}
-			}
-		}
-	}
-
-	// Load public key if not already set
-	if c.Secrets.PublicKey == "" {
-		publicKeyPath := filepath.Join(keysDir, "public_key.pem")
-		if content, err := os.ReadFile(publicKeyPath); err == nil {
-			c.Secrets.PublicKey = string(content)
-			fmt.Printf("Loaded public key from: %s\n", publicKeyPath)
-		} else {
-			// Try alternative naming conventions
-			altPaths := []string{
-				filepath.Join(keysDir, "public.pem"),
-				filepath.Join(keysDir, "id_rsa.pub"),
-				filepath.Join(keysDir, "public_key"),
-			}
-
-			for _, altPath := range altPaths {
-				if content, err := os.ReadFile(altPath); err == nil {
-					c.Secrets.PublicKey = string(content)
-					fmt.Printf("Loaded public key from: %s\n", altPath)
-					break
-				}
-			}
-		}
-	}
-
-	return nil
 }

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	ierr "github.com/omkar273/police/internal/errors"
+	ierr "github.com/omkar273/codegeeky/internal/errors"
 )
 
 // ExpandableField represents a field that can be expanded in API responses

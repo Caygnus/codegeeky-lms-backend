@@ -29,11 +29,4 @@ supabase:
 
 # secrets
 secrets:
-  private_key: |
-    -----BEGIN PRIVATE KEY-----
-    MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC7VJTUt9Us8cKB
-    -----END PRIVATE KEY-----
-  public_key: |
-    -----BEGIN PUBLIC KEY-----
-    MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAu1SU1L7VLPHCgSfJ
-    -----END PUBLIC KEY-----
+  encryption_key: "dummy_encryption_key"

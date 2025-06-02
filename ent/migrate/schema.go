@@ -19,7 +19,7 @@ var (
 		{Name: "full_name", Type: field.TypeString, SchemaType: map[string]string{"postgres": "varchar(255)"}},
 		{Name: "email", Type: field.TypeString, SchemaType: map[string]string{"postgres": "varchar(255)"}},
 		{Name: "phone_number", Type: field.TypeString, SchemaType: map[string]string{"postgres": "varchar(255)"}},
-		{Name: "roles", Type: field.TypeJSON, SchemaType: map[string]string{"postgres": "text[]"}},
+		{Name: "role", Type: field.TypeString, SchemaType: map[string]string{"postgres": "varchar(255)"}},
 	}
 	// UsersTable holds the schema information for the "users" table.
 	UsersTable = &schema.Table{

@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/omkar273/police/internal/logger"
+	"github.com/omkar273/codegeeky/internal/logger"
 )
 
 type HealthHandler struct {

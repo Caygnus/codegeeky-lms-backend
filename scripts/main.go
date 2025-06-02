@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/omkar273/police/scripts/internal"
+	"github.com/omkar273/codegeeky/scripts/internal"
 )
 
 // Command represents a script that can be run

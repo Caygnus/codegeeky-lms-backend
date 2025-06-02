@@ -6,7 +6,7 @@ import (
 
 	"github.com/cockroachdb/errors"
 	"github.com/gin-gonic/gin"
-	ierr "github.com/omkar273/police/internal/errors"
+	ierr "github.com/omkar273/codegeeky/internal/errors"
 )
 
 // ErrorHandler middleware handles error responses

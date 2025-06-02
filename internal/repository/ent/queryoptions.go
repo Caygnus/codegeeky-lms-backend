@@ -3,7 +3,7 @@ package ent
 import (
 	"context"
 
-	"github.com/omkar273/police/internal/types"
+	"github.com/omkar273/codegeeky/internal/types"
 )
 
 // BaseQueryOptions defines the minimal interface that all query options must implement

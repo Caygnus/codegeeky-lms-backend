@@ -3,8 +3,8 @@ package logger
 import (
 	"context"
 
-	"github.com/omkar273/police/internal/config"
-	"github.com/omkar273/police/internal/types"
+	"github.com/omkar273/codegeeky/internal/config"
+	"github.com/omkar273/codegeeky/internal/types"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )

@@ -3,7 +3,7 @@ package types
 import (
 	"time"
 
-	ierr "github.com/omkar273/police/internal/errors"
+	ierr "github.com/omkar273/codegeeky/internal/errors"
 	"github.com/samber/lo"
 )
 

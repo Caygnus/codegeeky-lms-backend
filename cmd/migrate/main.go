@@ -9,9 +9,9 @@ import (
 	"time"
 
 	_ "github.com/lib/pq"
-	"github.com/omkar273/police/ent"
-	"github.com/omkar273/police/internal/config"
-	"github.com/omkar273/police/internal/logger"
+	"github.com/omkar273/codegeeky/ent"
+	"github.com/omkar273/codegeeky/internal/config"
+	"github.com/omkar273/codegeeky/internal/logger"
 )
 
 func main() {

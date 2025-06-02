@@ -4,14 +4,13 @@ import (
 	"context"
 	"time"
 
-	"entgo.io/ent/dialect/sql"
-	"github.com/omkar273/police/ent"
-	"github.com/omkar273/police/ent/user"
-	domainUser "github.com/omkar273/police/internal/domain/user"
-	ierr "github.com/omkar273/police/internal/errors"
-	"github.com/omkar273/police/internal/logger"
-	"github.com/omkar273/police/internal/postgres"
-	"github.com/omkar273/police/internal/types"
+	"github.com/omkar273/codegeeky/ent"
+	"github.com/omkar273/codegeeky/ent/user"
+	domainUser "github.com/omkar273/codegeeky/internal/domain/user"
+	ierr "github.com/omkar273/codegeeky/internal/errors"
+	"github.com/omkar273/codegeeky/internal/logger"
+	"github.com/omkar273/codegeeky/internal/postgres"
+	"github.com/omkar273/codegeeky/internal/types"
 )
 
 type UserRepository struct {
@@ -37,17 +36,13 @@ func (r *UserRepository) Create(ctx context.Context, userData *domainUser.User) 
 		"full_name", userData.FullName,
 	)
 
-	roles := make([]string, len(userData.Roles))
-	for i, role := range userData.Roles {
-		roles[i] = string(role)
-	}
-
+	// Create user with roles
 	_, err := client.User.Create().
 		SetID(userData.ID).
 		SetEmail(userData.Email).
 		SetPhoneNumber(userData.Phone).
 		SetFullName(userData.FullName).
-		SetRoles(roles).
+		SetRole(string(userData.Role)).
 		SetStatus(string(userData.Status)).
 		SetCreatedAt(userData.CreatedAt).
 		SetUpdatedAt(userData.UpdatedAt).
@@ -203,17 +198,14 @@ func (r *UserRepository) Update(ctx context.Context, userData *domainUser.User) 
 		"email", userData.Email,
 	)
 
-	roles := make([]string, len(userData.Roles))
-	for i, role := range userData.Roles {
-		roles[i] = string(role)
-	}
-
 	_, err := client.User.UpdateOneID(userData.ID).
 		SetEmail(userData.Email).
 		SetPhoneNumber(userData.Phone).
 		SetFullName(userData.FullName).
-		SetRoles(roles).
+		SetRole(string(userData.Role)).
 		SetUpdatedAt(time.Now().UTC()).
+
+		// TODO: Fix this by adding a user id to the context
 		SetUpdatedBy(userData.UpdatedBy).
 		Save(ctx)
 
@@ -372,17 +364,7 @@ func (o UserQueryOptions) ApplyEntityQueryOptions(
 
 	// Apply roles filter if specified
 	if len(f.Roles) > 0 {
-		query = query.Where(func(s *sql.Selector) {
-			predicates := make([]*sql.Predicate, len(f.Roles))
-			for i, role := range f.Roles {
-				predicates[i] = sql.And(
-					sql.NotNull(s.C(user.FieldRoles)),
-					sql.Contains(s.C(user.FieldRoles), role),
-				)
-			}
-			s.Where(sql.And(predicates...))
-		})
-
+		query = query.Where(user.RoleIn(f.Roles...))
 	}
 
 	// Apply time range filters if specified

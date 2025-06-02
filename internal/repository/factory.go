@@ -1,9 +1,11 @@
 package repository
 
 import (
-	"github.com/omkar273/police/internal/config"
-	"github.com/omkar273/police/internal/logger"
-	"github.com/omkar273/police/internal/postgres"
+	"github.com/omkar273/codegeeky/internal/config"
+	"github.com/omkar273/codegeeky/internal/domain/user"
+	"github.com/omkar273/codegeeky/internal/logger"
+	"github.com/omkar273/codegeeky/internal/postgres"
+	"github.com/omkar273/codegeeky/internal/repository/ent"
 	"go.uber.org/fx"
 )
 
@@ -25,4 +27,8 @@ func NewRepositoryParams(
 		Client: Client,
 		Logger: Logger,
 	}
+}
+
+func NewUserRepository(params RepositoryParams) user.Repository {
+	return ent.NewUserRepository(params.Client, params.Logger)
 }

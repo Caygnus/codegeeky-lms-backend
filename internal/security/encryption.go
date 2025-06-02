@@ -1,121 +1,93 @@
 package security
 
 import (
+	"crypto/aes"
+	"crypto/cipher"
 	"crypto/rand"
-	"crypto/rsa"
 	"crypto/sha256"
-	"crypto/x509"
 	"encoding/base64"
 	"encoding/hex"
-	"encoding/pem"
+	"io"
 
-	"github.com/omkar273/police/internal/config"
-	ierr "github.com/omkar273/police/internal/errors"
-	"github.com/omkar273/police/internal/logger"
+	"github.com/omkar273/codegeeky/internal/config"
+	ierr "github.com/omkar273/codegeeky/internal/errors"
+	"github.com/omkar273/codegeeky/internal/logger"
 )
 
 // EncryptionService defines the interface for encryption and hashing operations
 type EncryptionService interface {
-	// Encrypt encrypts plaintext using RSA public key
+	// Encrypt encrypts plaintext using AES-GCM
 	Encrypt(plaintext string) (string, error)
 
-	// Decrypt decrypts ciphertext using RSA private key
+	// Decrypt decrypts ciphertext using AES-GCM
 	Decrypt(ciphertext string) (string, error)
 
 	// Hash creates a one-way hash of the input value using SHA-256
 	Hash(value string) string
 }
 
-type rsaEncryptionService struct {
-	privateKey *rsa.PrivateKey
-	publicKey  *rsa.PublicKey
-	logger     *logger.Logger
+type aesEncryptionService struct {
+	key    []byte
+	logger *logger.Logger
 }
 
-// NewEncryptionService creates a new encryption service using RSA keys from config
+// NewEncryptionService creates a new encryption service using the master key from config
 func NewEncryptionService(cfg *config.Configuration, logger *logger.Logger) (EncryptionService, error) {
-	if cfg.Secrets.PrivateKey == "" || cfg.Secrets.PublicKey == "" {
-		return nil, ierr.NewError("RSA keys not configured").
-			WithHint("Both private and public RSA keys must be configured").
+	if cfg.Secrets.EncryptionKey == "" {
+		return nil, ierr.NewError("master encryption key not configured").
+			WithHint("Master encryption key is not configured").
 			Mark(ierr.ErrSystem)
 	}
 
-	// Parse private key
-	privateKeyPEM := cfg.Secrets.PrivateKey
-	privateKeyBlock, _ := pem.Decode([]byte(privateKeyPEM))
-	if privateKeyBlock == nil {
-		return nil, ierr.NewError("failed to decode private key PEM").
-			WithHint("Private key must be in valid PEM format").
-			Mark(ierr.ErrSystem)
+	// Use the auth secret as the master key (in production, this should come from a secure source like KMS)
+	key := []byte(cfg.Secrets.EncryptionKey)
+
+	// Ensure the key is exactly 32 bytes (256 bits) for AES-256
+	if len(key) != 32 {
+		// If not 32 bytes, hash it to get a consistent 32-byte key
+		hasher := sha256.New()
+		hasher.Write(key)
+		key = hasher.Sum(nil)
 	}
 
-	privateKey, err := x509.ParsePKCS1PrivateKey(privateKeyBlock.Bytes)
-	if err != nil {
-		// Try PKCS8 format if PKCS1 fails
-		privateKeyInterface, err := x509.ParsePKCS8PrivateKey(privateKeyBlock.Bytes)
-		if err != nil {
-			return nil, ierr.WithError(err).
-				WithHint("Failed to parse private key - ensure it's in PKCS1 or PKCS8 format").
-				Mark(ierr.ErrSystem)
-		}
-		var ok bool
-		privateKey, ok = privateKeyInterface.(*rsa.PrivateKey)
-		if !ok {
-			return nil, ierr.NewError("private key is not RSA").
-				WithHint("Private key must be an RSA key").
-				Mark(ierr.ErrSystem)
-		}
-	}
-
-	// Parse public key
-	publicKeyPEM := cfg.Secrets.PublicKey
-	publicKeyBlock, _ := pem.Decode([]byte(publicKeyPEM))
-	if publicKeyBlock == nil {
-		return nil, ierr.NewError("failed to decode public key PEM").
-			WithHint("Public key must be in valid PEM format").
-			Mark(ierr.ErrSystem)
-	}
-
-	publicKeyInterface, err := x509.ParsePKIXPublicKey(publicKeyBlock.Bytes)
-	if err != nil {
-		return nil, ierr.WithError(err).
-			WithHint("Failed to parse public key").
-			Mark(ierr.ErrSystem)
-	}
-
-	publicKey, ok := publicKeyInterface.(*rsa.PublicKey)
-	if !ok {
-		return nil, ierr.NewError("public key is not RSA").
-			WithHint("Public key must be an RSA key").
-			Mark(ierr.ErrSystem)
-	}
-
-	return &rsaEncryptionService{
-		privateKey: privateKey,
-		publicKey:  publicKey,
-		logger:     logger,
+	return &aesEncryptionService{
+		key:    key,
+		logger: logger,
 	}, nil
 }
 
-// Encrypt encrypts plaintext using RSA public key with OAEP padding
-func (s *rsaEncryptionService) Encrypt(plaintext string) (string, error) {
+// Encrypt encrypts plaintext using AES-GCM and returns base64-encoded ciphertext
+func (s *aesEncryptionService) Encrypt(plaintext string) (string, error) {
 	if plaintext == "" {
 		return "", nil
 	}
 
-	// RSA encryption with OAEP padding and SHA-256 hash
-	ciphertext, err := rsa.EncryptOAEP(
-		sha256.New(),
-		rand.Reader,
-		s.publicKey,
-		[]byte(plaintext),
-		nil,
-	)
+	// Create a new AES cipher block
+	block, err := aes.NewCipher(s.key)
 	if err != nil {
 		return "", ierr.WithError(err).
-			WithHint("Failed to encrypt data with RSA public key").
+			WithHint("Failed to create cipher block").
 			Mark(ierr.ErrSystem)
 	}
+
+	// Create a new GCM cipher mode
+	gcm, err := cipher.NewGCM(block)
+	if err != nil {
+		return "", ierr.WithError(err).
+			WithHint("Failed to create GCM").
+			Mark(ierr.ErrSystem)
+	}
+
+	// Create a nonce (number used once)
+	nonce := make([]byte, gcm.NonceSize())
+	if _, err := io.ReadFull(rand.Reader, nonce); err != nil {
+		return "", ierr.WithError(err).
+			WithHint("Failed to generate nonce").
+			Mark(ierr.ErrSystem)
+	}
+
+	// Encrypt and authenticate the plaintext
+	ciphertext := gcm.Seal(nonce, nonce, []byte(plaintext), nil)
 
 	// Encode the result as base64 for storage
 	encoded := base64.StdEncoding.EncodeToString(ciphertext)
@@ -123,8 +95,8 @@ func (s *rsaEncryptionService) Encrypt(plaintext string) (string, error) {
 	return encoded, nil
 }
 
-// Decrypt decrypts base64-encoded ciphertext using RSA private key
-func (s *rsaEncryptionService) Decrypt(ciphertext string) (string, error) {
+// Decrypt decrypts base64-encoded ciphertext using AES-GCM
+func (s *aesEncryptionService) Decrypt(ciphertext string) (string, error) {
 	if ciphertext == "" {
 		return "", nil
 	}
@@ -137,17 +109,37 @@ func (s *rsaEncryptionService) Decrypt(ciphertext string) (string, error) {
 			Mark(ierr.ErrSystem)
 	}
 
-	// RSA decryption with OAEP padding and SHA-256 hash
-	plaintext, err := rsa.DecryptOAEP(
-		sha256.New(),
-		rand.Reader,
-		s.privateKey,
-		decoded,
-		nil,
-	)
+	// Create a new AES cipher block
+	block, err := aes.NewCipher(s.key)
 	if err != nil {
 		return "", ierr.WithError(err).
-			WithHint("Failed to decrypt data with RSA private key").
+			WithHint("Failed to create cipher block").
+			Mark(ierr.ErrSystem)
+	}
+
+	// Create a new GCM cipher mode
+	gcm, err := cipher.NewGCM(block)
+	if err != nil {
+		return "", ierr.WithError(err).
+			WithHint("Failed to create GCM").
+			Mark(ierr.ErrSystem)
+	}
+
+	// Extract the nonce from the ciphertext
+	nonceSize := gcm.NonceSize()
+	if len(decoded) < nonceSize {
+		return "", ierr.NewError("ciphertext too short").
+			WithHint("Ciphertext is too short").
+			Mark(ierr.ErrSystem)
+	}
+
+	nonce, ciphertextBytes := decoded[:nonceSize], decoded[nonceSize:]
+
+	// Decrypt and verify the ciphertext
+	plaintext, err := gcm.Open(nil, nonce, ciphertextBytes, nil)
+	if err != nil {
+		return "", ierr.WithError(err).
+			WithHint("Failed to decrypt ciphertext").
 			Mark(ierr.ErrSystem)
 	}
 
@@ -155,7 +147,7 @@ func (s *rsaEncryptionService) Decrypt(ciphertext string) (string, error) {
 }
 
 // Hash creates a one-way hash of the input value using SHA-256
-func (s *rsaEncryptionService) Hash(value string) string {
+func (s *aesEncryptionService) Hash(value string) string {
 	if value == "" {
 		return ""
 	}

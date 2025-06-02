@@ -5,12 +5,12 @@ package enttest
 import (
 	"context"
 
-	"github.com/omkar273/police/ent"
+	"github.com/omkar273/codegeeky/ent"
 	// required by schema hooks.
-	_ "github.com/omkar273/police/ent/runtime"
+	_ "github.com/omkar273/codegeeky/ent/runtime"
 
 	"entgo.io/ent/dialect/sql/schema"
-	"github.com/omkar273/police/ent/migrate"
+	"github.com/omkar273/codegeeky/ent/migrate"
 )
 
 type (

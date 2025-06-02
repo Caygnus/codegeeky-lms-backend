@@ -11,8 +11,8 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/omkar273/police/ent/predicate"
-	"github.com/omkar273/police/ent/user"
+	"github.com/omkar273/codegeeky/ent/predicate"
+	"github.com/omkar273/codegeeky/ent/user"
 )
 
 const (
@@ -41,8 +41,7 @@ type UserMutation struct {
 	full_name     *string
 	email         *string
 	phone_number  *string
-	roles         *[]string
-	appendroles   []string
+	role          *string
 	clearedFields map[string]struct{}
 	done          bool
 	oldValue      func(context.Context) (*User, error)
@@ -467,55 +466,40 @@ func (m *UserMutation) ResetPhoneNumber() {
 	m.phone_number = nil
 }
 
-// SetRoles sets the "roles" field.
-func (m *UserMutation) SetRoles(s []string) {
-	m.roles = &s
-	m.appendroles = nil
+// SetRole sets the "role" field.
+func (m *UserMutation) SetRole(s string) {
+	m.role = &s
 }
 
-// Roles returns the value of the "roles" field in the mutation.
-func (m *UserMutation) Roles() (r []string, exists bool) {
-	v := m.roles
+// Role returns the value of the "role" field in the mutation.
+func (m *UserMutation) Role() (r string, exists bool) {
+	v := m.role
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldRoles returns the old "roles" field's value of the User entity.
+// OldRole returns the old "role" field's value of the User entity.
 // If the User object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *UserMutation) OldRoles(ctx context.Context) (v []string, err error) {
+func (m *UserMutation) OldRole(ctx context.Context) (v string, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldRoles is only allowed on UpdateOne operations")
+		return v, errors.New("OldRole is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldRoles requires an ID field in the mutation")
+		return v, errors.New("OldRole requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldRoles: %w", err)
+		return v, fmt.Errorf("querying old value for OldRole: %w", err)
 	}
-	return oldValue.Roles, nil
+	return oldValue.Role, nil
 }
 
-// AppendRoles adds s to the "roles" field.
-func (m *UserMutation) AppendRoles(s []string) {
-	m.appendroles = append(m.appendroles, s...)
-}
-
-// AppendedRoles returns the list of values that were appended to the "roles" field in this mutation.
-func (m *UserMutation) AppendedRoles() ([]string, bool) {
-	if len(m.appendroles) == 0 {
-		return nil, false
-	}
-	return m.appendroles, true
-}
-
-// ResetRoles resets all changes to the "roles" field.
-func (m *UserMutation) ResetRoles() {
-	m.roles = nil
-	m.appendroles = nil
+// ResetRole resets all changes to the "role" field.
+func (m *UserMutation) ResetRole() {
+	m.role = nil
 }
 
 // Where appends a list predicates to the UserMutation builder.
@@ -577,8 +561,8 @@ func (m *UserMutation) Fields() []string {
 	if m.phone_number != nil {
 		fields = append(fields, user.FieldPhoneNumber)
 	}
-	if m.roles != nil {
-		fields = append(fields, user.FieldRoles)
+	if m.role != nil {
+		fields = append(fields, user.FieldRole)
 	}
 	return fields
 }
@@ -604,8 +588,8 @@ func (m *UserMutation) Field(name string) (ent.Value, bool) {
 		return m.Email()
 	case user.FieldPhoneNumber:
 		return m.PhoneNumber()
-	case user.FieldRoles:
-		return m.Roles()
+	case user.FieldRole:
+		return m.Role()
 	}
 	return nil, false
 }
@@ -631,8 +615,8 @@ func (m *UserMutation) OldField(ctx context.Context, name string) (ent.Value, er
 		return m.OldEmail(ctx)
 	case user.FieldPhoneNumber:
 		return m.OldPhoneNumber(ctx)
-	case user.FieldRoles:
-		return m.OldRoles(ctx)
+	case user.FieldRole:
+		return m.OldRole(ctx)
 	}
 	return nil, fmt.Errorf("unknown User field %s", name)
 }
@@ -698,12 +682,12 @@ func (m *UserMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetPhoneNumber(v)
 		return nil
-	case user.FieldRoles:
-		v, ok := value.([]string)
+	case user.FieldRole:
+		v, ok := value.(string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetRoles(v)
+		m.SetRole(v)
 		return nil
 	}
 	return fmt.Errorf("unknown User field %s", name)
@@ -793,8 +777,8 @@ func (m *UserMutation) ResetField(name string) error {
 	case user.FieldPhoneNumber:
 		m.ResetPhoneNumber()
 		return nil
-	case user.FieldRoles:
-		m.ResetRoles()
+	case user.FieldRole:
+		m.ResetRole()
 		return nil
 	}
 	return fmt.Errorf("unknown User field %s", name)

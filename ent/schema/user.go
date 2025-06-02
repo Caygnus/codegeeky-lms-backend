@@ -4,8 +4,8 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/index"
-	baseMixin "github.com/omkar273/police/ent/mixin"
-	"github.com/omkar273/police/internal/types"
+	baseMixin "github.com/omkar273/codegeeky/ent/mixin"
+	"github.com/omkar273/codegeeky/internal/types"
 )
 
 type User struct {
@@ -43,11 +43,11 @@ func (User) Fields() []ent.Field {
 			SchemaType(map[string]string{
 				"postgres": "varchar(255)",
 			}),
-		field.Strings("roles").
+		field.String("role").
 			SchemaType(map[string]string{
-				"postgres": "text[]",
+				"postgres": "varchar(255)",
 			}).
-			Default([]string{}),
+			NotEmpty(),
 	}
 }
 

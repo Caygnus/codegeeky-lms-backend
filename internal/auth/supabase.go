@@ -6,12 +6,13 @@ import (
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/nedpals/supabase-go"
-	"github.com/omkar273/police/internal/config"
-	"github.com/omkar273/police/internal/domain/auth"
-	ierr "github.com/omkar273/police/internal/errors"
-	"github.com/omkar273/police/internal/logger"
-	"github.com/omkar273/police/internal/security"
-	"github.com/omkar273/police/internal/types"
+	"github.com/omkar273/codegeeky/internal/api/dto"
+	"github.com/omkar273/codegeeky/internal/config"
+	"github.com/omkar273/codegeeky/internal/domain/auth"
+	ierr "github.com/omkar273/codegeeky/internal/errors"
+	"github.com/omkar273/codegeeky/internal/logger"
+	"github.com/omkar273/codegeeky/internal/security"
+	"github.com/omkar273/codegeeky/internal/types"
 )
 
 type supabaseProvider struct {
@@ -117,4 +118,41 @@ func (p *supabaseProvider) ValidateToken(ctx context.Context, token string) (*au
 		Email:  email,
 		Phone:  phone,
 	}, nil
+}
+
+// SignUp is not used directly for Supabase as users sign up through the Supabase UI
+// This method is kept for compatibility with the Provider interface
+func (p *supabaseProvider) SignUp(ctx context.Context, req *dto.SignupRequest) (*dto.SignupResponse, error) {
+
+	// For Supabase, we don't directly sign up users through this method
+	// Instead, we validate the token and get user info
+	// For Supabase, we validate the token and extract user info
+	if req.AccessToken == "" {
+		return nil, ierr.NewError("token is required").
+			Mark(ierr.ErrPermissionDenied)
+	}
+
+	// Validate the token
+	claims, err := p.ValidateToken(ctx, req.AccessToken)
+	if err != nil {
+		return nil, err
+	}
+
+	if claims.Email != req.Email {
+		return nil, ierr.NewError("email mismatch").
+			Mark(ierr.ErrPermissionDenied)
+	}
+
+	if claims.Phone != req.Phone {
+		return nil, ierr.NewError("phone mismatch").
+			Mark(ierr.ErrPermissionDenied)
+	}
+
+	// Create response
+	resp := &dto.SignupResponse{
+		ID:          claims.UserID,
+		AccessToken: req.AccessToken,
+	}
+
+	return resp, nil
 }

@@ -1,4 +1,4 @@
-module github.com/omkar273/police
+module github.com/omkar273/codegeeky
 
 go 1.24.0
 

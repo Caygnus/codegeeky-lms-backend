@@ -29,8 +29,8 @@ const (
 	FieldEmail = "email"
 	// FieldPhoneNumber holds the string denoting the phone_number field in the database.
 	FieldPhoneNumber = "phone_number"
-	// FieldRoles holds the string denoting the roles field in the database.
-	FieldRoles = "roles"
+	// FieldRole holds the string denoting the role field in the database.
+	FieldRole = "role"
 	// Table holds the table name of the user in the database.
 	Table = "users"
 )
@@ -46,7 +46,7 @@ var Columns = []string{
 	FieldFullName,
 	FieldEmail,
 	FieldPhoneNumber,
-	FieldRoles,
+	FieldRole,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -72,8 +72,8 @@ var (
 	FullNameValidator func(string) error
 	// EmailValidator is a validator for the "email" field. It is called by the builders before save.
 	EmailValidator func(string) error
-	// DefaultRoles holds the default value on creation for the "roles" field.
-	DefaultRoles []string
+	// RoleValidator is a validator for the "role" field. It is called by the builders before save.
+	RoleValidator func(string) error
 	// DefaultID holds the default value on creation for the "id" field.
 	DefaultID func() string
 )
@@ -124,4 +124,9 @@ func ByEmail(opts ...sql.OrderTermOption) OrderOption {
 // ByPhoneNumber orders the results by the phone_number field.
 func ByPhoneNumber(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldPhoneNumber, opts...).ToFunc()
+}
+
+// ByRole orders the results by the role field.
+func ByRole(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldRole, opts...).ToFunc()
 }

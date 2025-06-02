@@ -10,7 +10,7 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/omkar273/police/ent/user"
+	"github.com/omkar273/codegeeky/ent/user"
 )
 
 // UserCreate is the builder for creating a User entity.
@@ -108,9 +108,9 @@ func (uc *UserCreate) SetPhoneNumber(s string) *UserCreate {
 	return uc
 }
 
-// SetRoles sets the "roles" field.
-func (uc *UserCreate) SetRoles(s []string) *UserCreate {
-	uc.mutation.SetRoles(s)
+// SetRole sets the "role" field.
+func (uc *UserCreate) SetRole(s string) *UserCreate {
+	uc.mutation.SetRole(s)
 	return uc
 }
 
@@ -175,10 +175,6 @@ func (uc *UserCreate) defaults() {
 		v := user.DefaultUpdatedAt()
 		uc.mutation.SetUpdatedAt(v)
 	}
-	if _, ok := uc.mutation.Roles(); !ok {
-		v := user.DefaultRoles
-		uc.mutation.SetRoles(v)
-	}
 	if _, ok := uc.mutation.ID(); !ok {
 		v := user.DefaultID()
 		uc.mutation.SetID(v)
@@ -215,8 +211,13 @@ func (uc *UserCreate) check() error {
 	if _, ok := uc.mutation.PhoneNumber(); !ok {
 		return &ValidationError{Name: "phone_number", err: errors.New(`ent: missing required field "User.phone_number"`)}
 	}
-	if _, ok := uc.mutation.Roles(); !ok {
-		return &ValidationError{Name: "roles", err: errors.New(`ent: missing required field "User.roles"`)}
+	if _, ok := uc.mutation.Role(); !ok {
+		return &ValidationError{Name: "role", err: errors.New(`ent: missing required field "User.role"`)}
+	}
+	if v, ok := uc.mutation.Role(); ok {
+		if err := user.RoleValidator(v); err != nil {
+			return &ValidationError{Name: "role", err: fmt.Errorf(`ent: validator failed for field "User.role": %w`, err)}
+		}
 	}
 	return nil
 }
@@ -285,9 +286,9 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 		_spec.SetField(user.FieldPhoneNumber, field.TypeString, value)
 		_node.PhoneNumber = value
 	}
-	if value, ok := uc.mutation.Roles(); ok {
-		_spec.SetField(user.FieldRoles, field.TypeJSON, value)
-		_node.Roles = value
+	if value, ok := uc.mutation.Role(); ok {
+		_spec.SetField(user.FieldRole, field.TypeString, value)
+		_node.Role = value
 	}
 	return _node, _spec
 }

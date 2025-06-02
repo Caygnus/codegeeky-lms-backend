@@ -4,13 +4,13 @@ package ent
 // 	"context"
 // 	"time"
 
-// 	"github.com/omkar273/police/ent"
-// 	"github.com/omkar273/police/ent/rank"
-// 	domainRank "github.com/omkar273/police/internal/domain/rank"
-// 	ierr "github.com/omkar273/police/internal/errors"
-// 	"github.com/omkar273/police/internal/logger"
-// 	"github.com/omkar273/police/internal/postgres"
-// 	"github.com/omkar273/police/internal/types"
+// 	"github.com/omkar273/codegeeky/ent"
+// 	"github.com/omkar273/codegeeky/ent/rank"
+// 	domainRank "github.com/omkar273/codegeeky/internal/domain/rank"
+// 	ierr "github.com/omkar273/codegeeky/internal/errors"
+// 	"github.com/omkar273/codegeeky/internal/logger"
+// 	"github.com/omkar273/codegeeky/internal/postgres"
+// 	"github.com/omkar273/codegeeky/internal/types"
 // )
 
 // type RankRepository struct {
