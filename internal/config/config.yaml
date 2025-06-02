@@ -1,0 +1,39 @@
+# server
+server:
+  env: "local"
+  address: ":8080"
+
+# logging
+logging:
+  level: "info"
+
+# postgres
+postgres:
+  host: "localhost"
+  port: 5432
+  user: "your_username"
+  password: "your_password"
+  dbname: "your_database"
+  sslmode: "disable"
+  max_open_conns: 10
+  max_idle_conns: 5
+  conn_max_lifetime_minutes: 60
+  auto_migrate: true
+
+# supabase
+supabase:
+  url: "https://dummy.supabase.co"
+  key: "dummy_key"
+  jwt_secret: "dummy_jwt_secret"
+  service_key: "dummy_service_key"
+
+# secrets
+secrets:
+  private_key: |
+    -----BEGIN PRIVATE KEY-----
+    MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC7VJTUt9Us8cKB
+    -----END PRIVATE KEY-----
+  public_key: |
+    -----BEGIN PUBLIC KEY-----
+    MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAu1SU1L7VLPHCgSfJ
+    -----END PUBLIC KEY-----

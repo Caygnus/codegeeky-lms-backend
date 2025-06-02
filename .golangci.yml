@@ -1,0 +1,39 @@
+run:
+  timeout: 2m
+  tests: true
+
+linters:
+  enable:
+    - govet
+    - staticcheck
+    - gofmt
+    - gosimple
+    - errcheck
+    - ineffassign
+    - typecheck
+
+issues:
+  exclude-use-default: false
+  max-same-issues: 5
+  max-issues-per-linter: 0
+  max-issues: 0
+
+  exclude-dirs:
+    - vendor
+    - node_modules
+
+linters-settings:
+  gofmt:
+    simplify: true
+  errcheck:
+    exclude-functions:
+      - github.com/gin-gonic/gin.Context.Error
+
+  # revive:
+  #   config: default
+
+  # gocritic:
+  #   enabled-checks:
+  #     - ifElseChain
+  #     - wrapperFunc
+  #     - unlambda

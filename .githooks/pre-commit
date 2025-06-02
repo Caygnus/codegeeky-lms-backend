@@ -1,0 +1,24 @@
+#!/bin/bash
+set -e
+
+export PATH="$PATH:$(go env GOPATH)/bin"
+
+echo "🔧 Running go fmt..."
+unformatted=$(gofmt -l .)
+if [ -n "$unformatted" ]; then
+  echo "❌ Unformatted files:"
+  echo "$unformatted"
+  echo "💡 Run 'gofmt -w .' to fix."
+  exit 1
+fi
+
+echo "🔍 Running go vet..."
+go vet ./...
+
+echo "🧹 Running golangci-lint..."
+golangci-lint run
+
+echo "🔨 Building the project..."
+go build ./...
+
+echo "✅ All checks passed!"

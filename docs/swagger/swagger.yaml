@@ -1,0 +1,12 @@
+basePath: /api/v1
+host: localhost:8080
+info:
+  contact:
+    email: support@example.com
+    name: API Support
+  description: API for Police Performance and Resource Management System
+  termsOfService: http://example.com/terms/
+  title: Police API
+  version: "1.0"
+paths: {}
+swagger: "2.0"

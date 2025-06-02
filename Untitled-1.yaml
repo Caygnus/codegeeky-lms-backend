@@ -1,0 +1,125 @@
+
+DGP 
+    - state
+    - district
+    - tehsil
+    - village
+    - police station
+    - sub-division
+    - circle
+
+
+- superior
+    - police - same post
+    - police - same post
+
+user : 
+    - name
+    - phone
+    - email
+    - password
+    - rank
+
+- post
+  - name
+  - power
+  - description
+  - assignable_by : post[]
+
+constable:
+    - name
+    - state
+    - district
+    - tehsil
+    - village
+    - police_station
+    - sub_division
+    - circle
+
+police naik
+    - name
+    - underlying - 5-10 constables
+
+head constable
+    - name
+    - underlying - 5-10 naik
+
+sub inspector
+    - name
+    - underlying - 5-10 head constable
+
+inspector
+    - name
+    - underlying - 5-10 sub inspector
+
+
+- post operations(promote, demote, transfer, remove)
+    - state
+    - district
+    - tehsil
+    - village
+    - police_station
+    - sub_division
+    - circle
+
+single responsiblity
+- entity
+- station
+- post
+- dept
+
+(current)
+
+
+before_post 
+before_station
+
+after_post
+after_station
+
+operated_by
+
+
+
+user1:
+  superior:
+    - user2
+      superior:
+        - user3
+        superior:
+          - user4
+  subordinate:
+    - user4
+    - user5
+
+user4 :
+   user1:  
+       null
+user5 :
+   user1:  
+       null
+user6 :
+   user1:  
+       null 
+user7 :
+   user1:  
+       null 
+user8 :
+   user1:  
+       null
+
+n : n -> no of posts above that user 
+
+
+scalablity
+
+
+permission
+    - entity_type
+    - entity_id
+    - action
+    - is_allowed
+    - allow_entity : user/dept/station
+    - allow_entity_id
+    - permissions: read/write/execute/delete
+

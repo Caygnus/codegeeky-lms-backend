@@ -1,0 +1,22 @@
+.env
+.env.*
+
+
+# Go
+*.log
+*.log.*
+
+# Keys and secrets - never commit these!
+keys/
+*.pem
+*.key
+id_rsa
+id_rsa.pub
+
+.env*
+.flaskenv*
+!.env.project
+!.env.vault
+
+# macos
+.DS_Store
