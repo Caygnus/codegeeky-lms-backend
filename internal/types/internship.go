@@ -39,10 +39,11 @@ type InternshipFilter struct {
 	*TimeRangeFilter
 
 	// These fields are used to filter internships by category, level and mode
-	Categories []string `json:"categories,omitempty" form:"categories" validate:"omitempty"`
-
-	Levels []InternshipLevel `json:"levels,omitempty" form:"levels" validate:"omitempty"`
-	Modes  []InternshipMode  `json:"modes,omitempty" form:"modes" validate:"omitempty"`
+	Name          string            `json:"name,omitempty" form:"name" validate:"omitempty"`
+	CategoryIDs   []string          `json:"category_ids,omitempty" form:"category_ids" validate:"omitempty"`
+	Levels        []InternshipLevel `json:"levels,omitempty" form:"levels" validate:"omitempty"`
+	Modes         []InternshipMode  `json:"modes,omitempty" form:"modes" validate:"omitempty"`
+	InternshipIDs []string          `json:"internship_ids,omitempty" form:"internship_ids" validate:"omitempty"`
 
 	// These fields are used to filter internships by duration in weeks
 	DurationInWeeks int `json:"duration_in_weeks,omitempty" form:"duration_in_weeks" validate:"omitempty,min=1,max=52"`

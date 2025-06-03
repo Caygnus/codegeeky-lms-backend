@@ -6,8 +6,8 @@ type CategoryFilter struct {
 
 	// These fields are used to filter categories by name
 	Name          string   `json:"name,omitempty" form:"name" validate:"omitempty"`
-	InternshipIDs []string `json:"internship_ids,omitempty" form:"internship_ids" validate:"omitempty"`
 	CategoryIDs   []string `json:"category_ids,omitempty" form:"category_ids" validate:"omitempty"`
+	InternshipIDs []string `json:"internship_ids,omitempty" form:"internship_ids" validate:"omitempty"`
 }
 
 func (f *CategoryFilter) Validate() error {
