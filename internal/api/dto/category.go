@@ -36,6 +36,25 @@ func (c *CreateCategoryRequest) ToCategory(ctx context.Context) *domainInternshi
 	}
 }
 
-type CreateCategoryResponse struct {
+type CategoryResponse struct {
 	domainInternship.Category
+}
+
+// ListCategoryResponse represents the response for listing categories
+type ListCategoryResponse = types.ListResponse[*CategoryResponse]
+
+type UpdateCategoryRequest struct {
+	Name        string `json:"name" binding:"omitempty"`
+	Description string `json:"description" binding:"omitempty"`
+	LookupKey   string `json:"lookup_key" binding:"omitempty"`
+}
+
+func (c *UpdateCategoryRequest) Validate() error {
+	if err := validator.ValidateRequest(c); err != nil {
+		return ierr.WithError(err).
+			WithHint("invalid category update request").
+			Mark(ierr.ErrValidation)
+	}
+
+	return nil
 }

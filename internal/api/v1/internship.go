@@ -5,267 +5,184 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/omkar273/codegeeky/internal/api/dto"
-	"github.com/omkar273/codegeeky/internal/auth"
-	domainAuth "github.com/omkar273/codegeeky/internal/domain/auth"
+	ierr "github.com/omkar273/codegeeky/internal/errors"
 	"github.com/omkar273/codegeeky/internal/logger"
-	"github.com/omkar273/codegeeky/internal/rest/middleware"
 	"github.com/omkar273/codegeeky/internal/service"
 	"github.com/omkar273/codegeeky/internal/types"
 )
 
 type InternshipHandler struct {
 	internshipService service.InternshipService
-	authzService      auth.AuthorizationService
 	logger            *logger.Logger
 }
 
 func NewInternshipHandler(
 	internshipService service.InternshipService,
-	authzService auth.AuthorizationService,
 	logger *logger.Logger,
 ) *InternshipHandler {
 	return &InternshipHandler{
 		internshipService: internshipService,
-		authzService:      authzService,
 		logger:            logger,
 	}
 }
 
-// CreateInternship creates a new internship
-// This endpoint requires instructor or admin role (RBAC)
+// @Summary Create a new internship
+// @Description Create a new internship with the provided details
+// @Tags Internship
+// @Accept json
+// @Produce json
+// @Param internship body dto.CreateInternshipRequest true "Internship details"
+// @Success 201 {object} dto.InternshipResponse
+// @Failure 400 {object} ierr.Error
+// @Failure 500 {object} ierr.Error
+// @Router /internships [post]
 func (h *InternshipHandler) CreateInternship(c *gin.Context) {
-	// Get auth context from middleware
-	authContext, exists := middleware.GetAuthContext(c)
-	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Authentication required"})
-		return
-	}
 
-	// Parse request
 	var req dto.CreateInternshipRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.Error(err)
 		return
 	}
 
-	// Validate request
-	if err := req.Validate(); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	// Create internship using service (which handles authorization)
-	internship, err := h.internshipService.Create(c.Request.Context(), &req, authContext.UserID, authContext.Role)
+	internship, err := h.internshipService.Create(c.Request.Context(), &req)
 	if err != nil {
-		h.logger.Errorw("Failed to create internship", "error", err, "user_id", authContext.UserID)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create internship"})
+		h.logger.Errorw("Failed to create internship", "error", err)
+		c.Error(err)
 		return
 	}
 
-	// Return response
-	response := &dto.InternshipResponse{}
-	c.JSON(http.StatusCreated, response.FromDomain(internship))
+	c.JSON(http.StatusCreated, internship)
 }
 
-// GetInternship retrieves an internship by ID
-// This endpoint uses ABAC for fine-grained access control
+// @Summary Get an internship by ID
+// @Description Get an internship by its unique identifier
+// @Tags Internship
+// @Accept json
+// @Produce json
+// @Param id path string true "Internship ID"
+// @Success 200 {object} dto.InternshipResponse
+// @Failure 400 {object} ierr.Error
+// @Failure 404 {object} ierr.Error
+// @Failure 500 {object} ierr.Error
+// @Router /internships/{id} [get]
 func (h *InternshipHandler) GetInternship(c *gin.Context) {
-	// Get auth context from middleware
-	authContext, exists := middleware.GetAuthContext(c)
-	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Authentication required"})
-		return
-	}
 
-	// Get internship ID from URL
 	internshipID := c.Param("id")
 	if internshipID == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Internship ID is required"})
+		c.Error(ierr.NewError("Internship ID is required").Mark(ierr.ErrValidation))
 		return
 	}
 
-	// Get internship using service (which handles authorization)
-	internship, err := h.internshipService.GetByID(c.Request.Context(), internshipID, authContext)
+	internship, err := h.internshipService.GetByID(c.Request.Context(), internshipID)
 	if err != nil {
-		h.logger.Errorw("Failed to get internship", "error", err, "user_id", authContext.UserID, "internship_id", internshipID)
-		c.JSON(http.StatusNotFound, gin.H{"error": "Internship not found"})
+		h.logger.Errorw("Failed to get internship", "error", err, "internship_id", internshipID)
+		c.Error(err)
 		return
 	}
 
-	// Return response
-	response := &dto.InternshipResponse{}
-	c.JSON(http.StatusOK, response.FromDomain(internship))
+	c.JSON(http.StatusOK, internship)
 }
 
-// UpdateInternship updates an existing internship
-// This endpoint uses ABAC to check ownership and permissions
+// @Summary Update an internship
+// @Description Update an internship by its unique identifier
+// @Tags Internship
+// @Accept json
+// @Produce json
+// @Param id path string true "Internship ID"
+// @Param internship body dto.UpdateInternshipRequest true "Internship details"
+// @Success 200 {object} dto.InternshipResponse
+// @Failure 400 {object} ierr.Error
+// @Failure 404 {object} ierr.Error
+// @Failure 500 {object} ierr.Error
+// @Router /internships/{id} [put]
 func (h *InternshipHandler) UpdateInternship(c *gin.Context) {
-	// Get auth context from middleware
-	authContext, exists := middleware.GetAuthContext(c)
-	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Authentication required"})
-		return
-	}
 
-	// Get internship ID from URL
 	internshipID := c.Param("id")
 	if internshipID == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Internship ID is required"})
+		c.Error(ierr.NewError("Internship ID is required").
+			Mark(ierr.ErrValidation))
 		return
 	}
 
-	// Parse request
 	var req dto.UpdateInternshipRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.Error(err)
 		return
 	}
 
-	// Validate request
 	if err := req.Validate(); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.Error(err)
 		return
 	}
 
-	// Update internship using service (which handles authorization)
-	internship, err := h.internshipService.Update(c.Request.Context(), internshipID, &req, authContext)
+	internship, err := h.internshipService.Update(c.Request.Context(), internshipID, &req)
 	if err != nil {
-		h.logger.Errorw("Failed to update internship", "error", err, "user_id", authContext.UserID, "internship_id", internshipID)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update internship"})
+		h.logger.Errorw("Failed to update internship", "error", err, "internship_id", internshipID)
+		c.Error(err)
 		return
 	}
 
-	// Return response
-	response := &dto.InternshipResponse{}
-	c.JSON(http.StatusOK, response.FromDomain(internship))
+	c.JSON(http.StatusOK, internship)
 }
 
-// DeleteInternship deletes an internship
-// This endpoint uses ABAC to check ownership and permissions
+// @Summary Delete an internship
+// @Description Delete an internship by its unique identifier
+// @Tags Internship
+// @Accept json
+// @Produce json
+// @Param id path string true "Internship ID"
+// @Success 204
+// @Failure 400 {object} ierr.Error
+// @Failure 404 {object} ierr.Error
+// @Failure 500 {object} ierr.Error
+// @Router /internships/{id} [delete]
 func (h *InternshipHandler) DeleteInternship(c *gin.Context) {
-	// Get auth context from middleware
-	authContext, exists := middleware.GetAuthContext(c)
-	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Authentication required"})
-		return
-	}
 
-	// Get internship ID from URL
 	internshipID := c.Param("id")
 	if internshipID == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Internship ID is required"})
+		c.Error(ierr.NewError("Internship ID is required").Mark(ierr.ErrValidation))
 		return
 	}
 
-	// Delete internship using service (which handles authorization)
-	err := h.internshipService.Delete(c.Request.Context(), internshipID, authContext)
+	err := h.internshipService.Delete(c.Request.Context(), internshipID)
 	if err != nil {
-		h.logger.Errorw("Failed to delete internship", "error", err, "user_id", authContext.UserID, "internship_id", internshipID)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete internship"})
+		h.logger.Errorw("Failed to delete internship", "error", err, "internship_id", internshipID)
+		c.Error(err)
 		return
 	}
 
 	c.JSON(http.StatusNoContent, nil)
 }
 
-// ListInternships lists internships with role-based filtering
-// This endpoint applies different filters based on user role
+// @Summary List internships
+// @Description List internships with optional filtering
+// @Tags Internship
+// @Accept json
+// @Produce json
+// @Param filter query types.InternshipFilter true "Filter options"
+// @Success 200 {object} dto.ListInternshipResponse
+// @Failure 400 {object} ierr.Error
+// @Failure 500 {object} ierr.Error
+// @Router /internships [get]
 func (h *InternshipHandler) ListInternships(c *gin.Context) {
-	// Get auth context from middleware
-	authContext, exists := middleware.GetAuthContext(c)
-	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Authentication required"})
-		return
-	}
 
-	// Parse query parameters into filter
 	filter := types.NewInternshipFilter()
 	if err := c.ShouldBindQuery(filter); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.Error(err)
 		return
 	}
 
-	// Validate filter
 	if err := filter.Validate(); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.Error(err)
 		return
 	}
 
-	// List internships using service (which handles role-based filtering)
-	internships, err := h.internshipService.List(c.Request.Context(), filter, authContext)
+	internships, err := h.internshipService.List(c.Request.Context(), filter)
 	if err != nil {
-		h.logger.Errorw("Failed to list internships", "error", err, "user_id", authContext.UserID)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to list internships"})
+		h.logger.Errorw("Failed to list internships", "error", err)
+		c.Error(err)
 		return
 	}
 
-	// Convert to response format
-	responses := make([]*dto.InternshipResponse, len(internships))
-	for i, internship := range internships {
-		response := &dto.InternshipResponse{}
-		responses[i] = response.FromDomain(internship)
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"data":  responses,
-		"count": len(responses),
-	})
-}
-
-// AccessInternshipContent demonstrates ABAC for content access
-// This would be used for accessing lectures, assignments, etc.
-func (h *InternshipHandler) AccessInternshipContent(c *gin.Context) {
-	// Get auth context from middleware
-	authContext, exists := middleware.GetAuthContext(c)
-	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Authentication required"})
-		return
-	}
-
-	// Get internship and content IDs from URL
-	internshipID := c.Param("internship_id")
-	contentID := c.Param("content_id")
-	contentType := c.Query("type") // lecture, assignment, resource
-
-	if internshipID == "" || contentID == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Internship ID and Content ID are required"})
-		return
-	}
-
-	// Create authorization request for content access
-	authRequest := &domainAuth.AccessRequest{
-		Subject: authContext,
-		Resource: &domainAuth.Resource{
-			Type: "content",
-			ID:   contentID,
-			Attributes: map[string]interface{}{
-				"internship_id":     internshipID,
-				"content_type":      contentType,
-				"required_progress": 0.0, // This would come from database
-			},
-		},
-		Action: domainAuth.PermissionViewLectures, // This would vary based on content type
-	}
-
-	// Check authorization using ABAC
-	allowed, err := h.authzService.IsAuthorized(c.Request.Context(), authRequest)
-	if err != nil {
-		h.logger.Errorw("Authorization check failed for content access", "error", err, "user_id", authContext.UserID)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Authorization check failed"})
-		return
-	}
-
-	if !allowed {
-		h.logger.Warnw("User not authorized to access content", "user_id", authContext.UserID, "internship_id", internshipID, "content_id", contentID)
-		c.JSON(http.StatusForbidden, gin.H{"error": "Access denied to this content"})
-		return
-	}
-
-	// If authorized, return the content (this would fetch from your content service)
-	c.JSON(http.StatusOK, gin.H{
-		"message":       "Content access granted",
-		"internship_id": internshipID,
-		"content_id":    contentID,
-		"content_type":  contentType,
-	})
+	c.JSON(http.StatusOK, internships)
 }

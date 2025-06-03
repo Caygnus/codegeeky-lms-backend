@@ -150,3 +150,5 @@ func (i *UpdateInternshipRequest) Validate() error {
 
 	return nil
 }
+
+type ListInternshipResponse = types.ListResponse[*InternshipResponse]
