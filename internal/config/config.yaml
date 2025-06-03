@@ -30,3 +30,10 @@ supabase:
 # secrets
 secrets:
   encryption_key: "dummy_encryption_key"
+
+# cloudinary
+cloudinary:
+  api_key: "1234567890"
+  api_secret: "1234567890"
+  cloud_name: "dummy_cloud_name"
+  api_base_url: "https://api.cloudinary.com"

@@ -11,6 +11,7 @@ const (
 	CtxJWT           ContextKey = "ctx_jwt"
 	CtxUserEmail     ContextKey = "ctx_user_email"
 	CtxDBTransaction ContextKey = "ctx_db_transaction"
+	CtxUserRole      ContextKey = "ctx_user_role"
 
 	// Default values
 	DefaultUserID = "00000000-0000-0000-0000-000000000000"

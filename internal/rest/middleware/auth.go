@@ -14,11 +14,11 @@ import (
 )
 
 // setContextValues sets the user ID and user email in the context
-func setContextValues(c *gin.Context, userID, userEmail string) {
+func setContextValues(c *gin.Context, userID, userEmail string, userRole types.UserRole) {
 	ctx := c.Request.Context()
 	ctx = context.WithValue(ctx, types.CtxUserID, userID)
 	ctx = context.WithValue(ctx, types.CtxUserEmail, userEmail)
-
+	ctx = context.WithValue(ctx, types.CtxUserRole, userRole)
 	c.Request = c.Request.WithContext(ctx)
 }
 
@@ -74,7 +74,7 @@ func AuthenticateMiddleware(cfg *config.Configuration, logger *logger.Logger) gi
 			return
 		}
 
-		setContextValues(c, claims.UserID, claims.Email)
+		setContextValues(c, claims.UserID, claims.Email, claims.Role)
 		c.Next()
 	}
 }

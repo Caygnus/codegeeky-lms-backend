@@ -25,7 +25,7 @@ type supabaseProvider struct {
 func NewSupabaseProvider(cfg *config.Configuration, logger *logger.Logger, encryptionService security.EncryptionService) Provider {
 
 	supabaseUrl := cfg.Supabase.URL
-	adminApiKey := cfg.Supabase.Key
+	adminApiKey := cfg.Supabase.ServiceKey
 
 	client := supabase.CreateClient(supabaseUrl, adminApiKey)
 
@@ -103,6 +103,10 @@ func (p *supabaseProvider) ValidateToken(ctx context.Context, token string) (*au
 	email, _ := claims["email"].(string)
 	phone, _ := claims["phone"].(string)
 
+	// get role from app metadata
+	appMetadata, _ := claims["app_metadata"].(map[string]interface{})
+	role, _ := appMetadata["role"].(string)
+
 	// Validate that we have at least a user ID
 	if userID == "" {
 		p.logger.Error("JWT token missing user ID (sub claim)")
@@ -111,12 +115,13 @@ func (p *supabaseProvider) ValidateToken(ctx context.Context, token string) (*au
 			Mark(ierr.ErrValidation)
 	}
 
-	p.logger.Debug("Successfully validated JWT token", "user_id", userID, "email", email)
+	p.logger.Debug("Successfully validated JWT token", "user_id", userID, "email", email, "role", role)
 
 	return &auth.Claims{
 		UserID: userID,
 		Email:  email,
 		Phone:  phone,
+		Role:   types.UserRole(role),
 	}, nil
 }
 
@@ -148,6 +153,14 @@ func (p *supabaseProvider) SignUp(ctx context.Context, req *dto.SignupRequest) (
 			Mark(ierr.ErrPermissionDenied)
 	}
 
+	// inject users role in app meta
+	err = p.UpdateAppMetadata(ctx, claims.UserID, map[string]interface{}{
+		"role": req.Role,
+	})
+	if err != nil {
+		return nil, err
+	}
+
 	// Create response
 	resp := &dto.SignupResponse{
 		ID:          claims.UserID,
@@ -155,4 +168,18 @@ func (p *supabaseProvider) SignUp(ctx context.Context, req *dto.SignupRequest) (
 	}
 
 	return resp, nil
+}
+
+func (p *supabaseProvider) UpdateAppMetadata(ctx context.Context, userID string, appMetadata map[string]interface{}) error {
+
+	params := supabase.AdminUserParams{
+		AppMetadata: appMetadata,
+	}
+
+	_, err := p.supabase.Admin.UpdateUser(ctx, userID, params)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
