@@ -25,7 +25,7 @@ type Internship struct {
 	Skills []string `json:"skills,omitempty" db:"skills"`
 
 	// Level of the internship: beginner, intermediate, advanced
-	Level string `json:"level,omitempty" db:"level"`
+	Level types.InternshipLevel `json:"level,omitempty" db:"level"`
 
 	// Internship mode: remote, hybrid, onsite
 	Mode types.InternshipMode `json:"mode,omitempty" db:"mode"`
@@ -67,7 +67,7 @@ func InternshipFromEnt(internship *ent.Internship) *Internship {
 		Description:        internship.Description,
 		LookupKey:          internship.LookupKey,
 		Skills:             internship.Skills,
-		Level:              internship.Level,
+		Level:              types.InternshipLevel(internship.Level),
 		Mode:               types.InternshipMode(internship.Mode),
 		DurationInWeeks:    internship.DurationInWeeks,
 		LearningOutcomes:   internship.LearningOutcomes,

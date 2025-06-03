@@ -51,6 +51,10 @@ func ValidateRequest(req interface{}) error {
 	return nil
 }
 
+// ValidateEnums validates that the field is one of the valid values
+// field : the field to validate
+// valid : the valid values
+// fieldName : the name of the field
 func ValidateEnums[T ~string](field []T, valid []T, fieldName string) error {
 	for _, val := range field {
 		if !lo.Contains(valid, val) {

@@ -44,7 +44,7 @@ func (r *internshipRepository) Create(ctx context.Context, internshipData *domai
 		SetLookupKey(internshipData.LookupKey).
 		SetDescription(internshipData.Description).
 		SetSkills(internshipData.Skills).
-		SetLevel(internshipData.Level).
+		SetLevel(string(internshipData.Level)).
 		SetMode(string(internshipData.Mode)).
 		SetDurationInWeeks(internshipData.DurationInWeeks).
 		SetLearningOutcomes(internshipData.LearningOutcomes).
@@ -219,7 +219,7 @@ func (r *internshipRepository) Update(ctx context.Context, internshipData *domai
 		SetLookupKey(internshipData.LookupKey).
 		SetDescription(internshipData.Description).
 		SetSkills(internshipData.Skills).
-		SetLevel(internshipData.Level).
+		SetLevel(string(internshipData.Level)).
 		SetMode(string(internshipData.Mode)).
 		SetDurationInWeeks(internshipData.DurationInWeeks).
 		SetLearningOutcomes(internshipData.LearningOutcomes).
