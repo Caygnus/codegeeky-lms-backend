@@ -8,6 +8,73 @@ import (
 )
 
 var (
+	// CategoriesColumns holds the columns for the "categories" table.
+	CategoriesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeString, SchemaType: map[string]string{"postgres": "varchar(255)"}},
+		{Name: "status", Type: field.TypeString, Default: "published", SchemaType: map[string]string{"postgres": "varchar(20)"}},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "created_by", Type: field.TypeString, Nullable: true},
+		{Name: "updated_by", Type: field.TypeString, Nullable: true},
+		{Name: "name", Type: field.TypeString, SchemaType: map[string]string{"postgres": "varchar(255)"}},
+		{Name: "lookup_key", Type: field.TypeString, SchemaType: map[string]string{"postgres": "varchar(255)"}},
+		{Name: "description", Type: field.TypeString, Nullable: true, SchemaType: map[string]string{"postgres": "text"}},
+		{Name: "internship_id", Type: field.TypeString, Nullable: true, SchemaType: map[string]string{"postgres": "varchar(255)"}},
+	}
+	// CategoriesTable holds the schema information for the "categories" table.
+	CategoriesTable = &schema.Table{
+		Name:       "categories",
+		Columns:    CategoriesColumns,
+		PrimaryKey: []*schema.Column{CategoriesColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "categories_internships_categories",
+				Columns:    []*schema.Column{CategoriesColumns[9]},
+				RefColumns: []*schema.Column{InternshipsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "category_name",
+				Unique:  true,
+				Columns: []*schema.Column{CategoriesColumns[6]},
+			},
+		},
+	}
+	// InternshipsColumns holds the columns for the "internships" table.
+	InternshipsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeString, SchemaType: map[string]string{"postgres": "varchar(255)"}},
+		{Name: "title", Type: field.TypeString},
+		{Name: "description", Type: field.TypeString, Size: 2147483647},
+		{Name: "lookup_key", Type: field.TypeString, Size: 2147483647},
+		{Name: "skills", Type: field.TypeJSON, Nullable: true},
+		{Name: "level", Type: field.TypeString, Nullable: true, SchemaType: map[string]string{"postgres": "varchar(255)"}},
+		{Name: "mode", Type: field.TypeString, SchemaType: map[string]string{"postgres": "varchar(255)"}},
+		{Name: "duration_in_weeks", Type: field.TypeInt, Nullable: true},
+		{Name: "learning_outcomes", Type: field.TypeJSON, Nullable: true},
+		{Name: "prerequisites", Type: field.TypeJSON, Nullable: true},
+		{Name: "benefits", Type: field.TypeJSON, Nullable: true},
+		{Name: "currency", Type: field.TypeString, Nullable: true, Default: "INR", SchemaType: map[string]string{"postgres": "varchar(255)"}},
+		{Name: "price", Type: field.TypeOther, Nullable: true, SchemaType: map[string]string{"postgres": "decimal(10,2)"}},
+		{Name: "flat_discount", Type: field.TypeOther, Nullable: true, SchemaType: map[string]string{"postgres": "decimal(10,2)"}},
+		{Name: "percentage_discount", Type: field.TypeOther, Nullable: true, SchemaType: map[string]string{"postgres": "decimal(10,2)"}},
+		{Name: "category_id", Type: field.TypeString, Nullable: true, SchemaType: map[string]string{"postgres": "varchar(255)"}},
+	}
+	// InternshipsTable holds the schema information for the "internships" table.
+	InternshipsTable = &schema.Table{
+		Name:       "internships",
+		Columns:    InternshipsColumns,
+		PrimaryKey: []*schema.Column{InternshipsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "internships_categories_internships",
+				Columns:    []*schema.Column{InternshipsColumns[15]},
+				RefColumns: []*schema.Column{CategoriesColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
+	}
 	// UsersColumns holds the columns for the "users" table.
 	UsersColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeString, SchemaType: map[string]string{"postgres": "varchar(255)"}},
@@ -46,9 +113,13 @@ var (
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
+		CategoriesTable,
+		InternshipsTable,
 		UsersTable,
 	}
 )
 
 func init() {
+	CategoriesTable.ForeignKeys[0].RefTable = InternshipsTable
+	InternshipsTable.ForeignKeys[0].RefTable = CategoriesTable
 }

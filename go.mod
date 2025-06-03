@@ -13,6 +13,7 @@ require (
 	github.com/nedpals/supabase-go v0.5.0
 	github.com/oklog/ulid/v2 v2.1.0
 	github.com/samber/lo v1.47.0
+	github.com/shopspring/decimal v1.4.0
 	github.com/spf13/viper v1.20.1
 	github.com/swaggo/files v1.0.1
 	github.com/swaggo/gin-swagger v1.6.0
