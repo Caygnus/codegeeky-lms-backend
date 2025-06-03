@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
@@ -21,21 +22,91 @@ type InternshipCreate struct {
 	hooks    []Hook
 }
 
+// SetStatus sets the "status" field.
+func (ic *InternshipCreate) SetStatus(s string) *InternshipCreate {
+	ic.mutation.SetStatus(s)
+	return ic
+}
+
+// SetNillableStatus sets the "status" field if the given value is not nil.
+func (ic *InternshipCreate) SetNillableStatus(s *string) *InternshipCreate {
+	if s != nil {
+		ic.SetStatus(*s)
+	}
+	return ic
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (ic *InternshipCreate) SetCreatedAt(t time.Time) *InternshipCreate {
+	ic.mutation.SetCreatedAt(t)
+	return ic
+}
+
+// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
+func (ic *InternshipCreate) SetNillableCreatedAt(t *time.Time) *InternshipCreate {
+	if t != nil {
+		ic.SetCreatedAt(*t)
+	}
+	return ic
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (ic *InternshipCreate) SetUpdatedAt(t time.Time) *InternshipCreate {
+	ic.mutation.SetUpdatedAt(t)
+	return ic
+}
+
+// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
+func (ic *InternshipCreate) SetNillableUpdatedAt(t *time.Time) *InternshipCreate {
+	if t != nil {
+		ic.SetUpdatedAt(*t)
+	}
+	return ic
+}
+
+// SetCreatedBy sets the "created_by" field.
+func (ic *InternshipCreate) SetCreatedBy(s string) *InternshipCreate {
+	ic.mutation.SetCreatedBy(s)
+	return ic
+}
+
+// SetNillableCreatedBy sets the "created_by" field if the given value is not nil.
+func (ic *InternshipCreate) SetNillableCreatedBy(s *string) *InternshipCreate {
+	if s != nil {
+		ic.SetCreatedBy(*s)
+	}
+	return ic
+}
+
+// SetUpdatedBy sets the "updated_by" field.
+func (ic *InternshipCreate) SetUpdatedBy(s string) *InternshipCreate {
+	ic.mutation.SetUpdatedBy(s)
+	return ic
+}
+
+// SetNillableUpdatedBy sets the "updated_by" field if the given value is not nil.
+func (ic *InternshipCreate) SetNillableUpdatedBy(s *string) *InternshipCreate {
+	if s != nil {
+		ic.SetUpdatedBy(*s)
+	}
+	return ic
+}
+
 // SetTitle sets the "title" field.
 func (ic *InternshipCreate) SetTitle(s string) *InternshipCreate {
 	ic.mutation.SetTitle(s)
 	return ic
 }
 
-// SetDescription sets the "description" field.
-func (ic *InternshipCreate) SetDescription(s string) *InternshipCreate {
-	ic.mutation.SetDescription(s)
-	return ic
-}
-
 // SetLookupKey sets the "lookup_key" field.
 func (ic *InternshipCreate) SetLookupKey(s string) *InternshipCreate {
 	ic.mutation.SetLookupKey(s)
+	return ic
+}
+
+// SetDescription sets the "description" field.
+func (ic *InternshipCreate) SetDescription(s string) *InternshipCreate {
+	ic.mutation.SetDescription(s)
 	return ic
 }
 
@@ -217,13 +288,21 @@ func (ic *InternshipCreate) ExecX(ctx context.Context) {
 
 // defaults sets the default values of the builder before save.
 func (ic *InternshipCreate) defaults() {
+	if _, ok := ic.mutation.Status(); !ok {
+		v := internship.DefaultStatus
+		ic.mutation.SetStatus(v)
+	}
+	if _, ok := ic.mutation.CreatedAt(); !ok {
+		v := internship.DefaultCreatedAt()
+		ic.mutation.SetCreatedAt(v)
+	}
+	if _, ok := ic.mutation.UpdatedAt(); !ok {
+		v := internship.DefaultUpdatedAt()
+		ic.mutation.SetUpdatedAt(v)
+	}
 	if _, ok := ic.mutation.Skills(); !ok {
 		v := internship.DefaultSkills
 		ic.mutation.SetSkills(v)
-	}
-	if _, ok := ic.mutation.Currency(); !ok {
-		v := internship.DefaultCurrency
-		ic.mutation.SetCurrency(v)
 	}
 	if _, ok := ic.mutation.ID(); !ok {
 		v := internship.DefaultID()
@@ -233,6 +312,15 @@ func (ic *InternshipCreate) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (ic *InternshipCreate) check() error {
+	if _, ok := ic.mutation.Status(); !ok {
+		return &ValidationError{Name: "status", err: errors.New(`ent: missing required field "Internship.status"`)}
+	}
+	if _, ok := ic.mutation.CreatedAt(); !ok {
+		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "Internship.created_at"`)}
+	}
+	if _, ok := ic.mutation.UpdatedAt(); !ok {
+		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "Internship.updated_at"`)}
+	}
 	if _, ok := ic.mutation.Title(); !ok {
 		return &ValidationError{Name: "title", err: errors.New(`ent: missing required field "Internship.title"`)}
 	}
@@ -241,20 +329,20 @@ func (ic *InternshipCreate) check() error {
 			return &ValidationError{Name: "title", err: fmt.Errorf(`ent: validator failed for field "Internship.title": %w`, err)}
 		}
 	}
-	if _, ok := ic.mutation.Description(); !ok {
-		return &ValidationError{Name: "description", err: errors.New(`ent: missing required field "Internship.description"`)}
-	}
-	if v, ok := ic.mutation.Description(); ok {
-		if err := internship.DescriptionValidator(v); err != nil {
-			return &ValidationError{Name: "description", err: fmt.Errorf(`ent: validator failed for field "Internship.description": %w`, err)}
-		}
-	}
 	if _, ok := ic.mutation.LookupKey(); !ok {
 		return &ValidationError{Name: "lookup_key", err: errors.New(`ent: missing required field "Internship.lookup_key"`)}
 	}
 	if v, ok := ic.mutation.LookupKey(); ok {
 		if err := internship.LookupKeyValidator(v); err != nil {
 			return &ValidationError{Name: "lookup_key", err: fmt.Errorf(`ent: validator failed for field "Internship.lookup_key": %w`, err)}
+		}
+	}
+	if _, ok := ic.mutation.Description(); !ok {
+		return &ValidationError{Name: "description", err: errors.New(`ent: missing required field "Internship.description"`)}
+	}
+	if v, ok := ic.mutation.Description(); ok {
+		if err := internship.DescriptionValidator(v); err != nil {
+			return &ValidationError{Name: "description", err: fmt.Errorf(`ent: validator failed for field "Internship.description": %w`, err)}
 		}
 	}
 	if _, ok := ic.mutation.Mode(); !ok {
@@ -300,17 +388,37 @@ func (ic *InternshipCreate) createSpec() (*Internship, *sqlgraph.CreateSpec) {
 		_node.ID = id
 		_spec.ID.Value = id
 	}
+	if value, ok := ic.mutation.Status(); ok {
+		_spec.SetField(internship.FieldStatus, field.TypeString, value)
+		_node.Status = value
+	}
+	if value, ok := ic.mutation.CreatedAt(); ok {
+		_spec.SetField(internship.FieldCreatedAt, field.TypeTime, value)
+		_node.CreatedAt = value
+	}
+	if value, ok := ic.mutation.UpdatedAt(); ok {
+		_spec.SetField(internship.FieldUpdatedAt, field.TypeTime, value)
+		_node.UpdatedAt = value
+	}
+	if value, ok := ic.mutation.CreatedBy(); ok {
+		_spec.SetField(internship.FieldCreatedBy, field.TypeString, value)
+		_node.CreatedBy = value
+	}
+	if value, ok := ic.mutation.UpdatedBy(); ok {
+		_spec.SetField(internship.FieldUpdatedBy, field.TypeString, value)
+		_node.UpdatedBy = value
+	}
 	if value, ok := ic.mutation.Title(); ok {
 		_spec.SetField(internship.FieldTitle, field.TypeString, value)
 		_node.Title = value
 	}
-	if value, ok := ic.mutation.Description(); ok {
-		_spec.SetField(internship.FieldDescription, field.TypeString, value)
-		_node.Description = value
-	}
 	if value, ok := ic.mutation.LookupKey(); ok {
 		_spec.SetField(internship.FieldLookupKey, field.TypeString, value)
 		_node.LookupKey = value
+	}
+	if value, ok := ic.mutation.Description(); ok {
+		_spec.SetField(internship.FieldDescription, field.TypeString, value)
+		_node.Description = value
 	}
 	if value, ok := ic.mutation.Skills(); ok {
 		_spec.SetField(internship.FieldSkills, field.TypeJSON, value)

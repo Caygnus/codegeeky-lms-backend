@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
+	"time"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
@@ -18,12 +19,22 @@ type Internship struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID string `json:"id,omitempty"`
+	// Status holds the value of the "status" field.
+	Status string `json:"status,omitempty"`
+	// CreatedAt holds the value of the "created_at" field.
+	CreatedAt time.Time `json:"created_at,omitempty"`
+	// UpdatedAt holds the value of the "updated_at" field.
+	UpdatedAt time.Time `json:"updated_at,omitempty"`
+	// CreatedBy holds the value of the "created_by" field.
+	CreatedBy string `json:"created_by,omitempty"`
+	// UpdatedBy holds the value of the "updated_by" field.
+	UpdatedBy string `json:"updated_by,omitempty"`
 	// Title holds the value of the "title" field.
 	Title string `json:"title,omitempty"`
-	// Description holds the value of the "description" field.
-	Description string `json:"description,omitempty"`
 	// LookupKey holds the value of the "lookup_key" field.
 	LookupKey string `json:"lookup_key,omitempty"`
+	// Description holds the value of the "description" field.
+	Description string `json:"description,omitempty"`
 	// List of required skills
 	Skills []string `json:"skills,omitempty"`
 	// Level of the internship: beginner, intermediate, advanced
@@ -82,8 +93,10 @@ func (*Internship) scanValues(columns []string) ([]any, error) {
 			values[i] = new(decimal.Decimal)
 		case internship.FieldDurationInWeeks:
 			values[i] = new(sql.NullInt64)
-		case internship.FieldID, internship.FieldTitle, internship.FieldDescription, internship.FieldLookupKey, internship.FieldLevel, internship.FieldMode, internship.FieldCurrency:
+		case internship.FieldID, internship.FieldStatus, internship.FieldCreatedBy, internship.FieldUpdatedBy, internship.FieldTitle, internship.FieldLookupKey, internship.FieldDescription, internship.FieldLevel, internship.FieldMode, internship.FieldCurrency:
 			values[i] = new(sql.NullString)
+		case internship.FieldCreatedAt, internship.FieldUpdatedAt:
+			values[i] = new(sql.NullTime)
 		case internship.ForeignKeys[0]: // category_id
 			values[i] = new(sql.NullString)
 		default:
@@ -107,23 +120,53 @@ func (i *Internship) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				i.ID = value.String
 			}
+		case internship.FieldStatus:
+			if value, ok := values[j].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field status", values[j])
+			} else if value.Valid {
+				i.Status = value.String
+			}
+		case internship.FieldCreatedAt:
+			if value, ok := values[j].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field created_at", values[j])
+			} else if value.Valid {
+				i.CreatedAt = value.Time
+			}
+		case internship.FieldUpdatedAt:
+			if value, ok := values[j].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field updated_at", values[j])
+			} else if value.Valid {
+				i.UpdatedAt = value.Time
+			}
+		case internship.FieldCreatedBy:
+			if value, ok := values[j].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field created_by", values[j])
+			} else if value.Valid {
+				i.CreatedBy = value.String
+			}
+		case internship.FieldUpdatedBy:
+			if value, ok := values[j].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field updated_by", values[j])
+			} else if value.Valid {
+				i.UpdatedBy = value.String
+			}
 		case internship.FieldTitle:
 			if value, ok := values[j].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field title", values[j])
 			} else if value.Valid {
 				i.Title = value.String
 			}
-		case internship.FieldDescription:
-			if value, ok := values[j].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field description", values[j])
-			} else if value.Valid {
-				i.Description = value.String
-			}
 		case internship.FieldLookupKey:
 			if value, ok := values[j].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field lookup_key", values[j])
 			} else if value.Valid {
 				i.LookupKey = value.String
+			}
+		case internship.FieldDescription:
+			if value, ok := values[j].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field description", values[j])
+			} else if value.Valid {
+				i.Description = value.String
 			}
 		case internship.FieldSkills:
 			if value, ok := values[j].(*[]byte); !ok {
@@ -247,14 +290,29 @@ func (i *Internship) String() string {
 	var builder strings.Builder
 	builder.WriteString("Internship(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", i.ID))
+	builder.WriteString("status=")
+	builder.WriteString(i.Status)
+	builder.WriteString(", ")
+	builder.WriteString("created_at=")
+	builder.WriteString(i.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("updated_at=")
+	builder.WriteString(i.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("created_by=")
+	builder.WriteString(i.CreatedBy)
+	builder.WriteString(", ")
+	builder.WriteString("updated_by=")
+	builder.WriteString(i.UpdatedBy)
+	builder.WriteString(", ")
 	builder.WriteString("title=")
 	builder.WriteString(i.Title)
 	builder.WriteString(", ")
-	builder.WriteString("description=")
-	builder.WriteString(i.Description)
-	builder.WriteString(", ")
 	builder.WriteString("lookup_key=")
 	builder.WriteString(i.LookupKey)
+	builder.WriteString(", ")
+	builder.WriteString("description=")
+	builder.WriteString(i.Description)
 	builder.WriteString(", ")
 	builder.WriteString("skills=")
 	builder.WriteString(fmt.Sprintf("%v", i.Skills))

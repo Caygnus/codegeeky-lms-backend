@@ -12,7 +12,8 @@ type ExpandableField string
 
 // Common expandable fields
 const (
-	ExpandStation ExpandableField = "station"
+	ExpandStation  ExpandableField = "station"
+	ExpandCategory ExpandableField = "category"
 )
 
 // ExpandConfig defines which fields can be expanded and their nested expansions
@@ -30,6 +31,13 @@ var (
 		AllowedFields: []ExpandableField{ExpandStation},
 		NestedExpands: map[ExpandableField][]ExpandableField{
 			ExpandStation: {ExpandStation},
+		},
+	}
+
+	InternshipExpandConfig = ExpandConfig{
+		AllowedFields: []ExpandableField{ExpandCategory},
+		NestedExpands: map[ExpandableField][]ExpandableField{
+			ExpandCategory: {ExpandCategory},
 		},
 	}
 )

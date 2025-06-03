@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -30,6 +31,46 @@ func (iu *InternshipUpdate) Where(ps ...predicate.Internship) *InternshipUpdate 
 	return iu
 }
 
+// SetStatus sets the "status" field.
+func (iu *InternshipUpdate) SetStatus(s string) *InternshipUpdate {
+	iu.mutation.SetStatus(s)
+	return iu
+}
+
+// SetNillableStatus sets the "status" field if the given value is not nil.
+func (iu *InternshipUpdate) SetNillableStatus(s *string) *InternshipUpdate {
+	if s != nil {
+		iu.SetStatus(*s)
+	}
+	return iu
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (iu *InternshipUpdate) SetUpdatedAt(t time.Time) *InternshipUpdate {
+	iu.mutation.SetUpdatedAt(t)
+	return iu
+}
+
+// SetUpdatedBy sets the "updated_by" field.
+func (iu *InternshipUpdate) SetUpdatedBy(s string) *InternshipUpdate {
+	iu.mutation.SetUpdatedBy(s)
+	return iu
+}
+
+// SetNillableUpdatedBy sets the "updated_by" field if the given value is not nil.
+func (iu *InternshipUpdate) SetNillableUpdatedBy(s *string) *InternshipUpdate {
+	if s != nil {
+		iu.SetUpdatedBy(*s)
+	}
+	return iu
+}
+
+// ClearUpdatedBy clears the value of the "updated_by" field.
+func (iu *InternshipUpdate) ClearUpdatedBy() *InternshipUpdate {
+	iu.mutation.ClearUpdatedBy()
+	return iu
+}
+
 // SetTitle sets the "title" field.
 func (iu *InternshipUpdate) SetTitle(s string) *InternshipUpdate {
 	iu.mutation.SetTitle(s)
@@ -44,20 +85,6 @@ func (iu *InternshipUpdate) SetNillableTitle(s *string) *InternshipUpdate {
 	return iu
 }
 
-// SetDescription sets the "description" field.
-func (iu *InternshipUpdate) SetDescription(s string) *InternshipUpdate {
-	iu.mutation.SetDescription(s)
-	return iu
-}
-
-// SetNillableDescription sets the "description" field if the given value is not nil.
-func (iu *InternshipUpdate) SetNillableDescription(s *string) *InternshipUpdate {
-	if s != nil {
-		iu.SetDescription(*s)
-	}
-	return iu
-}
-
 // SetLookupKey sets the "lookup_key" field.
 func (iu *InternshipUpdate) SetLookupKey(s string) *InternshipUpdate {
 	iu.mutation.SetLookupKey(s)
@@ -68,6 +95,20 @@ func (iu *InternshipUpdate) SetLookupKey(s string) *InternshipUpdate {
 func (iu *InternshipUpdate) SetNillableLookupKey(s *string) *InternshipUpdate {
 	if s != nil {
 		iu.SetLookupKey(*s)
+	}
+	return iu
+}
+
+// SetDescription sets the "description" field.
+func (iu *InternshipUpdate) SetDescription(s string) *InternshipUpdate {
+	iu.mutation.SetDescription(s)
+	return iu
+}
+
+// SetNillableDescription sets the "description" field if the given value is not nil.
+func (iu *InternshipUpdate) SetNillableDescription(s *string) *InternshipUpdate {
+	if s != nil {
+		iu.SetDescription(*s)
 	}
 	return iu
 }
@@ -328,6 +369,7 @@ func (iu *InternshipUpdate) RemoveCategories(c ...*Category) *InternshipUpdate {
 
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (iu *InternshipUpdate) Save(ctx context.Context) (int, error) {
+	iu.defaults()
 	return withHooks(ctx, iu.sqlSave, iu.mutation, iu.hooks)
 }
 
@@ -353,6 +395,14 @@ func (iu *InternshipUpdate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (iu *InternshipUpdate) defaults() {
+	if _, ok := iu.mutation.UpdatedAt(); !ok {
+		v := internship.UpdateDefaultUpdatedAt()
+		iu.mutation.SetUpdatedAt(v)
+	}
+}
+
 // check runs all checks and user-defined validators on the builder.
 func (iu *InternshipUpdate) check() error {
 	if v, ok := iu.mutation.Title(); ok {
@@ -360,14 +410,14 @@ func (iu *InternshipUpdate) check() error {
 			return &ValidationError{Name: "title", err: fmt.Errorf(`ent: validator failed for field "Internship.title": %w`, err)}
 		}
 	}
-	if v, ok := iu.mutation.Description(); ok {
-		if err := internship.DescriptionValidator(v); err != nil {
-			return &ValidationError{Name: "description", err: fmt.Errorf(`ent: validator failed for field "Internship.description": %w`, err)}
-		}
-	}
 	if v, ok := iu.mutation.LookupKey(); ok {
 		if err := internship.LookupKeyValidator(v); err != nil {
 			return &ValidationError{Name: "lookup_key", err: fmt.Errorf(`ent: validator failed for field "Internship.lookup_key": %w`, err)}
+		}
+	}
+	if v, ok := iu.mutation.Description(); ok {
+		if err := internship.DescriptionValidator(v); err != nil {
+			return &ValidationError{Name: "description", err: fmt.Errorf(`ent: validator failed for field "Internship.description": %w`, err)}
 		}
 	}
 	if v, ok := iu.mutation.Mode(); ok {
@@ -390,14 +440,29 @@ func (iu *InternshipUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			}
 		}
 	}
+	if value, ok := iu.mutation.Status(); ok {
+		_spec.SetField(internship.FieldStatus, field.TypeString, value)
+	}
+	if value, ok := iu.mutation.UpdatedAt(); ok {
+		_spec.SetField(internship.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if iu.mutation.CreatedByCleared() {
+		_spec.ClearField(internship.FieldCreatedBy, field.TypeString)
+	}
+	if value, ok := iu.mutation.UpdatedBy(); ok {
+		_spec.SetField(internship.FieldUpdatedBy, field.TypeString, value)
+	}
+	if iu.mutation.UpdatedByCleared() {
+		_spec.ClearField(internship.FieldUpdatedBy, field.TypeString)
+	}
 	if value, ok := iu.mutation.Title(); ok {
 		_spec.SetField(internship.FieldTitle, field.TypeString, value)
 	}
-	if value, ok := iu.mutation.Description(); ok {
-		_spec.SetField(internship.FieldDescription, field.TypeString, value)
-	}
 	if value, ok := iu.mutation.LookupKey(); ok {
 		_spec.SetField(internship.FieldLookupKey, field.TypeString, value)
+	}
+	if value, ok := iu.mutation.Description(); ok {
+		_spec.SetField(internship.FieldDescription, field.TypeString, value)
 	}
 	if value, ok := iu.mutation.Skills(); ok {
 		_spec.SetField(internship.FieldSkills, field.TypeJSON, value)
@@ -550,6 +615,46 @@ type InternshipUpdateOne struct {
 	mutation *InternshipMutation
 }
 
+// SetStatus sets the "status" field.
+func (iuo *InternshipUpdateOne) SetStatus(s string) *InternshipUpdateOne {
+	iuo.mutation.SetStatus(s)
+	return iuo
+}
+
+// SetNillableStatus sets the "status" field if the given value is not nil.
+func (iuo *InternshipUpdateOne) SetNillableStatus(s *string) *InternshipUpdateOne {
+	if s != nil {
+		iuo.SetStatus(*s)
+	}
+	return iuo
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (iuo *InternshipUpdateOne) SetUpdatedAt(t time.Time) *InternshipUpdateOne {
+	iuo.mutation.SetUpdatedAt(t)
+	return iuo
+}
+
+// SetUpdatedBy sets the "updated_by" field.
+func (iuo *InternshipUpdateOne) SetUpdatedBy(s string) *InternshipUpdateOne {
+	iuo.mutation.SetUpdatedBy(s)
+	return iuo
+}
+
+// SetNillableUpdatedBy sets the "updated_by" field if the given value is not nil.
+func (iuo *InternshipUpdateOne) SetNillableUpdatedBy(s *string) *InternshipUpdateOne {
+	if s != nil {
+		iuo.SetUpdatedBy(*s)
+	}
+	return iuo
+}
+
+// ClearUpdatedBy clears the value of the "updated_by" field.
+func (iuo *InternshipUpdateOne) ClearUpdatedBy() *InternshipUpdateOne {
+	iuo.mutation.ClearUpdatedBy()
+	return iuo
+}
+
 // SetTitle sets the "title" field.
 func (iuo *InternshipUpdateOne) SetTitle(s string) *InternshipUpdateOne {
 	iuo.mutation.SetTitle(s)
@@ -564,20 +669,6 @@ func (iuo *InternshipUpdateOne) SetNillableTitle(s *string) *InternshipUpdateOne
 	return iuo
 }
 
-// SetDescription sets the "description" field.
-func (iuo *InternshipUpdateOne) SetDescription(s string) *InternshipUpdateOne {
-	iuo.mutation.SetDescription(s)
-	return iuo
-}
-
-// SetNillableDescription sets the "description" field if the given value is not nil.
-func (iuo *InternshipUpdateOne) SetNillableDescription(s *string) *InternshipUpdateOne {
-	if s != nil {
-		iuo.SetDescription(*s)
-	}
-	return iuo
-}
-
 // SetLookupKey sets the "lookup_key" field.
 func (iuo *InternshipUpdateOne) SetLookupKey(s string) *InternshipUpdateOne {
 	iuo.mutation.SetLookupKey(s)
@@ -588,6 +679,20 @@ func (iuo *InternshipUpdateOne) SetLookupKey(s string) *InternshipUpdateOne {
 func (iuo *InternshipUpdateOne) SetNillableLookupKey(s *string) *InternshipUpdateOne {
 	if s != nil {
 		iuo.SetLookupKey(*s)
+	}
+	return iuo
+}
+
+// SetDescription sets the "description" field.
+func (iuo *InternshipUpdateOne) SetDescription(s string) *InternshipUpdateOne {
+	iuo.mutation.SetDescription(s)
+	return iuo
+}
+
+// SetNillableDescription sets the "description" field if the given value is not nil.
+func (iuo *InternshipUpdateOne) SetNillableDescription(s *string) *InternshipUpdateOne {
+	if s != nil {
+		iuo.SetDescription(*s)
 	}
 	return iuo
 }
@@ -861,6 +966,7 @@ func (iuo *InternshipUpdateOne) Select(field string, fields ...string) *Internsh
 
 // Save executes the query and returns the updated Internship entity.
 func (iuo *InternshipUpdateOne) Save(ctx context.Context) (*Internship, error) {
+	iuo.defaults()
 	return withHooks(ctx, iuo.sqlSave, iuo.mutation, iuo.hooks)
 }
 
@@ -886,6 +992,14 @@ func (iuo *InternshipUpdateOne) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (iuo *InternshipUpdateOne) defaults() {
+	if _, ok := iuo.mutation.UpdatedAt(); !ok {
+		v := internship.UpdateDefaultUpdatedAt()
+		iuo.mutation.SetUpdatedAt(v)
+	}
+}
+
 // check runs all checks and user-defined validators on the builder.
 func (iuo *InternshipUpdateOne) check() error {
 	if v, ok := iuo.mutation.Title(); ok {
@@ -893,14 +1007,14 @@ func (iuo *InternshipUpdateOne) check() error {
 			return &ValidationError{Name: "title", err: fmt.Errorf(`ent: validator failed for field "Internship.title": %w`, err)}
 		}
 	}
-	if v, ok := iuo.mutation.Description(); ok {
-		if err := internship.DescriptionValidator(v); err != nil {
-			return &ValidationError{Name: "description", err: fmt.Errorf(`ent: validator failed for field "Internship.description": %w`, err)}
-		}
-	}
 	if v, ok := iuo.mutation.LookupKey(); ok {
 		if err := internship.LookupKeyValidator(v); err != nil {
 			return &ValidationError{Name: "lookup_key", err: fmt.Errorf(`ent: validator failed for field "Internship.lookup_key": %w`, err)}
+		}
+	}
+	if v, ok := iuo.mutation.Description(); ok {
+		if err := internship.DescriptionValidator(v); err != nil {
+			return &ValidationError{Name: "description", err: fmt.Errorf(`ent: validator failed for field "Internship.description": %w`, err)}
 		}
 	}
 	if v, ok := iuo.mutation.Mode(); ok {
@@ -940,14 +1054,29 @@ func (iuo *InternshipUpdateOne) sqlSave(ctx context.Context) (_node *Internship,
 			}
 		}
 	}
+	if value, ok := iuo.mutation.Status(); ok {
+		_spec.SetField(internship.FieldStatus, field.TypeString, value)
+	}
+	if value, ok := iuo.mutation.UpdatedAt(); ok {
+		_spec.SetField(internship.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if iuo.mutation.CreatedByCleared() {
+		_spec.ClearField(internship.FieldCreatedBy, field.TypeString)
+	}
+	if value, ok := iuo.mutation.UpdatedBy(); ok {
+		_spec.SetField(internship.FieldUpdatedBy, field.TypeString, value)
+	}
+	if iuo.mutation.UpdatedByCleared() {
+		_spec.ClearField(internship.FieldUpdatedBy, field.TypeString)
+	}
 	if value, ok := iuo.mutation.Title(); ok {
 		_spec.SetField(internship.FieldTitle, field.TypeString, value)
 	}
-	if value, ok := iuo.mutation.Description(); ok {
-		_spec.SetField(internship.FieldDescription, field.TypeString, value)
-	}
 	if value, ok := iuo.mutation.LookupKey(); ok {
 		_spec.SetField(internship.FieldLookupKey, field.TypeString, value)
+	}
+	if value, ok := iuo.mutation.Description(); ok {
+		_spec.SetField(internship.FieldDescription, field.TypeString, value)
 	}
 	if value, ok := iuo.mutation.Skills(); ok {
 		_spec.SetField(internship.FieldSkills, field.TypeJSON, value)

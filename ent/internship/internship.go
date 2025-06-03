@@ -3,6 +3,8 @@
 package internship
 
 import (
+	"time"
+
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 )
@@ -12,12 +14,22 @@ const (
 	Label = "internship"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
+	// FieldStatus holds the string denoting the status field in the database.
+	FieldStatus = "status"
+	// FieldCreatedAt holds the string denoting the created_at field in the database.
+	FieldCreatedAt = "created_at"
+	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
+	FieldUpdatedAt = "updated_at"
+	// FieldCreatedBy holds the string denoting the created_by field in the database.
+	FieldCreatedBy = "created_by"
+	// FieldUpdatedBy holds the string denoting the updated_by field in the database.
+	FieldUpdatedBy = "updated_by"
 	// FieldTitle holds the string denoting the title field in the database.
 	FieldTitle = "title"
-	// FieldDescription holds the string denoting the description field in the database.
-	FieldDescription = "description"
 	// FieldLookupKey holds the string denoting the lookup_key field in the database.
 	FieldLookupKey = "lookup_key"
+	// FieldDescription holds the string denoting the description field in the database.
+	FieldDescription = "description"
 	// FieldSkills holds the string denoting the skills field in the database.
 	FieldSkills = "skills"
 	// FieldLevel holds the string denoting the level field in the database.
@@ -56,9 +68,14 @@ const (
 // Columns holds all SQL columns for internship fields.
 var Columns = []string{
 	FieldID,
+	FieldStatus,
+	FieldCreatedAt,
+	FieldUpdatedAt,
+	FieldCreatedBy,
+	FieldUpdatedBy,
 	FieldTitle,
-	FieldDescription,
 	FieldLookupKey,
+	FieldDescription,
 	FieldSkills,
 	FieldLevel,
 	FieldMode,
@@ -94,18 +111,24 @@ func ValidColumn(column string) bool {
 }
 
 var (
+	// DefaultStatus holds the default value on creation for the "status" field.
+	DefaultStatus string
+	// DefaultCreatedAt holds the default value on creation for the "created_at" field.
+	DefaultCreatedAt func() time.Time
+	// DefaultUpdatedAt holds the default value on creation for the "updated_at" field.
+	DefaultUpdatedAt func() time.Time
+	// UpdateDefaultUpdatedAt holds the default value on update for the "updated_at" field.
+	UpdateDefaultUpdatedAt func() time.Time
 	// TitleValidator is a validator for the "title" field. It is called by the builders before save.
 	TitleValidator func(string) error
-	// DescriptionValidator is a validator for the "description" field. It is called by the builders before save.
-	DescriptionValidator func(string) error
 	// LookupKeyValidator is a validator for the "lookup_key" field. It is called by the builders before save.
 	LookupKeyValidator func(string) error
+	// DescriptionValidator is a validator for the "description" field. It is called by the builders before save.
+	DescriptionValidator func(string) error
 	// DefaultSkills holds the default value on creation for the "skills" field.
 	DefaultSkills []string
 	// ModeValidator is a validator for the "mode" field. It is called by the builders before save.
 	ModeValidator func(string) error
-	// DefaultCurrency holds the default value on creation for the "currency" field.
-	DefaultCurrency string
 	// DefaultID holds the default value on creation for the "id" field.
 	DefaultID func() string
 )
@@ -118,19 +141,44 @@ func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
 }
 
+// ByStatus orders the results by the status field.
+func ByStatus(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldStatus, opts...).ToFunc()
+}
+
+// ByCreatedAt orders the results by the created_at field.
+func ByCreatedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCreatedAt, opts...).ToFunc()
+}
+
+// ByUpdatedAt orders the results by the updated_at field.
+func ByUpdatedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldUpdatedAt, opts...).ToFunc()
+}
+
+// ByCreatedBy orders the results by the created_by field.
+func ByCreatedBy(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCreatedBy, opts...).ToFunc()
+}
+
+// ByUpdatedBy orders the results by the updated_by field.
+func ByUpdatedBy(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldUpdatedBy, opts...).ToFunc()
+}
+
 // ByTitle orders the results by the title field.
 func ByTitle(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldTitle, opts...).ToFunc()
 }
 
-// ByDescription orders the results by the description field.
-func ByDescription(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldDescription, opts...).ToFunc()
-}
-
 // ByLookupKey orders the results by the lookup_key field.
 func ByLookupKey(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldLookupKey, opts...).ToFunc()
+}
+
+// ByDescription orders the results by the description field.
+func ByDescription(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDescription, opts...).ToFunc()
 }
 
 // ByLevel orders the results by the level field.

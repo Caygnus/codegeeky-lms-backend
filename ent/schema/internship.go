@@ -4,6 +4,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
+	baseMixin "github.com/omkar273/codegeeky/ent/mixin"
 	"github.com/omkar273/codegeeky/internal/types"
 	"github.com/shopspring/decimal"
 )
@@ -11,6 +12,13 @@ import (
 // Internship holds the schema definition for the Internship entity.
 type Internship struct {
 	ent.Schema
+}
+
+// Mixin of the Internship.
+func (Internship) Mixin() []ent.Mixin {
+	return []ent.Mixin{
+		baseMixin.BaseMixin{},
+	}
 }
 
 // Fields of the Internship.
@@ -31,6 +39,13 @@ func (Internship) Fields() []ent.Field {
 				"postgres": "varchar(255)",
 			}).
 			NotEmpty(),
+
+		field.String("lookup_key").
+			SchemaType(map[string]string{
+				"postgres": "varchar(255)",
+			}).
+			NotEmpty(),
+
 		field.Text("description").
 			SchemaType(map[string]string{
 				"postgres": "text",

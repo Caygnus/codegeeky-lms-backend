@@ -46,20 +46,37 @@ func init() {
 	categoryDescID := categoryFields[0].Descriptor()
 	// category.DefaultID holds the default value on creation for the id field.
 	category.DefaultID = categoryDescID.Default.(func() string)
+	internshipMixin := schema.Internship{}.Mixin()
+	internshipMixinFields0 := internshipMixin[0].Fields()
+	_ = internshipMixinFields0
 	internshipFields := schema.Internship{}.Fields()
 	_ = internshipFields
+	// internshipDescStatus is the schema descriptor for status field.
+	internshipDescStatus := internshipMixinFields0[0].Descriptor()
+	// internship.DefaultStatus holds the default value on creation for the status field.
+	internship.DefaultStatus = internshipDescStatus.Default.(string)
+	// internshipDescCreatedAt is the schema descriptor for created_at field.
+	internshipDescCreatedAt := internshipMixinFields0[1].Descriptor()
+	// internship.DefaultCreatedAt holds the default value on creation for the created_at field.
+	internship.DefaultCreatedAt = internshipDescCreatedAt.Default.(func() time.Time)
+	// internshipDescUpdatedAt is the schema descriptor for updated_at field.
+	internshipDescUpdatedAt := internshipMixinFields0[2].Descriptor()
+	// internship.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	internship.DefaultUpdatedAt = internshipDescUpdatedAt.Default.(func() time.Time)
+	// internship.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	internship.UpdateDefaultUpdatedAt = internshipDescUpdatedAt.UpdateDefault.(func() time.Time)
 	// internshipDescTitle is the schema descriptor for title field.
 	internshipDescTitle := internshipFields[1].Descriptor()
 	// internship.TitleValidator is a validator for the "title" field. It is called by the builders before save.
 	internship.TitleValidator = internshipDescTitle.Validators[0].(func(string) error)
-	// internshipDescDescription is the schema descriptor for description field.
-	internshipDescDescription := internshipFields[2].Descriptor()
-	// internship.DescriptionValidator is a validator for the "description" field. It is called by the builders before save.
-	internship.DescriptionValidator = internshipDescDescription.Validators[0].(func(string) error)
 	// internshipDescLookupKey is the schema descriptor for lookup_key field.
-	internshipDescLookupKey := internshipFields[3].Descriptor()
+	internshipDescLookupKey := internshipFields[2].Descriptor()
 	// internship.LookupKeyValidator is a validator for the "lookup_key" field. It is called by the builders before save.
 	internship.LookupKeyValidator = internshipDescLookupKey.Validators[0].(func(string) error)
+	// internshipDescDescription is the schema descriptor for description field.
+	internshipDescDescription := internshipFields[3].Descriptor()
+	// internship.DescriptionValidator is a validator for the "description" field. It is called by the builders before save.
+	internship.DescriptionValidator = internshipDescDescription.Validators[0].(func(string) error)
 	// internshipDescSkills is the schema descriptor for skills field.
 	internshipDescSkills := internshipFields[4].Descriptor()
 	// internship.DefaultSkills holds the default value on creation for the skills field.
@@ -68,10 +85,6 @@ func init() {
 	internshipDescMode := internshipFields[6].Descriptor()
 	// internship.ModeValidator is a validator for the "mode" field. It is called by the builders before save.
 	internship.ModeValidator = internshipDescMode.Validators[0].(func(string) error)
-	// internshipDescCurrency is the schema descriptor for currency field.
-	internshipDescCurrency := internshipFields[11].Descriptor()
-	// internship.DefaultCurrency holds the default value on creation for the currency field.
-	internship.DefaultCurrency = internshipDescCurrency.Default.(string)
 	// internshipDescID is the schema descriptor for id field.
 	internshipDescID := internshipFields[0].Descriptor()
 	// internship.DefaultID holds the default value on creation for the id field.

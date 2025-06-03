@@ -2,10 +2,12 @@ package validator
 
 import (
 	"errors"
+	"fmt"
 	"sync"
 
 	"github.com/go-playground/validator/v10"
 	ierr "github.com/omkar273/codegeeky/internal/errors"
+	"github.com/samber/lo"
 )
 
 var (
@@ -45,6 +47,20 @@ func ValidateRequest(req interface{}) error {
 			WithHint("Request validation failed").
 			WithReportableDetails(details).
 			Mark(ierr.ErrValidation)
+	}
+	return nil
+}
+
+func ValidateEnums[T ~string](field []T, valid []T, fieldName string) error {
+	for _, val := range field {
+		if !lo.Contains(valid, val) {
+			return ierr.NewErrorf("invalid %s: %s", fieldName, val).
+				WithReportableDetails(map[string]any{
+					"valid_" + fieldName + "s": valid,
+				}).
+				WithHint(fmt.Sprintf("Invalid %s", fieldName)).
+				Mark(ierr.ErrValidation)
+		}
 	}
 	return nil
 }

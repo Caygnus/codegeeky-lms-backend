@@ -7,11 +7,11 @@ import (
 )
 
 type User struct {
-	ID       string         `json:"id" db:"id"`
-	Email    string         `json:"email" db:"email"`
-	Phone    string         `json:"phone" db:"phone"`
-	Role     types.UserRole `json:"role" db:"role"`
-	FullName string         `json:"full_name" db:"full_name"`
+	ID       string         `json:"id,omitempty" db:"id"`
+	Email    string         `json:"email,omitempty" db:"email"`
+	Phone    string         `json:"phone,omitempty" db:"phone"`
+	Role     types.UserRole `json:"role,omitempty" db:"role"`
+	FullName string         `json:"full_name,omitempty" db:"full_name"`
 	types.BaseModel
 }
 

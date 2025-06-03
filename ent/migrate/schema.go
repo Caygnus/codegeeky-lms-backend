@@ -45,9 +45,14 @@ var (
 	// InternshipsColumns holds the columns for the "internships" table.
 	InternshipsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeString, SchemaType: map[string]string{"postgres": "varchar(255)"}},
-		{Name: "title", Type: field.TypeString},
-		{Name: "description", Type: field.TypeString, Size: 2147483647},
-		{Name: "lookup_key", Type: field.TypeString, Size: 2147483647},
+		{Name: "status", Type: field.TypeString, Default: "published", SchemaType: map[string]string{"postgres": "varchar(20)"}},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "created_by", Type: field.TypeString, Nullable: true},
+		{Name: "updated_by", Type: field.TypeString, Nullable: true},
+		{Name: "title", Type: field.TypeString, SchemaType: map[string]string{"postgres": "varchar(255)"}},
+		{Name: "lookup_key", Type: field.TypeString, SchemaType: map[string]string{"postgres": "varchar(255)"}},
+		{Name: "description", Type: field.TypeString, Size: 2147483647, SchemaType: map[string]string{"postgres": "text"}},
 		{Name: "skills", Type: field.TypeJSON, Nullable: true},
 		{Name: "level", Type: field.TypeString, Nullable: true, SchemaType: map[string]string{"postgres": "varchar(255)"}},
 		{Name: "mode", Type: field.TypeString, SchemaType: map[string]string{"postgres": "varchar(255)"}},
@@ -55,7 +60,7 @@ var (
 		{Name: "learning_outcomes", Type: field.TypeJSON, Nullable: true},
 		{Name: "prerequisites", Type: field.TypeJSON, Nullable: true},
 		{Name: "benefits", Type: field.TypeJSON, Nullable: true},
-		{Name: "currency", Type: field.TypeString, Nullable: true, Default: "INR", SchemaType: map[string]string{"postgres": "varchar(255)"}},
+		{Name: "currency", Type: field.TypeString, Nullable: true, SchemaType: map[string]string{"postgres": "varchar(255)"}},
 		{Name: "price", Type: field.TypeOther, Nullable: true, SchemaType: map[string]string{"postgres": "decimal(10,2)"}},
 		{Name: "flat_discount", Type: field.TypeOther, Nullable: true, SchemaType: map[string]string{"postgres": "decimal(10,2)"}},
 		{Name: "percentage_discount", Type: field.TypeOther, Nullable: true, SchemaType: map[string]string{"postgres": "decimal(10,2)"}},
@@ -69,7 +74,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "internships_categories_internships",
-				Columns:    []*schema.Column{InternshipsColumns[15]},
+				Columns:    []*schema.Column{InternshipsColumns[20]},
 				RefColumns: []*schema.Column{CategoriesColumns[0]},
 				OnDelete:   schema.SetNull,
 			},

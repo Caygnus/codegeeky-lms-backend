@@ -300,12 +300,12 @@ func (iq *InternshipQuery) WithCategories(opts ...func(*CategoryQuery)) *Interns
 // Example:
 //
 //	var v []struct {
-//		Title string `json:"title,omitempty"`
+//		Status string `json:"status,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.Internship.Query().
-//		GroupBy(internship.FieldTitle).
+//		GroupBy(internship.FieldStatus).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
 func (iq *InternshipQuery) GroupBy(field string, fields ...string) *InternshipGroupBy {
@@ -323,11 +323,11 @@ func (iq *InternshipQuery) GroupBy(field string, fields ...string) *InternshipGr
 // Example:
 //
 //	var v []struct {
-//		Title string `json:"title,omitempty"`
+//		Status string `json:"status,omitempty"`
 //	}
 //
 //	client.Internship.Query().
-//		Select(internship.FieldTitle).
+//		Select(internship.FieldStatus).
 //		Scan(ctx, &v)
 func (iq *InternshipQuery) Select(fields ...string) *InternshipSelect {
 	iq.ctx.Fields = append(iq.ctx.Fields, fields...)
