@@ -67,7 +67,7 @@ func (p *cloudinaryProvider) UploadFile(ctx context.Context, file *FileUpload, f
 	uniqueFilename := false
 	uploadParams := uploader.UploadParams{
 		PublicID:       file.ID, // Use the FileUpload ID as the public ID
-		ResourceType:   p.determineResourceType(ext),
+		ResourceType:   file.FileType,
 		Folder:         "uploads",       // Optional: organize files in a folder
 		UseFilename:    &useFilename,    // Use our custom public ID instead
 		UniqueFilename: &uniqueFilename, // Don't add random characters
@@ -90,14 +90,7 @@ func (p *cloudinaryProvider) UploadFile(ctx context.Context, file *FileUpload, f
 	file.ExternalID = uploadResult.PublicID
 	file.PublicURL = uploadResult.URL
 	file.SecureURL = lo.ToPtr(uploadResult.SecureURL)
-	file.FileName = fileData.Filename
-	file.Extension = ext
-	file.MimeType = fileData.Header.Get("Content-Type")
-	file.SizeBytes = fileData.Size
 	file.Provider = types.FileUploadProviderCloudinary
-
-	// Set the file type based on MIME type
-	file.FileType = string(p.determineFileType(file.MimeType))
 
 	// Update timestamps
 	now := time.Now()
@@ -111,38 +104,6 @@ func (p *cloudinaryProvider) UploadFile(ctx context.Context, file *FileUpload, f
 	})
 
 	return file, nil
-}
-
-// determineResourceType determines the Cloudinary resource type based on file extension
-func (p *cloudinaryProvider) determineResourceType(extension string) string {
-	switch strings.ToLower(extension) {
-	case "jpg", "jpeg", "png", "gif", "bmp", "tiff", "webp", "ico", "svg":
-		return "image"
-	case "mp4", "avi", "mov", "wmv", "flv", "webm", "mkv", "m4v":
-		return "video"
-	case "mp3", "wav", "aac", "ogg", "wma", "flac":
-		return "video" // Cloudinary uses "video" for audio files too
-	default:
-		return "raw" // For documents, PDFs, and other file types
-	}
-}
-
-// determineFileType determines the business-level file type based on MIME type
-func (p *cloudinaryProvider) determineFileType(mimeType string) types.FileType {
-	switch {
-	case strings.HasPrefix(mimeType, "image/"):
-		return types.FileTypeImage
-	case strings.HasPrefix(mimeType, "video/"):
-		return types.FileTypeVideo
-	case mimeType == "application/pdf":
-		return types.FileTypePDF
-	case strings.Contains(mimeType, "document") ||
-		strings.Contains(mimeType, "text") ||
-		strings.Contains(mimeType, "officedocument"):
-		return types.FileTypeDocument
-	default:
-		return types.FileTypeOther
-	}
 }
 
 func (p *cloudinaryProvider) DeleteFile(ctx context.Context, externalID string) error {

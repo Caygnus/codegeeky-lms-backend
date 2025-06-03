@@ -21,6 +21,8 @@ var (
 	ErrSystem           = new(ErrCodeSystemError, "system error")
 	ErrInternal         = new(ErrCodeInternalError, "internal error")
 	ErrIntegration      = new(ErrCodeIntegration, "integration error")
+	ErrFileTooLarge     = new(ErrCodeFileTooLarge, "file too large")
+	ErrInvalidExtension = new(ErrCodeInvalidExtension, "invalid file extension")
 	// maps errors to http status codes
 	statusCodeMap = map[error]int{
 		ErrHTTPClient:       http.StatusInternalServerError,
@@ -34,6 +36,8 @@ var (
 		ErrSystem:           http.StatusInternalServerError,
 		ErrInternal:         http.StatusInternalServerError,
 		ErrIntegration:      http.StatusBadGateway,
+		ErrFileTooLarge:     http.StatusRequestEntityTooLarge,
+		ErrInvalidExtension: http.StatusBadRequest,
 	}
 )
 
@@ -49,6 +53,8 @@ const (
 	ErrCodePermissionDenied = "permission_denied"
 	ErrCodeDatabase         = "database_error"
 	ErrCodeIntegration      = "integration_error"
+	ErrCodeFileTooLarge     = "file_too_large"
+	ErrCodeInvalidExtension = "invalid_extension"
 )
 
 // InternalError represents a domain error
