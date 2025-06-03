@@ -7,62 +7,139 @@ import (
 	"github.com/cockroachdb/errors"
 )
 
-// Common error types that can be used across the application
-// TODO: move to errors.New from cockroachdb/errors
-var (
-	ErrNotFound         = new(ErrCodeNotFound, "resource not found")
-	ErrAlreadyExists    = new(ErrCodeAlreadyExists, "resource already exists")
-	ErrVersionConflict  = new(ErrCodeVersionConflict, "version conflict")
-	ErrValidation       = new(ErrCodeValidation, "validation error")
-	ErrInvalidOperation = new(ErrCodeInvalidOperation, "invalid operation")
-	ErrPermissionDenied = new(ErrCodePermissionDenied, "permission denied")
-	ErrHTTPClient       = new(ErrCodeHTTPClient, "http client error")
-	ErrDatabase         = new(ErrCodeDatabase, "database error")
-	ErrSystem           = new(ErrCodeSystemError, "system error")
-	ErrInternal         = new(ErrCodeInternalError, "internal error")
-	ErrIntegration      = new(ErrCodeIntegration, "integration error")
-	ErrFileTooLarge     = new(ErrCodeFileTooLarge, "file too large")
-	ErrInvalidExtension = new(ErrCodeInvalidExtension, "invalid file extension")
-	// maps errors to http status codes
-	statusCodeMap = map[error]int{
-		ErrHTTPClient:       http.StatusInternalServerError,
-		ErrDatabase:         http.StatusInternalServerError,
-		ErrNotFound:         http.StatusNotFound,
-		ErrAlreadyExists:    http.StatusConflict,
-		ErrVersionConflict:  http.StatusConflict,
-		ErrValidation:       http.StatusBadRequest,
-		ErrInvalidOperation: http.StatusBadRequest,
-		ErrPermissionDenied: http.StatusForbidden,
-		ErrSystem:           http.StatusInternalServerError,
-		ErrInternal:         http.StatusInternalServerError,
-		ErrIntegration:      http.StatusBadGateway,
-		ErrFileTooLarge:     http.StatusRequestEntityTooLarge,
-		ErrInvalidExtension: http.StatusBadRequest,
-	}
-)
+//
+// ─── ERROR CODES ────────────────────────────────────────────────────────────────
+//
 
 const (
-	ErrCodeHTTPClient       = "http_client_error"
-	ErrCodeSystemError      = "system_error"
-	ErrCodeInternalError    = "internal_error"
-	ErrCodeNotFound         = "not_found"
-	ErrCodeAlreadyExists    = "already_exists"
-	ErrCodeVersionConflict  = "version_conflict"
+	// Validation & Input
 	ErrCodeValidation       = "validation_error"
 	ErrCodeInvalidOperation = "invalid_operation"
+	ErrCodeBadRequest       = "bad_request"
+
+	// Auth
 	ErrCodePermissionDenied = "permission_denied"
-	ErrCodeDatabase         = "database_error"
-	ErrCodeIntegration      = "integration_error"
+	ErrCodeUnauthorized     = "unauthorized"
+
+	// Database
+	ErrCodeNotFound        = "not_found"
+	ErrCodeAlreadyExists   = "already_exists"
+	ErrCodeVersionConflict = "version_conflict"
+	ErrCodeConflict        = "conflict"
+
+	// System/Internal
+	ErrCodeSystemError   = "system_error"
+	ErrCodeInternalError = "internal_error"
+	ErrCodeTimeout       = "timeout"
+	ErrCodeHTTPClient    = "http_client_error"
+	ErrCodeDatabase      = "database_error"
+
+	// Integration/External
+	ErrCodeIntegration = "integration_error"
+
+	// File Upload
 	ErrCodeFileTooLarge     = "file_too_large"
 	ErrCodeInvalidExtension = "invalid_extension"
 )
 
-// InternalError represents a domain error
+//
+// ─── ERROR DECLARATIONS ─────────────────────────────────────────────────────────
+//
+
+// Validation & Input
+var (
+	ErrValidation       = new(ErrCodeValidation, "validation error")
+	ErrInvalidOperation = new(ErrCodeInvalidOperation, "invalid operation")
+	ErrBadRequest       = new(ErrCodeBadRequest, "bad request")
+)
+
+// Auth
+var (
+	ErrPermissionDenied = new(ErrCodePermissionDenied, "permission denied")
+	ErrUnauthorized     = new(ErrCodeUnauthorized, "unauthorized")
+)
+
+// Database
+var (
+	ErrNotFound        = new(ErrCodeNotFound, "resource not found")
+	ErrAlreadyExists   = new(ErrCodeAlreadyExists, "resource already exists")
+	ErrVersionConflict = new(ErrCodeVersionConflict, "version conflict")
+	ErrConflict        = new(ErrCodeConflict, "conflict")
+)
+
+// System/Internal
+var (
+	ErrSystem     = new(ErrCodeSystemError, "system error")
+	ErrInternal   = new(ErrCodeInternalError, "internal error")
+	ErrTimeout    = new(ErrCodeTimeout, "operation timed out")
+	ErrHTTPClient = new(ErrCodeHTTPClient, "http client error")
+	ErrDatabase   = new(ErrCodeDatabase, "database error")
+)
+
+// Integration
+var (
+	ErrIntegration = new(ErrCodeIntegration, "integration error")
+)
+
+// File Upload
+var (
+	ErrFileTooLarge     = new(ErrCodeFileTooLarge, "file too large")
+	ErrInvalidExtension = new(ErrCodeInvalidExtension, "invalid file extension")
+)
+
+//
+// ─── HTTP STATUS MAPPING ────────────────────────────────────────────────────────
+//
+
+var statusCodeMap = map[error]int{
+	// Validation
+	ErrValidation:       http.StatusBadRequest,
+	ErrInvalidOperation: http.StatusBadRequest,
+	ErrBadRequest:       http.StatusBadRequest,
+
+	// Auth
+	ErrPermissionDenied: http.StatusForbidden,
+	ErrUnauthorized:     http.StatusUnauthorized,
+
+	// DB
+	ErrNotFound:        http.StatusNotFound,
+	ErrAlreadyExists:   http.StatusConflict,
+	ErrVersionConflict: http.StatusConflict,
+	ErrConflict:        http.StatusConflict,
+
+	// System/Internal
+	ErrSystem:     http.StatusInternalServerError,
+	ErrInternal:   http.StatusInternalServerError,
+	ErrTimeout:    http.StatusGatewayTimeout,
+	ErrHTTPClient: http.StatusInternalServerError,
+	ErrDatabase:   http.StatusInternalServerError,
+
+	// Integration
+	ErrIntegration: http.StatusBadGateway,
+
+	// File Upload
+	ErrFileTooLarge:     http.StatusRequestEntityTooLarge,
+	ErrInvalidExtension: http.StatusBadRequest,
+}
+
+func HTTPStatusFromErr(err error) int {
+	for e, status := range statusCodeMap {
+		if errors.Is(err, e) {
+			return status
+		}
+	}
+	return http.StatusInternalServerError
+}
+
+//
+// ─── INTERNAL ERROR TYPE ────────────────────────────────────────────────────────
+//
+
 type InternalError struct {
-	Code    string // Machine-readable error code
-	Message string // Human-readable error message
-	Op      string // Logical operation name
-	Err     error  // Underlying error
+	Code    string
+	Message string
+	Op      string
+	Err     error
 }
 
 func (e *InternalError) Error() string {
@@ -80,89 +157,53 @@ func (e *InternalError) Unwrap() error {
 	return e.Err
 }
 
-// Is implements error matching for wrapped errors
 func (e *InternalError) Is(target error) bool {
 	if target == nil {
 		return false
 	}
-
 	t, ok := target.(*InternalError)
 	if !ok {
 		return errors.Is(e.Err, target)
 	}
-
 	return e.Code == t.Code
 }
 
-// New creates a new InternalError
 func new(code string, message string) *InternalError {
-	return &InternalError{
-		Code:    code,
-		Message: message,
-	}
+	return &InternalError{Code: code, Message: message}
 }
+
+//
+// ─── ERROR HELPERS ──────────────────────────────────────────────────────────────
+//
 
 func As(err error, target any) bool {
 	return errors.As(err, target)
 }
 
-// IsNotFound checks if an error is a not found error
-func IsNotFound(err error) bool {
-	return errors.Is(err, ErrNotFound)
-}
+// Validation
+func IsValidation(err error) bool       { return errors.Is(err, ErrValidation) }
+func IsInvalidOperation(err error) bool { return errors.Is(err, ErrInvalidOperation) }
 
-func IsDatabase(err error) bool {
-	return errors.Is(err, ErrDatabase)
-}
+// Auth
+func IsPermissionDenied(err error) bool { return errors.Is(err, ErrPermissionDenied) }
+func IsUnauthorized(err error) bool     { return errors.Is(err, ErrUnauthorized) }
 
-func IsSystem(err error) bool {
-	return errors.Is(err, ErrSystem)
-}
+// DB
+func IsNotFound(err error) bool        { return errors.Is(err, ErrNotFound) }
+func IsAlreadyExists(err error) bool   { return errors.Is(err, ErrAlreadyExists) }
+func IsVersionConflict(err error) bool { return errors.Is(err, ErrVersionConflict) }
+func IsConflict(err error) bool        { return errors.Is(err, ErrConflict) }
 
-func IsInternal(err error) bool {
-	return errors.Is(err, ErrInternal)
-}
+// System
+func IsSystem(err error) bool     { return errors.Is(err, ErrSystem) }
+func IsInternal(err error) bool   { return errors.Is(err, ErrInternal) }
+func IsTimeout(err error) bool    { return errors.Is(err, ErrTimeout) }
+func IsHTTPClient(err error) bool { return errors.Is(err, ErrHTTPClient) }
+func IsDatabase(err error) bool   { return errors.Is(err, ErrDatabase) }
 
-// IsAlreadyExists checks if an error is an already exists error
-func IsAlreadyExists(err error) bool {
-	return errors.Is(err, ErrAlreadyExists)
-}
+// Integration
+func IsIntegration(err error) bool { return errors.Is(err, ErrIntegration) }
 
-// IsVersionConflict checks if an error is a version conflict error
-func IsVersionConflict(err error) bool {
-	return errors.Is(err, ErrVersionConflict)
-}
-
-// IsValidation checks if an error is a validation error
-func IsValidation(err error) bool {
-	return errors.Is(err, ErrValidation)
-}
-
-// IsInvalidOperation checks if an error is an invalid operation error
-func IsInvalidOperation(err error) bool {
-	return errors.Is(err, ErrInvalidOperation)
-}
-
-// IsPermissionDenied checks if an error is a permission denied error
-func IsPermissionDenied(err error) bool {
-	return errors.Is(err, ErrPermissionDenied)
-}
-
-// IsHTTPClient checks if an error is an http client error
-func IsHTTPClient(err error) bool {
-	return errors.Is(err, ErrHTTPClient)
-}
-
-// IsIntegration checks if an error is an integration error
-func IsIntegration(err error) bool {
-	return errors.Is(err, ErrIntegration)
-}
-
-func HTTPStatusFromErr(err error) int {
-	for e, status := range statusCodeMap {
-		if errors.Is(err, e) {
-			return status
-		}
-	}
-	return http.StatusInternalServerError
-}
+// File Upload
+func IsFileTooLarge(err error) bool     { return errors.Is(err, ErrFileTooLarge) }
+func IsInvalidExtension(err error) bool { return errors.Is(err, ErrInvalidExtension) }

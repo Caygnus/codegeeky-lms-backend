@@ -198,16 +198,14 @@ func initializeRolePermissions() map[types.UserRole][]auth.Permission {
 
 // ValidateRole checks if a role is valid
 func ValidateRole(role types.UserRole) bool {
-	validRoles := []types.UserRole{
-		types.UserRoleAdmin,
-		types.UserRoleInstructor,
-		types.UserRoleStudent,
+	roles := map[types.UserRole]bool{
+		types.UserRoleAdmin:      true,
+		types.UserRoleInstructor: true,
+		types.UserRoleStudent:    true,
 	}
 
-	for _, validRole := range validRoles {
-		if role == validRole {
-			return true
-		}
+	if _, ok := roles[role]; ok {
+		return true
 	}
 
 	return false

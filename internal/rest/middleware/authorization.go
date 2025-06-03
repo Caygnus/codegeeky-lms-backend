@@ -6,9 +6,11 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/omkar273/codegeeky/internal/auth"
+	"github.com/omkar273/codegeeky/internal/auth/rbac"
 	"github.com/omkar273/codegeeky/internal/config"
 	domainAuth "github.com/omkar273/codegeeky/internal/domain/auth"
 	domainUser "github.com/omkar273/codegeeky/internal/domain/user"
+	ierr "github.com/omkar273/codegeeky/internal/errors"
 	"github.com/omkar273/codegeeky/internal/logger"
 	"github.com/omkar273/codegeeky/internal/types"
 )
@@ -160,29 +162,28 @@ func RequirePermission(permission domainAuth.Permission, resourceType string) gi
 // RequireRole creates middleware that requires specific role(s)
 func RequireRole(allowedRoles ...types.UserRole) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		userRole, exists := c.Get("user_role")
-		if !exists {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Authentication required"})
+		userRole := types.GetUserRole(c.Request.Context())
+		if userRole == "" {
+			c.Error(ierr.NewErrorf("no user role in context").Mark(ierr.ErrUnauthorized))
 			c.Abort()
 			return
 		}
 
-		role, ok := userRole.(types.UserRole)
-		if !ok {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid user role"})
+		if !rbac.ValidateRole(userRole) {
+			c.Error(ierr.NewErrorf("invalid user role").Mark(ierr.ErrUnauthorized))
 			c.Abort()
 			return
 		}
 
 		// Check if user has one of the allowed roles
 		for _, allowedRole := range allowedRoles {
-			if role == allowedRole {
+			if userRole == allowedRole {
 				c.Next()
 				return
 			}
 		}
 
-		c.JSON(http.StatusForbidden, gin.H{"error": "Insufficient permissions"})
+		c.Error(ierr.NewErrorf("insufficient permissions").Mark(ierr.ErrPermissionDenied))
 		c.Abort()
 	}
 }

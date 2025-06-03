@@ -24,6 +24,16 @@ func GetUserID(ctx context.Context) string {
 	return ""
 }
 
+func GetUserRole(ctx context.Context) UserRole {
+	if userRole, ok := ctx.Value(CtxUserRole).(UserRole); ok {
+		return userRole
+	}
+
+	// TODO: This is a temporary solution to get the user role.
+	// We need to find a better way to get the user role.
+	return UserRole("")
+}
+
 func GetRequestID(ctx context.Context) string {
 	if requestID, ok := ctx.Value(CtxRequestID).(string); ok {
 		return requestID
