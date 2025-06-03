@@ -23,8 +23,8 @@ func NewUserHandler(userService service.UserService) *UserHandler {
 // @Accept json
 // @Produce json
 // @Success 200 {object} dto.MeResponse
-// @Failure 401 {object} ierr.Error
-// @Failure 500 {object} ierr.Error
+// @Failure 401 {object} ierr.ErrorResponse
+// @Failure 500 {object} ierr.ErrorResponse
 // @Router /user/me [get]
 func (h *UserHandler) Me(c *gin.Context) {
 	user, err := h.userService.Me(c.Request.Context())
@@ -42,8 +42,8 @@ func (h *UserHandler) Me(c *gin.Context) {
 // @Produce json
 // @Param request body dto.UpdateUserRequest true "Update user request"
 // @Success 200 {object} dto.MeResponse
-// @Failure 400 {object} ierr.Error
-// @Failure 500 {object} ierr.Error
+// @Failure 400 {object} ierr.ErrorResponse
+// @Failure 500 {object} ierr.ErrorResponse
 // @Router /user [put]
 func (h *UserHandler) Update(c *gin.Context) {
 	var req dto.UpdateUserRequest

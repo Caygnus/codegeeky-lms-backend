@@ -52,9 +52,674 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/internships": {
+            "get": {
+                "description": "List internships with optional filtering",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Internship"
+                ],
+                "summary": "List internships",
+                "parameters": [
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "csv",
+                        "name": "category_ids",
+                        "in": "query"
+                    },
+                    {
+                        "maximum": 52,
+                        "minimum": 1,
+                        "type": "integer",
+                        "description": "These fields are used to filter internships by duration in weeks",
+                        "name": "duration_in_weeks",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "end_time",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "expand",
+                        "in": "query"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "csv",
+                        "name": "internship_ids",
+                        "in": "query"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "enum": [
+                                "beginner",
+                                "intermediate",
+                                "advanced"
+                            ],
+                            "type": "string"
+                        },
+                        "collectionFormat": "csv",
+                        "name": "levels",
+                        "in": "query"
+                    },
+                    {
+                        "maximum": 1000,
+                        "minimum": 1,
+                        "type": "integer",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "number",
+                        "description": "These fields are used to filter internships by price",
+                        "name": "max_price",
+                        "in": "query"
+                    },
+                    {
+                        "type": "number",
+                        "name": "min_price",
+                        "in": "query"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "enum": [
+                                "remote",
+                                "hybrid",
+                                "onsite"
+                            ],
+                            "type": "string"
+                        },
+                        "collectionFormat": "csv",
+                        "name": "modes",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "These fields are used to filter internships by category, level and mode",
+                        "name": "name",
+                        "in": "query"
+                    },
+                    {
+                        "minimum": 0,
+                        "type": "integer",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "asc",
+                            "desc"
+                        ],
+                        "type": "string",
+                        "name": "order",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "sort",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "start_time",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "published",
+                            "deleted",
+                            "archived",
+                            "inactive",
+                            "pending"
+                        ],
+                        "type": "string",
+                        "x-enum-varnames": [
+                            "StatusPublished",
+                            "StatusDeleted",
+                            "StatusArchived",
+                            "StatusInactive",
+                            "StatusPending"
+                        ],
+                        "name": "status",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ListInternshipResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/ierr.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/ierr.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create a new internship with the provided details",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Internship"
+                ],
+                "summary": "Create a new internship",
+                "parameters": [
+                    {
+                        "description": "Internship details",
+                        "name": "internship",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.CreateInternshipRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/dto.InternshipResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/ierr.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/ierr.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/internships/{id}": {
+            "get": {
+                "description": "Get an internship by its unique identifier",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Internship"
+                ],
+                "summary": "Get an internship by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Internship ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.InternshipResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/ierr.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/ierr.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/ierr.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Update an internship by its unique identifier",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Internship"
+                ],
+                "summary": "Update an internship",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Internship ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Internship details",
+                        "name": "internship",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.UpdateInternshipRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.InternshipResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/ierr.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/ierr.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/ierr.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete an internship by its unique identifier",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Internship"
+                ],
+                "summary": "Delete an internship",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Internship ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/ierr.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/ierr.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/ierr.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/user": {
+            "put": {
+                "description": "Update the current user's information",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Update current user",
+                "parameters": [
+                    {
+                        "description": "Update user request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.UpdateUserRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.MeResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/ierr.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/ierr.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/me": {
+            "get": {
+                "description": "Get the current user's information",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Get current user",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.MeResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/ierr.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/ierr.ErrorResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
+        "dto.CreateInternshipRequest": {
+            "type": "object",
+            "required": [
+                "currency",
+                "description",
+                "level",
+                "lookup_key",
+                "mode",
+                "price",
+                "title"
+            ],
+            "properties": {
+                "benefits": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "category_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "currency": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string",
+                    "minLength": 10
+                },
+                "duration_in_weeks": {
+                    "type": "integer",
+                    "minimum": 0
+                },
+                "flat_discount": {
+                    "type": "number"
+                },
+                "learning_outcomes": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "level": {
+                    "$ref": "#/definitions/types.InternshipLevel"
+                },
+                "lookup_key": {
+                    "type": "string"
+                },
+                "mode": {
+                    "$ref": "#/definitions/types.InternshipMode"
+                },
+                "percentage_discount": {
+                    "type": "number"
+                },
+                "prerequisites": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "price": {
+                    "type": "number"
+                },
+                "skills": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "title": {
+                    "type": "string",
+                    "maxLength": 255,
+                    "minLength": 3
+                }
+            }
+        },
+        "dto.InternshipResponse": {
+            "type": "object",
+            "properties": {
+                "benefits": {
+                    "description": "Benefits of the internship",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "categories": {
+                    "description": "Categories holds the value of the categories edge.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/internship.Category"
+                    }
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "created_by": {
+                    "type": "string"
+                },
+                "currency": {
+                    "description": "Currency of the internship",
+                    "type": "string"
+                },
+                "description": {
+                    "description": "Description holds the value of the \"description\" field.",
+                    "type": "string"
+                },
+                "duration_in_weeks": {
+                    "description": "Alternative to months for shorter internships",
+                    "type": "integer"
+                },
+                "flat_discount": {
+                    "description": "Flat discount on the internship",
+                    "type": "number"
+                },
+                "id": {
+                    "description": "ID of the ent.",
+                    "type": "string"
+                },
+                "learning_outcomes": {
+                    "description": "What students will learn in the internship",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "level": {
+                    "description": "Level of the internship: beginner, intermediate, advanced",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/types.InternshipLevel"
+                        }
+                    ]
+                },
+                "lookup_key": {
+                    "description": "LookupKey holds the value of the \"lookup_key\" field.",
+                    "type": "string"
+                },
+                "mode": {
+                    "description": "Internship mode: remote, hybrid, onsite",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/types.InternshipMode"
+                        }
+                    ]
+                },
+                "percentage_discount": {
+                    "description": "Percentage discount on the internship",
+                    "type": "number"
+                },
+                "prerequisites": {
+                    "description": "Prerequisites or recommended knowledge",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "price": {
+                    "description": "Price of the internship",
+                    "type": "number"
+                },
+                "skills": {
+                    "description": "List of required skills",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "status": {
+                    "$ref": "#/definitions/types.Status"
+                },
+                "title": {
+                    "description": "Title holds the value of the \"title\" field.",
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "updated_by": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.ListInternshipResponse": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.InternshipResponse"
+                    }
+                },
+                "pagination": {
+                    "$ref": "#/definitions/types.PaginationResponse"
+                }
+            }
+        },
+        "dto.MeResponse": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "full_name": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "role": {
+                    "type": "string"
+                }
+            }
+        },
         "dto.SignupRequest": {
             "type": "object",
             "required": [
@@ -98,6 +763,319 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
+        },
+        "dto.UpdateInternshipRequest": {
+            "type": "object",
+            "properties": {
+                "benefits": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "category_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "currency": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string",
+                    "minLength": 10
+                },
+                "duration_in_weeks": {
+                    "type": "integer",
+                    "minimum": 0
+                },
+                "flat_discount": {
+                    "type": "number"
+                },
+                "learning_outcomes": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "level": {
+                    "$ref": "#/definitions/types.InternshipLevel"
+                },
+                "lookup_key": {
+                    "type": "string"
+                },
+                "mode": {
+                    "$ref": "#/definitions/types.InternshipMode"
+                },
+                "percentage_discount": {
+                    "type": "number"
+                },
+                "prerequisites": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "price": {
+                    "type": "number"
+                },
+                "skills": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "title": {
+                    "type": "string",
+                    "maxLength": 255,
+                    "minLength": 3
+                }
+            }
+        },
+        "dto.UpdateUserRequest": {
+            "type": "object",
+            "properties": {
+                "full_name": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                }
+            }
+        },
+        "ierr.ErrorDetail": {
+            "type": "object",
+            "properties": {
+                "details": {
+                    "type": "object",
+                    "additionalProperties": {}
+                },
+                "internal_error": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "ierr.ErrorResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "$ref": "#/definitions/ierr.ErrorDetail"
+                },
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "internship.Category": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "created_by": {
+                    "type": "string"
+                },
+                "description": {
+                    "description": "Description holds the value of the \"description\" field.",
+                    "type": "string"
+                },
+                "id": {
+                    "description": "ID of the ent.",
+                    "type": "string"
+                },
+                "internships": {
+                    "description": "Internships holds the value of the internships edge.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/internship.Internship"
+                    }
+                },
+                "lookup_key": {
+                    "description": "LookupKey holds the value of the \"lookup_key\" field.",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "Name holds the value of the \"name\" field.",
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/types.Status"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "updated_by": {
+                    "type": "string"
+                }
+            }
+        },
+        "internship.Internship": {
+            "type": "object",
+            "properties": {
+                "benefits": {
+                    "description": "Benefits of the internship",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "categories": {
+                    "description": "Categories holds the value of the categories edge.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/internship.Category"
+                    }
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "created_by": {
+                    "type": "string"
+                },
+                "currency": {
+                    "description": "Currency of the internship",
+                    "type": "string"
+                },
+                "description": {
+                    "description": "Description holds the value of the \"description\" field.",
+                    "type": "string"
+                },
+                "duration_in_weeks": {
+                    "description": "Alternative to months for shorter internships",
+                    "type": "integer"
+                },
+                "flat_discount": {
+                    "description": "Flat discount on the internship",
+                    "type": "number"
+                },
+                "id": {
+                    "description": "ID of the ent.",
+                    "type": "string"
+                },
+                "learning_outcomes": {
+                    "description": "What students will learn in the internship",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "level": {
+                    "description": "Level of the internship: beginner, intermediate, advanced",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/types.InternshipLevel"
+                        }
+                    ]
+                },
+                "lookup_key": {
+                    "description": "LookupKey holds the value of the \"lookup_key\" field.",
+                    "type": "string"
+                },
+                "mode": {
+                    "description": "Internship mode: remote, hybrid, onsite",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/types.InternshipMode"
+                        }
+                    ]
+                },
+                "percentage_discount": {
+                    "description": "Percentage discount on the internship",
+                    "type": "number"
+                },
+                "prerequisites": {
+                    "description": "Prerequisites or recommended knowledge",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "price": {
+                    "description": "Price of the internship",
+                    "type": "number"
+                },
+                "skills": {
+                    "description": "List of required skills",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "status": {
+                    "$ref": "#/definitions/types.Status"
+                },
+                "title": {
+                    "description": "Title holds the value of the \"title\" field.",
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "updated_by": {
+                    "type": "string"
+                }
+            }
+        },
+        "types.InternshipLevel": {
+            "type": "string",
+            "enum": [
+                "beginner",
+                "intermediate",
+                "advanced"
+            ],
+            "x-enum-varnames": [
+                "InternshipLevelBeginner",
+                "InternshipLevelIntermediate",
+                "InternshipLevelAdvanced"
+            ]
+        },
+        "types.InternshipMode": {
+            "type": "string",
+            "enum": [
+                "remote",
+                "hybrid",
+                "onsite"
+            ],
+            "x-enum-varnames": [
+                "InternshipModeRemote",
+                "InternshipModeHybrid",
+                "InternshipModeOnsite"
+            ]
+        },
+        "types.PaginationResponse": {
+            "type": "object",
+            "properties": {
+                "limit": {
+                    "type": "integer"
+                },
+                "offset": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "types.Status": {
+            "type": "string",
+            "enum": [
+                "published",
+                "deleted",
+                "archived",
+                "inactive",
+                "pending"
+            ],
+            "x-enum-varnames": [
+                "StatusPublished",
+                "StatusDeleted",
+                "StatusArchived",
+                "StatusInactive",
+                "StatusPending"
+            ]
         },
         "types.UserRole": {
             "type": "string",

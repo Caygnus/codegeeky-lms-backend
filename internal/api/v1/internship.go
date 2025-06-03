@@ -33,8 +33,8 @@ func NewInternshipHandler(
 // @Produce json
 // @Param internship body dto.CreateInternshipRequest true "Internship details"
 // @Success 201 {object} dto.InternshipResponse
-// @Failure 400 {object} ierr.Error
-// @Failure 500 {object} ierr.Error
+// @Failure 400 {object} ierr.ErrorResponse
+// @Failure 500 {object} ierr.ErrorResponse
 // @Router /internships [post]
 func (h *InternshipHandler) CreateInternship(c *gin.Context) {
 
@@ -61,9 +61,9 @@ func (h *InternshipHandler) CreateInternship(c *gin.Context) {
 // @Produce json
 // @Param id path string true "Internship ID"
 // @Success 200 {object} dto.InternshipResponse
-// @Failure 400 {object} ierr.Error
-// @Failure 404 {object} ierr.Error
-// @Failure 500 {object} ierr.Error
+// @Failure 400 {object} ierr.ErrorResponse
+// @Failure 404 {object} ierr.ErrorResponse
+// @Failure 500 {object} ierr.ErrorResponse
 // @Router /internships/{id} [get]
 func (h *InternshipHandler) GetInternship(c *gin.Context) {
 
@@ -91,9 +91,9 @@ func (h *InternshipHandler) GetInternship(c *gin.Context) {
 // @Param id path string true "Internship ID"
 // @Param internship body dto.UpdateInternshipRequest true "Internship details"
 // @Success 200 {object} dto.InternshipResponse
-// @Failure 400 {object} ierr.Error
-// @Failure 404 {object} ierr.Error
-// @Failure 500 {object} ierr.Error
+// @Failure 400 {object} ierr.ErrorResponse
+// @Failure 404 {object} ierr.ErrorResponse
+// @Failure 500 {object} ierr.ErrorResponse
 // @Router /internships/{id} [put]
 func (h *InternshipHandler) UpdateInternship(c *gin.Context) {
 
@@ -132,9 +132,9 @@ func (h *InternshipHandler) UpdateInternship(c *gin.Context) {
 // @Produce json
 // @Param id path string true "Internship ID"
 // @Success 204
-// @Failure 400 {object} ierr.Error
-// @Failure 404 {object} ierr.Error
-// @Failure 500 {object} ierr.Error
+// @Failure 400 {object} ierr.ErrorResponse
+// @Failure 404 {object} ierr.ErrorResponse
+// @Failure 500 {object} ierr.ErrorResponse
 // @Router /internships/{id} [delete]
 func (h *InternshipHandler) DeleteInternship(c *gin.Context) {
 
@@ -161,8 +161,8 @@ func (h *InternshipHandler) DeleteInternship(c *gin.Context) {
 // @Produce json
 // @Param filter query types.InternshipFilter true "Filter options"
 // @Success 200 {object} dto.ListInternshipResponse
-// @Failure 400 {object} ierr.Error
-// @Failure 500 {object} ierr.Error
+// @Failure 400 {object} ierr.ErrorResponse		
+// @Failure 500 {object} ierr.ErrorResponse
 // @Router /internships [get]
 func (h *InternshipHandler) ListInternships(c *gin.Context) {
 

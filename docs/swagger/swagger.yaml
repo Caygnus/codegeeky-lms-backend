@@ -1,5 +1,155 @@
 basePath: /api/v1
 definitions:
+  dto.CreateInternshipRequest:
+    properties:
+      benefits:
+        items:
+          type: string
+        type: array
+      category_ids:
+        items:
+          type: string
+        type: array
+      currency:
+        type: string
+      description:
+        minLength: 10
+        type: string
+      duration_in_weeks:
+        minimum: 0
+        type: integer
+      flat_discount:
+        type: number
+      learning_outcomes:
+        items:
+          type: string
+        type: array
+      level:
+        $ref: '#/definitions/types.InternshipLevel'
+      lookup_key:
+        type: string
+      mode:
+        $ref: '#/definitions/types.InternshipMode'
+      percentage_discount:
+        type: number
+      prerequisites:
+        items:
+          type: string
+        type: array
+      price:
+        type: number
+      skills:
+        items:
+          type: string
+        type: array
+      title:
+        maxLength: 255
+        minLength: 3
+        type: string
+    required:
+    - currency
+    - description
+    - level
+    - lookup_key
+    - mode
+    - price
+    - title
+    type: object
+  dto.InternshipResponse:
+    properties:
+      benefits:
+        description: Benefits of the internship
+        items:
+          type: string
+        type: array
+      categories:
+        description: Categories holds the value of the categories edge.
+        items:
+          $ref: '#/definitions/internship.Category'
+        type: array
+      created_at:
+        type: string
+      created_by:
+        type: string
+      currency:
+        description: Currency of the internship
+        type: string
+      description:
+        description: Description holds the value of the "description" field.
+        type: string
+      duration_in_weeks:
+        description: Alternative to months for shorter internships
+        type: integer
+      flat_discount:
+        description: Flat discount on the internship
+        type: number
+      id:
+        description: ID of the ent.
+        type: string
+      learning_outcomes:
+        description: What students will learn in the internship
+        items:
+          type: string
+        type: array
+      level:
+        allOf:
+        - $ref: '#/definitions/types.InternshipLevel'
+        description: 'Level of the internship: beginner, intermediate, advanced'
+      lookup_key:
+        description: LookupKey holds the value of the "lookup_key" field.
+        type: string
+      mode:
+        allOf:
+        - $ref: '#/definitions/types.InternshipMode'
+        description: 'Internship mode: remote, hybrid, onsite'
+      percentage_discount:
+        description: Percentage discount on the internship
+        type: number
+      prerequisites:
+        description: Prerequisites or recommended knowledge
+        items:
+          type: string
+        type: array
+      price:
+        description: Price of the internship
+        type: number
+      skills:
+        description: List of required skills
+        items:
+          type: string
+        type: array
+      status:
+        $ref: '#/definitions/types.Status'
+      title:
+        description: Title holds the value of the "title" field.
+        type: string
+      updated_at:
+        type: string
+      updated_by:
+        type: string
+    type: object
+  dto.ListInternshipResponse:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/dto.InternshipResponse'
+        type: array
+      pagination:
+        $ref: '#/definitions/types.PaginationResponse'
+    type: object
+  dto.MeResponse:
+    properties:
+      email:
+        type: string
+      full_name:
+        type: string
+      id:
+        type: string
+      phone:
+        type: string
+      role:
+        type: string
+    type: object
   dto.SignupRequest:
     properties:
       access_token:
@@ -29,6 +179,223 @@ definitions:
       id:
         type: string
     type: object
+  dto.UpdateInternshipRequest:
+    properties:
+      benefits:
+        items:
+          type: string
+        type: array
+      category_ids:
+        items:
+          type: string
+        type: array
+      currency:
+        type: string
+      description:
+        minLength: 10
+        type: string
+      duration_in_weeks:
+        minimum: 0
+        type: integer
+      flat_discount:
+        type: number
+      learning_outcomes:
+        items:
+          type: string
+        type: array
+      level:
+        $ref: '#/definitions/types.InternshipLevel'
+      lookup_key:
+        type: string
+      mode:
+        $ref: '#/definitions/types.InternshipMode'
+      percentage_discount:
+        type: number
+      prerequisites:
+        items:
+          type: string
+        type: array
+      price:
+        type: number
+      skills:
+        items:
+          type: string
+        type: array
+      title:
+        maxLength: 255
+        minLength: 3
+        type: string
+    type: object
+  dto.UpdateUserRequest:
+    properties:
+      full_name:
+        type: string
+      phone:
+        type: string
+    type: object
+  ierr.ErrorDetail:
+    properties:
+      details:
+        additionalProperties: {}
+        type: object
+      internal_error:
+        type: string
+      message:
+        type: string
+    type: object
+  ierr.ErrorResponse:
+    properties:
+      error:
+        $ref: '#/definitions/ierr.ErrorDetail'
+      success:
+        type: boolean
+    type: object
+  internship.Category:
+    properties:
+      created_at:
+        type: string
+      created_by:
+        type: string
+      description:
+        description: Description holds the value of the "description" field.
+        type: string
+      id:
+        description: ID of the ent.
+        type: string
+      internships:
+        description: Internships holds the value of the internships edge.
+        items:
+          $ref: '#/definitions/internship.Internship'
+        type: array
+      lookup_key:
+        description: LookupKey holds the value of the "lookup_key" field.
+        type: string
+      name:
+        description: Name holds the value of the "name" field.
+        type: string
+      status:
+        $ref: '#/definitions/types.Status'
+      updated_at:
+        type: string
+      updated_by:
+        type: string
+    type: object
+  internship.Internship:
+    properties:
+      benefits:
+        description: Benefits of the internship
+        items:
+          type: string
+        type: array
+      categories:
+        description: Categories holds the value of the categories edge.
+        items:
+          $ref: '#/definitions/internship.Category'
+        type: array
+      created_at:
+        type: string
+      created_by:
+        type: string
+      currency:
+        description: Currency of the internship
+        type: string
+      description:
+        description: Description holds the value of the "description" field.
+        type: string
+      duration_in_weeks:
+        description: Alternative to months for shorter internships
+        type: integer
+      flat_discount:
+        description: Flat discount on the internship
+        type: number
+      id:
+        description: ID of the ent.
+        type: string
+      learning_outcomes:
+        description: What students will learn in the internship
+        items:
+          type: string
+        type: array
+      level:
+        allOf:
+        - $ref: '#/definitions/types.InternshipLevel'
+        description: 'Level of the internship: beginner, intermediate, advanced'
+      lookup_key:
+        description: LookupKey holds the value of the "lookup_key" field.
+        type: string
+      mode:
+        allOf:
+        - $ref: '#/definitions/types.InternshipMode'
+        description: 'Internship mode: remote, hybrid, onsite'
+      percentage_discount:
+        description: Percentage discount on the internship
+        type: number
+      prerequisites:
+        description: Prerequisites or recommended knowledge
+        items:
+          type: string
+        type: array
+      price:
+        description: Price of the internship
+        type: number
+      skills:
+        description: List of required skills
+        items:
+          type: string
+        type: array
+      status:
+        $ref: '#/definitions/types.Status'
+      title:
+        description: Title holds the value of the "title" field.
+        type: string
+      updated_at:
+        type: string
+      updated_by:
+        type: string
+    type: object
+  types.InternshipLevel:
+    enum:
+    - beginner
+    - intermediate
+    - advanced
+    type: string
+    x-enum-varnames:
+    - InternshipLevelBeginner
+    - InternshipLevelIntermediate
+    - InternshipLevelAdvanced
+  types.InternshipMode:
+    enum:
+    - remote
+    - hybrid
+    - onsite
+    type: string
+    x-enum-varnames:
+    - InternshipModeRemote
+    - InternshipModeHybrid
+    - InternshipModeOnsite
+  types.PaginationResponse:
+    properties:
+      limit:
+        type: integer
+      offset:
+        type: integer
+      total:
+        type: integer
+    type: object
+  types.Status:
+    enum:
+    - published
+    - deleted
+    - archived
+    - inactive
+    - pending
+    type: string
+    x-enum-varnames:
+    - StatusPublished
+    - StatusDeleted
+    - StatusArchived
+    - StatusInactive
+    - StatusPending
   types.UserRole:
     enum:
     - STUDENT
@@ -71,6 +438,305 @@ paths:
       summary: Signup
       tags:
       - Auth
+  /internships:
+    get:
+      consumes:
+      - application/json
+      description: List internships with optional filtering
+      parameters:
+      - collectionFormat: csv
+        in: query
+        items:
+          type: string
+        name: category_ids
+        type: array
+      - description: These fields are used to filter internships by duration in weeks
+        in: query
+        maximum: 52
+        minimum: 1
+        name: duration_in_weeks
+        type: integer
+      - in: query
+        name: end_time
+        type: string
+      - in: query
+        name: expand
+        type: string
+      - collectionFormat: csv
+        in: query
+        items:
+          type: string
+        name: internship_ids
+        type: array
+      - collectionFormat: csv
+        in: query
+        items:
+          enum:
+          - beginner
+          - intermediate
+          - advanced
+          type: string
+        name: levels
+        type: array
+      - in: query
+        maximum: 1000
+        minimum: 1
+        name: limit
+        type: integer
+      - description: These fields are used to filter internships by price
+        in: query
+        name: max_price
+        type: number
+      - in: query
+        name: min_price
+        type: number
+      - collectionFormat: csv
+        in: query
+        items:
+          enum:
+          - remote
+          - hybrid
+          - onsite
+          type: string
+        name: modes
+        type: array
+      - description: These fields are used to filter internships by category, level
+          and mode
+        in: query
+        name: name
+        type: string
+      - in: query
+        minimum: 0
+        name: offset
+        type: integer
+      - enum:
+        - asc
+        - desc
+        in: query
+        name: order
+        type: string
+      - in: query
+        name: sort
+        type: string
+      - in: query
+        name: start_time
+        type: string
+      - enum:
+        - published
+        - deleted
+        - archived
+        - inactive
+        - pending
+        in: query
+        name: status
+        type: string
+        x-enum-varnames:
+        - StatusPublished
+        - StatusDeleted
+        - StatusArchived
+        - StatusInactive
+        - StatusPending
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ListInternshipResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ierr.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ierr.ErrorResponse'
+      summary: List internships
+      tags:
+      - Internship
+    post:
+      consumes:
+      - application/json
+      description: Create a new internship with the provided details
+      parameters:
+      - description: Internship details
+        in: body
+        name: internship
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateInternshipRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.InternshipResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ierr.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ierr.ErrorResponse'
+      summary: Create a new internship
+      tags:
+      - Internship
+  /internships/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete an internship by its unique identifier
+      parameters:
+      - description: Internship ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ierr.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/ierr.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ierr.ErrorResponse'
+      summary: Delete an internship
+      tags:
+      - Internship
+    get:
+      consumes:
+      - application/json
+      description: Get an internship by its unique identifier
+      parameters:
+      - description: Internship ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.InternshipResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ierr.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/ierr.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ierr.ErrorResponse'
+      summary: Get an internship by ID
+      tags:
+      - Internship
+    put:
+      consumes:
+      - application/json
+      description: Update an internship by its unique identifier
+      parameters:
+      - description: Internship ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Internship details
+        in: body
+        name: internship
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateInternshipRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.InternshipResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ierr.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/ierr.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ierr.ErrorResponse'
+      summary: Update an internship
+      tags:
+      - Internship
+  /user:
+    put:
+      consumes:
+      - application/json
+      description: Update the current user's information
+      parameters:
+      - description: Update user request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateUserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.MeResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ierr.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ierr.ErrorResponse'
+      summary: Update current user
+      tags:
+      - User
+  /user/me:
+    get:
+      consumes:
+      - application/json
+      description: Get the current user's information
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.MeResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/ierr.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ierr.ErrorResponse'
+      summary: Get current user
+      tags:
+      - User
 securityDefinitions:
   Authorization:
     description: Enter the token with the `Bearer ` prefix, e.g. `Bearer <token>`.
