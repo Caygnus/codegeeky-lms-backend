@@ -50,7 +50,6 @@ func NewRouter(handlers *Handlers, cfg *config.Configuration, logger *logger.Log
 	// Internship routes
 	v1Internship := v1Router.Group("/internships")
 	{
-		v1Internship.Use(middleware.GuestAuthenticateMiddleware)
 		v1Internship.GET("", handlers.Internship.ListInternships)
 		v1Internship.GET("/:id", handlers.Internship.GetInternship)
 
@@ -63,7 +62,6 @@ func NewRouter(handlers *Handlers, cfg *config.Configuration, logger *logger.Log
 	// Category routes
 	v1Category := v1Router.Group("/categories")
 	{
-		v1Category.Use(middleware.GuestAuthenticateMiddleware)
 		v1Category.GET("", handlers.Category.ListCategories)
 		v1Category.GET("/:id", handlers.Category.GetCategory)
 
