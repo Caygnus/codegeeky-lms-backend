@@ -11,9 +11,11 @@ import (
 )
 
 type Handlers struct {
-	Health *v1.HealthHandler
-	Auth   *v1.AuthHandler
-	User   *v1.UserHandler
+	Health     *v1.HealthHandler
+	Auth       *v1.AuthHandler
+	User       *v1.UserHandler
+	Internship *v1.InternshipHandler
+	Category   *v1.CategoryHandler
 }
 
 func NewRouter(handlers *Handlers, cfg *config.Configuration, logger *logger.Logger) *gin.Engine {
@@ -43,6 +45,32 @@ func NewRouter(handlers *Handlers, cfg *config.Configuration, logger *logger.Log
 	{
 		v1Private.GET("/user/me", handlers.User.Me)
 		v1Private.PUT("/user", handlers.User.Update)
+	}
+
+	// Internship routes
+	v1Internship := v1Router.Group("/internships")
+	{
+		v1Internship.Use(middleware.GuestAuthenticateMiddleware)
+		v1Internship.GET("", handlers.Internship.ListInternships)
+		v1Internship.GET("/:id", handlers.Internship.GetInternship)
+
+		v1Internship.Use(middleware.AuthenticateMiddleware(cfg, logger))
+		v1Internship.POST("", handlers.Internship.CreateInternship)
+		v1Internship.PUT("/:id", handlers.Internship.UpdateInternship)
+		v1Internship.DELETE("/:id", handlers.Internship.DeleteInternship)
+	}
+
+	// Category routes
+	v1Category := v1Router.Group("/categories")
+	{
+		v1Category.Use(middleware.GuestAuthenticateMiddleware)
+		v1Category.GET("", handlers.Category.ListCategories)
+		v1Category.GET("/:id", handlers.Category.GetCategory)
+
+		v1Category.Use(middleware.AuthenticateMiddleware(cfg, logger))
+		v1Category.POST("", handlers.Category.CreateCategory)
+		v1Category.PUT("/:id", handlers.Category.UpdateCategory)
+		v1Category.DELETE("/:id", handlers.Category.DeleteCategory)
 	}
 
 	return router

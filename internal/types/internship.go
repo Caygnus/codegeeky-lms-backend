@@ -3,6 +3,7 @@ package types
 import (
 	ierr "github.com/omkar273/codegeeky/internal/errors"
 	"github.com/omkar273/codegeeky/internal/validator"
+	"github.com/samber/lo"
 	"github.com/shopspring/decimal"
 )
 
@@ -49,8 +50,8 @@ type InternshipFilter struct {
 	DurationInWeeks int `json:"duration_in_weeks,omitempty" form:"duration_in_weeks" validate:"omitempty,min=1,max=52"`
 
 	// These fields are used to filter internships by price
-	MaxPrice decimal.Decimal `json:"max_price,omitempty" form:"max_price" validate:"omitempty,gt=0,lt=1000000000000,ltfield=MinPrice,gtfield=MinPrice"`
-	MinPrice decimal.Decimal `json:"min_price,omitempty" form:"min_price" validate:"omitempty,gt=0,lt=1000000000000,gtfield=MaxPrice,ltfield=MaxPrice"`
+	MaxPrice *decimal.Decimal `json:"max_price,omitempty" form:"max_price" validate:"omitempty"`
+	MinPrice *decimal.Decimal `json:"min_price,omitempty" form:"min_price" validate:"omitempty"`
 }
 
 func (f *InternshipFilter) Validate() error {
@@ -74,21 +75,29 @@ func (f *InternshipFilter) Validate() error {
 		}
 	}
 
-	if !f.MaxPrice.GreaterThan(decimal.Zero) || !f.MinPrice.GreaterThan(decimal.Zero) {
+	if f.MaxPrice != nil && !f.MaxPrice.GreaterThan(decimal.Zero) {
 		return ierr.NewErrorf("price must be greater than 0").
 			WithReportableDetails(map[string]any{
 				"max_price": f.MaxPrice,
+			}).
+			WithHint("Price must be greater than 0").
+			Mark(ierr.ErrValidation)
+	}
+
+	if f.MinPrice != nil && !f.MinPrice.GreaterThan(decimal.Zero) {
+		return ierr.NewErrorf("price must be greater than 0").
+			WithReportableDetails(map[string]any{
 				"min_price": f.MinPrice,
 			}).
 			WithHint("Price must be greater than 0").
 			Mark(ierr.ErrValidation)
 	}
 
-	if f.MaxPrice.LessThan(f.MinPrice) {
+	if f.MaxPrice != nil && f.MinPrice != nil && f.MaxPrice.LessThan(*f.MinPrice) {
 		return ierr.NewErrorf("max price must be greater than min price").
 			WithReportableDetails(map[string]any{
-				"max_price": f.MaxPrice,
-				"min_price": f.MinPrice,
+				"max_price": lo.FromPtr(f.MaxPrice),
+				"min_price": lo.FromPtr(f.MinPrice),
 			}).
 			WithHint("Max price must be greater than min price").
 			Mark(ierr.ErrValidation)

@@ -24,9 +24,9 @@ type CreateInternshipRequest struct {
 	Prerequisites      []string              `json:"prerequisites,omitempty"`
 	Benefits           []string              `json:"benefits,omitempty"`
 	Currency           string                `json:"currency" binding:"required,len=3"`
-	Price              decimal.Decimal       `json:"price" binding:"required,gt=0"`
-	FlatDiscount       *decimal.Decimal      `json:"flat_discount,omitempty" binding:"omitempty,gt=0"`
-	PercentageDiscount *decimal.Decimal      `json:"percentage_discount,omitempty" binding:"omitempty,gt=0,lt=100"`
+	Price              decimal.Decimal       `json:"price" binding:"required"`
+	FlatDiscount       *decimal.Decimal      `json:"flat_discount,omitempty" binding:"omitempty"`
+	PercentageDiscount *decimal.Decimal      `json:"percentage_discount,omitempty" binding:"omitempty"`
 	CategoryIDs        []string              `json:"category_ids,omitempty"`
 }
 
@@ -110,9 +110,9 @@ type UpdateInternshipRequest struct {
 	Prerequisites      []string               `json:"prerequisites,omitempty"`
 	Benefits           []string               `json:"benefits,omitempty"`
 	Currency           *string                `json:"currency,omitempty" binding:"omitempty,len=3"`
-	Price              *decimal.Decimal       `json:"price,omitempty" binding:"omitempty,gt=0"`
-	FlatDiscount       *decimal.Decimal       `json:"flat_discount,omitempty" binding:"omitempty,gt=0"`
-	PercentageDiscount *decimal.Decimal       `json:"percentage_discount,omitempty" binding:"omitempty,gt=0,lt=100"`
+	Price              *decimal.Decimal       `json:"price,omitempty" binding:"omitempty"`
+	FlatDiscount       *decimal.Decimal       `json:"flat_discount,omitempty" binding:"omitempty"`
+	PercentageDiscount *decimal.Decimal       `json:"percentage_discount,omitempty" binding:"omitempty"`
 	CategoryIDs        []string               `json:"category_ids,omitempty"`
 }
 

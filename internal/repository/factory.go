@@ -2,6 +2,7 @@ package repository
 
 import (
 	"github.com/omkar273/codegeeky/internal/config"
+	domainInternship "github.com/omkar273/codegeeky/internal/domain/internship"
 	"github.com/omkar273/codegeeky/internal/domain/user"
 	"github.com/omkar273/codegeeky/internal/logger"
 	"github.com/omkar273/codegeeky/internal/postgres"
@@ -31,4 +32,12 @@ func NewRepositoryParams(
 
 func NewUserRepository(params RepositoryParams) user.Repository {
 	return ent.NewUserRepository(params.Client, params.Logger)
+}
+
+func NewInternshipRepository(params RepositoryParams) domainInternship.InternshipRepository {
+	return ent.NewInternshipRepository(params.Client, params.Logger)
+}
+
+func NewCategoryRepository(params RepositoryParams) domainInternship.CategoryRepository {
+	return ent.NewCategoryRepository(params.Client, params.Logger)
 }

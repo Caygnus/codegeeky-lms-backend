@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/omkar273/codegeeky/internal/api/dto"
-	"github.com/omkar273/codegeeky/internal/auth"
 	domainInternship "github.com/omkar273/codegeeky/internal/domain/internship"
 	ierr "github.com/omkar273/codegeeky/internal/errors"
 	"github.com/omkar273/codegeeky/internal/logger"
@@ -22,18 +21,15 @@ type InternshipService interface {
 
 type internshipService struct {
 	internshipRepo domainInternship.InternshipRepository
-	authzService   auth.AuthorizationService
 	logger         *logger.Logger
 }
 
 func NewInternshipService(
 	internshipRepo domainInternship.InternshipRepository,
-	authzService auth.AuthorizationService,
 	logger *logger.Logger,
 ) InternshipService {
 	return &internshipService{
 		internshipRepo: internshipRepo,
-		authzService:   authzService,
 		logger:         logger,
 	}
 }
@@ -173,8 +169,8 @@ func (s *internshipService) List(ctx context.Context, filter *types.InternshipFi
 		Pagination: types.NewPaginationResponse(count, filter.GetLimit(), filter.GetOffset()),
 	}
 
-	for _, internship := range internships {
-		response.Items = append(response.Items, &dto.InternshipResponse{Internship: *internship})
+	for i, internship := range internships {
+		response.Items[i] = &dto.InternshipResponse{Internship: *internship}
 	}
 
 	return response, nil

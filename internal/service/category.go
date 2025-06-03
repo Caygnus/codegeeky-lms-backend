@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/omkar273/codegeeky/internal/api/dto"
-	"github.com/omkar273/codegeeky/internal/auth"
 	domainInternship "github.com/omkar273/codegeeky/internal/domain/internship"
 	ierr "github.com/omkar273/codegeeky/internal/errors"
 	"github.com/omkar273/codegeeky/internal/logger"
@@ -21,18 +20,15 @@ type CategoryService interface {
 
 type categoryService struct {
 	categoryRepo domainInternship.CategoryRepository
-	authzService auth.AuthorizationService
 	logger       *logger.Logger
 }
 
 func NewCategoryService(
 	categoryRepo domainInternship.CategoryRepository,
-	authzService auth.AuthorizationService,
 	logger *logger.Logger,
 ) CategoryService {
 	return &categoryService{
 		categoryRepo: categoryRepo,
-		authzService: authzService,
 		logger:       logger,
 	}
 }
@@ -152,8 +148,8 @@ func (s *categoryService) List(ctx context.Context, filter *types.CategoryFilter
 	}
 
 	// Add items to response
-	for _, category := range categories {
-		response.Items = append(response.Items, &dto.CategoryResponse{Category: *category})
+	for i, category := range categories {
+		response.Items[i] = &dto.CategoryResponse{Category: *category}
 	}
 
 	return response, nil

@@ -12,6 +12,7 @@ import (
 	"github.com/omkar273/codegeeky/internal/logger"
 	"github.com/omkar273/codegeeky/internal/postgres"
 	"github.com/omkar273/codegeeky/internal/types"
+	"github.com/samber/lo"
 )
 
 type internshipRepository struct {
@@ -37,6 +38,11 @@ func (r *internshipRepository) Create(ctx context.Context, internshipData *domai
 		"lookup_key", internshipData.LookupKey,
 	)
 
+	// Convert domain categories to ent categories
+	entCats := lo.Map(internshipData.Categories, func(c *domainInternship.Category, _ int) *ent.Category {
+		return &ent.Category{ID: c.ID}
+	})
+
 	// Create internship
 	_, err := client.Internship.Create().
 		SetID(internshipData.ID).
@@ -59,6 +65,7 @@ func (r *internshipRepository) Create(ctx context.Context, internshipData *domai
 		SetUpdatedAt(internshipData.UpdatedAt).
 		SetCreatedBy(internshipData.CreatedBy).
 		SetUpdatedBy(internshipData.UpdatedBy).
+		AddCategories(entCats...).
 		Save(ctx)
 
 	if err != nil {
@@ -159,7 +166,8 @@ func (r *internshipRepository) List(ctx context.Context, filter *types.Internshi
 	query = r.queryOpts.ApplyEntityQueryOptions(ctx, filter, query)
 
 	// Add eager loading for categories
-	query = query.WithCategories()
+	// TODO: Rethink this
+	// query = query.WithCategories()
 
 	internships, err := query.All(ctx)
 	if err != nil {
@@ -434,11 +442,11 @@ func (o InternshipQueryOptions) ApplyEntityQueryOptions(
 	}
 
 	// Apply price range filters if specified
-	if !f.MinPrice.IsZero() {
-		query = query.Where(internship.PriceGTE(f.MinPrice))
+	if f.MinPrice != nil && !f.MinPrice.IsZero() {
+		query = query.Where(internship.PriceGTE(lo.FromPtr(f.MinPrice)))
 	}
-	if !f.MaxPrice.IsZero() {
-		query = query.Where(internship.PriceLTE(f.MaxPrice))
+	if f.MaxPrice != nil && !f.MaxPrice.IsZero() {
+		query = query.Where(internship.PriceLTE(lo.FromPtr(f.MaxPrice)))
 	}
 
 	// Apply duration filter if specified

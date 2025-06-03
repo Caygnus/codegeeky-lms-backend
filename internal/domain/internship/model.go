@@ -78,6 +78,13 @@ func InternshipFromEnt(internship *ent.Internship) *Internship {
 		FlatDiscount:       internship.FlatDiscount,
 		PercentageDiscount: internship.PercentageDiscount,
 		Categories:         CategoryFromEntList(internship.Edges.Categories),
+		BaseModel: types.BaseModel{
+			Status:    types.Status(internship.Status),
+			CreatedAt: internship.CreatedAt,
+			UpdatedAt: internship.UpdatedAt,
+			CreatedBy: internship.CreatedBy,
+			UpdatedBy: internship.UpdatedBy,
+		},
 	}
 }
 
@@ -127,4 +134,16 @@ func CategoryFromEntList(categories []*ent.Category) []*Category {
 	return lo.Map(categories, func(category *ent.Category, _ int) *Category {
 		return CategoryFromEnt(category)
 	})
+}
+
+func (i *Internship) FinalPrice() decimal.Decimal {
+	price := i.Price
+	if !i.FlatDiscount.IsZero() && !i.FlatDiscount.IsNegative() {
+		price = price.Sub(i.FlatDiscount)
+	}
+	if !i.PercentageDiscount.IsZero() && !i.PercentageDiscount.IsNegative() {
+		discount := price.Mul(i.PercentageDiscount.Div(decimal.NewFromInt(100)))
+		price = price.Sub(discount)
+	}
+	return price
 }

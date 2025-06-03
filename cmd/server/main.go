@@ -66,6 +66,12 @@ func main() {
 
 			// user repository
 			repository.NewUserRepository,
+
+			// internship repository
+			repository.NewInternshipRepository,
+
+			// category repository
+			repository.NewCategoryRepository,
 		),
 	)
 
@@ -77,6 +83,8 @@ func main() {
 		service.NewAuthService,
 		service.NewUserService,
 		service.NewOnboardingService,
+		service.NewInternshipService,
+		service.NewCategoryService,
 	))
 
 	// factory layer
@@ -109,11 +117,19 @@ func startServer(
 	startAPIServer(lc, r, cfg, log)
 }
 
-func provideHandlers(logger *logger.Logger, authService service.AuthService, userService service.UserService) *api.Handlers {
+func provideHandlers(
+	logger *logger.Logger,
+	authService service.AuthService,
+	userService service.UserService,
+	internshipService service.InternshipService,
+	categoryService service.CategoryService,
+) *api.Handlers {
 	return &api.Handlers{
-		Health: v1.NewHealthHandler(logger),
-		Auth:   v1.NewAuthHandler(authService),
-		User:   v1.NewUserHandler(userService),
+		Health:     v1.NewHealthHandler(logger),
+		Auth:       v1.NewAuthHandler(authService),
+		User:       v1.NewUserHandler(userService),
+		Internship: v1.NewInternshipHandler(internshipService, logger),
+		Category:   v1.NewCategoryHandler(categoryService, logger),
 	}
 }
 
