@@ -42,6 +42,31 @@ var (
 			},
 		},
 	}
+	// FileUploadsColumns holds the columns for the "file_uploads" table.
+	FileUploadsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeString, SchemaType: map[string]string{"postgres": "varchar(255)"}},
+		{Name: "status", Type: field.TypeString, Default: "published", SchemaType: map[string]string{"postgres": "varchar(20)"}},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "created_by", Type: field.TypeString, Nullable: true},
+		{Name: "updated_by", Type: field.TypeString, Nullable: true},
+		{Name: "file_name", Type: field.TypeString, SchemaType: map[string]string{"postgres": "varchar(255)"}},
+		{Name: "file_type", Type: field.TypeString, SchemaType: map[string]string{"postgres": "varchar(255)"}},
+		{Name: "extension", Type: field.TypeString, SchemaType: map[string]string{"postgres": "varchar(50)"}},
+		{Name: "mime_type", Type: field.TypeString, SchemaType: map[string]string{"postgres": "varchar(255)"}},
+		{Name: "public_url", Type: field.TypeString, SchemaType: map[string]string{"postgres": "varchar(512)"}},
+		{Name: "secure_url", Type: field.TypeString, Nullable: true, SchemaType: map[string]string{"postgres": "varchar(512)"}},
+		{Name: "provider", Type: field.TypeString, SchemaType: map[string]string{"postgres": "varchar(255)"}},
+		{Name: "external_id", Type: field.TypeString, SchemaType: map[string]string{"postgres": "varchar(255)"}},
+		{Name: "size_bytes", Type: field.TypeInt64},
+		{Name: "file_size", Type: field.TypeString, Nullable: true, SchemaType: map[string]string{"postgres": "varchar(50)"}},
+	}
+	// FileUploadsTable holds the schema information for the "file_uploads" table.
+	FileUploadsTable = &schema.Table{
+		Name:       "file_uploads",
+		Columns:    FileUploadsColumns,
+		PrimaryKey: []*schema.Column{FileUploadsColumns[0]},
+	}
 	// InternshipsColumns holds the columns for the "internships" table.
 	InternshipsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeString, SchemaType: map[string]string{"postgres": "varchar(255)"}},
@@ -119,6 +144,7 @@ var (
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		CategoriesTable,
+		FileUploadsTable,
 		InternshipsTable,
 		UsersTable,
 	}

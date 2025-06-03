@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/omkar273/codegeeky/ent/category"
+	"github.com/omkar273/codegeeky/ent/fileupload"
 	"github.com/omkar273/codegeeky/ent/internship"
 	"github.com/omkar273/codegeeky/ent/schema"
 	"github.com/omkar273/codegeeky/ent/user"
@@ -46,6 +47,61 @@ func init() {
 	categoryDescID := categoryFields[0].Descriptor()
 	// category.DefaultID holds the default value on creation for the id field.
 	category.DefaultID = categoryDescID.Default.(func() string)
+	fileuploadMixin := schema.FileUpload{}.Mixin()
+	fileuploadMixinFields0 := fileuploadMixin[0].Fields()
+	_ = fileuploadMixinFields0
+	fileuploadFields := schema.FileUpload{}.Fields()
+	_ = fileuploadFields
+	// fileuploadDescStatus is the schema descriptor for status field.
+	fileuploadDescStatus := fileuploadMixinFields0[0].Descriptor()
+	// fileupload.DefaultStatus holds the default value on creation for the status field.
+	fileupload.DefaultStatus = fileuploadDescStatus.Default.(string)
+	// fileuploadDescCreatedAt is the schema descriptor for created_at field.
+	fileuploadDescCreatedAt := fileuploadMixinFields0[1].Descriptor()
+	// fileupload.DefaultCreatedAt holds the default value on creation for the created_at field.
+	fileupload.DefaultCreatedAt = fileuploadDescCreatedAt.Default.(func() time.Time)
+	// fileuploadDescUpdatedAt is the schema descriptor for updated_at field.
+	fileuploadDescUpdatedAt := fileuploadMixinFields0[2].Descriptor()
+	// fileupload.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	fileupload.DefaultUpdatedAt = fileuploadDescUpdatedAt.Default.(func() time.Time)
+	// fileupload.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	fileupload.UpdateDefaultUpdatedAt = fileuploadDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// fileuploadDescFileName is the schema descriptor for file_name field.
+	fileuploadDescFileName := fileuploadFields[1].Descriptor()
+	// fileupload.FileNameValidator is a validator for the "file_name" field. It is called by the builders before save.
+	fileupload.FileNameValidator = fileuploadDescFileName.Validators[0].(func(string) error)
+	// fileuploadDescFileType is the schema descriptor for file_type field.
+	fileuploadDescFileType := fileuploadFields[2].Descriptor()
+	// fileupload.FileTypeValidator is a validator for the "file_type" field. It is called by the builders before save.
+	fileupload.FileTypeValidator = fileuploadDescFileType.Validators[0].(func(string) error)
+	// fileuploadDescExtension is the schema descriptor for extension field.
+	fileuploadDescExtension := fileuploadFields[3].Descriptor()
+	// fileupload.ExtensionValidator is a validator for the "extension" field. It is called by the builders before save.
+	fileupload.ExtensionValidator = fileuploadDescExtension.Validators[0].(func(string) error)
+	// fileuploadDescMimeType is the schema descriptor for mime_type field.
+	fileuploadDescMimeType := fileuploadFields[4].Descriptor()
+	// fileupload.MimeTypeValidator is a validator for the "mime_type" field. It is called by the builders before save.
+	fileupload.MimeTypeValidator = fileuploadDescMimeType.Validators[0].(func(string) error)
+	// fileuploadDescPublicURL is the schema descriptor for public_url field.
+	fileuploadDescPublicURL := fileuploadFields[5].Descriptor()
+	// fileupload.PublicURLValidator is a validator for the "public_url" field. It is called by the builders before save.
+	fileupload.PublicURLValidator = fileuploadDescPublicURL.Validators[0].(func(string) error)
+	// fileuploadDescProvider is the schema descriptor for provider field.
+	fileuploadDescProvider := fileuploadFields[7].Descriptor()
+	// fileupload.ProviderValidator is a validator for the "provider" field. It is called by the builders before save.
+	fileupload.ProviderValidator = fileuploadDescProvider.Validators[0].(func(string) error)
+	// fileuploadDescExternalID is the schema descriptor for external_id field.
+	fileuploadDescExternalID := fileuploadFields[8].Descriptor()
+	// fileupload.ExternalIDValidator is a validator for the "external_id" field. It is called by the builders before save.
+	fileupload.ExternalIDValidator = fileuploadDescExternalID.Validators[0].(func(string) error)
+	// fileuploadDescSizeBytes is the schema descriptor for size_bytes field.
+	fileuploadDescSizeBytes := fileuploadFields[9].Descriptor()
+	// fileupload.SizeBytesValidator is a validator for the "size_bytes" field. It is called by the builders before save.
+	fileupload.SizeBytesValidator = fileuploadDescSizeBytes.Validators[0].(func(int64) error)
+	// fileuploadDescID is the schema descriptor for id field.
+	fileuploadDescID := fileuploadFields[0].Descriptor()
+	// fileupload.DefaultID holds the default value on creation for the id field.
+	fileupload.DefaultID = fileuploadDescID.Default.(func() string)
 	internshipMixin := schema.Internship{}.Mixin()
 	internshipMixinFields0 := internshipMixin[0].Fields()
 	_ = internshipMixinFields0

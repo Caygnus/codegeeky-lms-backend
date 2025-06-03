@@ -14,6 +14,8 @@ type Tx struct {
 	config
 	// Category is the client for interacting with the Category builders.
 	Category *CategoryClient
+	// FileUpload is the client for interacting with the FileUpload builders.
+	FileUpload *FileUploadClient
 	// Internship is the client for interacting with the Internship builders.
 	Internship *InternshipClient
 	// User is the client for interacting with the User builders.
@@ -150,6 +152,7 @@ func (tx *Tx) Client() *Client {
 
 func (tx *Tx) init() {
 	tx.Category = NewCategoryClient(tx.config)
+	tx.FileUpload = NewFileUploadClient(tx.config)
 	tx.Internship = NewInternshipClient(tx.config)
 	tx.User = NewUserClient(tx.config)
 }

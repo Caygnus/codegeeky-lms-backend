@@ -13,11 +13,19 @@ import (
 )
 
 type Configuration struct {
-	Server   ServerConfig   `validate:"required"`
-	Logging  LoggingConfig  `validate:"required"`
-	Postgres PostgresConfig `validate:"required"`
-	Supabase SupabaseConfig `validate:"required"`
-	Secrets  SecretsConfig  `validate:"required"`
+	Server     ServerConfig     `validate:"required"`
+	Logging    LoggingConfig    `validate:"required"`
+	Postgres   PostgresConfig   `validate:"required"`
+	Supabase   SupabaseConfig   `validate:"required"`
+	Secrets    SecretsConfig    `validate:"required"`
+	Cloudinary CloudinaryConfig `validate:"required"`
+}
+
+type CloudinaryConfig struct {
+	APIKey     string `mapstructure:"api_key" validate:"required"`
+	APISecret  string `mapstructure:"api_secret" validate:"required"`
+	CloudName  string `mapstructure:"cloud_name" validate:"required"`
+	APIBaseURL string `mapstructure:"api_base_url" validate:"required"`
 }
 
 type LoggingConfig struct {
@@ -146,4 +154,8 @@ func (p PostgresConfig) GetDSN() string {
 		p.DBName,
 		p.SSLMode,
 	)
+}
+
+func (c CloudinaryConfig) GetCloudinaryURL() string {
+	return fmt.Sprintf("cloudinary://%s:%s@%s", c.APIKey, c.APISecret, c.CloudName)
 }

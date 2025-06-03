@@ -16,6 +16,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/omkar273/codegeeky/ent/category"
+	"github.com/omkar273/codegeeky/ent/fileupload"
 	"github.com/omkar273/codegeeky/ent/internship"
 	"github.com/omkar273/codegeeky/ent/user"
 )
@@ -27,6 +28,8 @@ type Client struct {
 	Schema *migrate.Schema
 	// Category is the client for interacting with the Category builders.
 	Category *CategoryClient
+	// FileUpload is the client for interacting with the FileUpload builders.
+	FileUpload *FileUploadClient
 	// Internship is the client for interacting with the Internship builders.
 	Internship *InternshipClient
 	// User is the client for interacting with the User builders.
@@ -43,6 +46,7 @@ func NewClient(opts ...Option) *Client {
 func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
 	c.Category = NewCategoryClient(c.config)
+	c.FileUpload = NewFileUploadClient(c.config)
 	c.Internship = NewInternshipClient(c.config)
 	c.User = NewUserClient(c.config)
 }
@@ -138,6 +142,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		ctx:        ctx,
 		config:     cfg,
 		Category:   NewCategoryClient(cfg),
+		FileUpload: NewFileUploadClient(cfg),
 		Internship: NewInternshipClient(cfg),
 		User:       NewUserClient(cfg),
 	}, nil
@@ -160,6 +165,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		ctx:        ctx,
 		config:     cfg,
 		Category:   NewCategoryClient(cfg),
+		FileUpload: NewFileUploadClient(cfg),
 		Internship: NewInternshipClient(cfg),
 		User:       NewUserClient(cfg),
 	}, nil
@@ -191,6 +197,7 @@ func (c *Client) Close() error {
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
 	c.Category.Use(hooks...)
+	c.FileUpload.Use(hooks...)
 	c.Internship.Use(hooks...)
 	c.User.Use(hooks...)
 }
@@ -199,6 +206,7 @@ func (c *Client) Use(hooks ...Hook) {
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
 	c.Category.Intercept(interceptors...)
+	c.FileUpload.Intercept(interceptors...)
 	c.Internship.Intercept(interceptors...)
 	c.User.Intercept(interceptors...)
 }
@@ -208,6 +216,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 	switch m := m.(type) {
 	case *CategoryMutation:
 		return c.Category.mutate(ctx, m)
+	case *FileUploadMutation:
+		return c.FileUpload.mutate(ctx, m)
 	case *InternshipMutation:
 		return c.Internship.mutate(ctx, m)
 	case *UserMutation:
@@ -363,6 +373,139 @@ func (c *CategoryClient) mutate(ctx context.Context, m *CategoryMutation) (Value
 		return (&CategoryDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("ent: unknown Category mutation op: %q", m.Op())
+	}
+}
+
+// FileUploadClient is a client for the FileUpload schema.
+type FileUploadClient struct {
+	config
+}
+
+// NewFileUploadClient returns a client for the FileUpload from the given config.
+func NewFileUploadClient(c config) *FileUploadClient {
+	return &FileUploadClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `fileupload.Hooks(f(g(h())))`.
+func (c *FileUploadClient) Use(hooks ...Hook) {
+	c.hooks.FileUpload = append(c.hooks.FileUpload, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `fileupload.Intercept(f(g(h())))`.
+func (c *FileUploadClient) Intercept(interceptors ...Interceptor) {
+	c.inters.FileUpload = append(c.inters.FileUpload, interceptors...)
+}
+
+// Create returns a builder for creating a FileUpload entity.
+func (c *FileUploadClient) Create() *FileUploadCreate {
+	mutation := newFileUploadMutation(c.config, OpCreate)
+	return &FileUploadCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of FileUpload entities.
+func (c *FileUploadClient) CreateBulk(builders ...*FileUploadCreate) *FileUploadCreateBulk {
+	return &FileUploadCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *FileUploadClient) MapCreateBulk(slice any, setFunc func(*FileUploadCreate, int)) *FileUploadCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &FileUploadCreateBulk{err: fmt.Errorf("calling to FileUploadClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*FileUploadCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &FileUploadCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for FileUpload.
+func (c *FileUploadClient) Update() *FileUploadUpdate {
+	mutation := newFileUploadMutation(c.config, OpUpdate)
+	return &FileUploadUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *FileUploadClient) UpdateOne(fu *FileUpload) *FileUploadUpdateOne {
+	mutation := newFileUploadMutation(c.config, OpUpdateOne, withFileUpload(fu))
+	return &FileUploadUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *FileUploadClient) UpdateOneID(id string) *FileUploadUpdateOne {
+	mutation := newFileUploadMutation(c.config, OpUpdateOne, withFileUploadID(id))
+	return &FileUploadUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for FileUpload.
+func (c *FileUploadClient) Delete() *FileUploadDelete {
+	mutation := newFileUploadMutation(c.config, OpDelete)
+	return &FileUploadDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *FileUploadClient) DeleteOne(fu *FileUpload) *FileUploadDeleteOne {
+	return c.DeleteOneID(fu.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *FileUploadClient) DeleteOneID(id string) *FileUploadDeleteOne {
+	builder := c.Delete().Where(fileupload.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &FileUploadDeleteOne{builder}
+}
+
+// Query returns a query builder for FileUpload.
+func (c *FileUploadClient) Query() *FileUploadQuery {
+	return &FileUploadQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeFileUpload},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a FileUpload entity by its id.
+func (c *FileUploadClient) Get(ctx context.Context, id string) (*FileUpload, error) {
+	return c.Query().Where(fileupload.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *FileUploadClient) GetX(ctx context.Context, id string) *FileUpload {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *FileUploadClient) Hooks() []Hook {
+	return c.hooks.FileUpload
+}
+
+// Interceptors returns the client interceptors.
+func (c *FileUploadClient) Interceptors() []Interceptor {
+	return c.inters.FileUpload
+}
+
+func (c *FileUploadClient) mutate(ctx context.Context, m *FileUploadMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&FileUploadCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&FileUploadUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&FileUploadUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&FileUploadDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown FileUpload mutation op: %q", m.Op())
 	}
 }
 
@@ -651,9 +794,9 @@ func (c *UserClient) mutate(ctx context.Context, m *UserMutation) (Value, error)
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		Category, Internship, User []ent.Hook
+		Category, FileUpload, Internship, User []ent.Hook
 	}
 	inters struct {
-		Category, Internship, User []ent.Interceptor
+		Category, FileUpload, Internship, User []ent.Interceptor
 	}
 )

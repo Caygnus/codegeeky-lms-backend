@@ -9,6 +9,9 @@ import (
 // Category is the predicate function for category builders.
 type Category func(*sql.Selector)
 
+// FileUpload is the predicate function for fileupload builders.
+type FileUpload func(*sql.Selector)
+
 // Internship is the predicate function for internship builders.
 type Internship func(*sql.Selector)
 
