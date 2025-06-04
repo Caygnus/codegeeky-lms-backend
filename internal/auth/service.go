@@ -170,7 +170,7 @@ func (b *AuthorizationBuilder) ForUser(userID string, role types.UserRole) *Auth
 }
 
 // OnResource sets the resource being accessed
-func (b *AuthorizationBuilder) OnResource(resourceType, resourceID string) *AuthorizationBuilder {
+func (b *AuthorizationBuilder) OnResource(resourceType auth.ResourceType, resourceID string) *AuthorizationBuilder {
 	b.request.Resource.Type = resourceType
 	b.request.Resource.ID = resourceID
 	return b

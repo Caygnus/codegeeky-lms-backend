@@ -77,7 +77,7 @@ func AuthorizationMiddleware(
 		}
 
 		// Store auth context in gin context for use by handlers
-		c.Set("auth_context", authContext)
+		c.Set(string(types.CtxAuthContext), authContext)
 		c.Set("user_role", user.Role)
 		c.Set("user", user)
 
@@ -86,7 +86,7 @@ func AuthorizationMiddleware(
 }
 
 // RequirePermission creates middleware that requires specific permission
-func RequirePermission(permission domainAuth.Permission, resourceType string) gin.HandlerFunc {
+func RequirePermission(permission domainAuth.Permission, resourceType domainAuth.ResourceType) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authCtx, exists := GetAuthContext(c)
 		if !exists {
@@ -214,7 +214,7 @@ func getUserRoleFromContext(ctx context.Context) types.UserRole {
 
 // GetAuthContext is a helper function to get auth context from gin context
 func GetAuthContext(c *gin.Context) (*domainAuth.AuthContext, bool) {
-	authContext, exists := c.Get("auth_context")
+	authContext, exists := c.Get(string(types.CtxAuthContext))
 	if !exists {
 		return nil, false
 	}

@@ -12,6 +12,7 @@ const (
 	CtxUserEmail     ContextKey = "ctx_user_email"
 	CtxDBTransaction ContextKey = "ctx_db_transaction"
 	CtxUserRole      ContextKey = "ctx_user_role"
+	CtxAuthContext   ContextKey = "ctx_auth_context"
 
 	// Default values
 	DefaultUserID = "00000000-0000-0000-0000-000000000000"

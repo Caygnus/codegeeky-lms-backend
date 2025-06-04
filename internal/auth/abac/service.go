@@ -60,7 +60,7 @@ type AttributeProvider interface {
 	LoadUserAttributes(ctx context.Context, userID string) (map[string]interface{}, error)
 
 	// LoadResourceAttributes loads additional attributes for a resource
-	LoadResourceAttributes(ctx context.Context, resourceType, resourceID string) (map[string]interface{}, error)
+	LoadResourceAttributes(ctx context.Context, resourceType auth.ResourceType, resourceID string) (map[string]interface{}, error)
 
 	// GetName returns the provider name
 	GetName() string

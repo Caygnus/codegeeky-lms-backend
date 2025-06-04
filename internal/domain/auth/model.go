@@ -44,9 +44,19 @@ const (
 	PermissionViewAnalytics Permission = "analytics:view"
 )
 
+type ResourceType string
+
+const (
+	ResourceTypeInternship ResourceType = "internship"
+	ResourceTypeUsers      ResourceType = "users"
+	ResourceTypeAnalytics  ResourceType = "analytics"
+	ResourceTypeSystem     ResourceType = "system"
+	ResourceTypeProgress   ResourceType = "progress"
+)
+
 // Resource represents a resource being accessed
 type Resource struct {
-	Type       string                 `json:"type"`
+	Type       ResourceType           `json:"type"`
 	ID         string                 `json:"id,omitempty"`
 	Attributes map[string]interface{} `json:"attributes,omitempty"`
 }
