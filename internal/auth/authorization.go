@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/omkar273/codegeeky/internal/domain/auth"
+	ierr "github.com/omkar273/codegeeky/internal/errors"
 	"github.com/omkar273/codegeeky/internal/logger"
 	"github.com/omkar273/codegeeky/internal/types"
 )
@@ -63,7 +64,7 @@ func (s *authorizationService) IsAuthorized(ctx context.Context, request *auth.A
 		abacResult, err := s.CheckAttributeBasedAccess(ctx, request)
 		if err != nil {
 			s.logger.Errorw("ABAC check failed", "error", err, "user_id", request.Subject.UserID)
-			return false, err
+			return false, ierr.NewErrorf("ABAC check failed").Mark(err)
 		}
 
 		return abacResult, nil
@@ -73,7 +74,7 @@ func (s *authorizationService) IsAuthorized(ctx context.Context, request *auth.A
 	abacResult, err := s.CheckAttributeBasedAccess(ctx, request)
 	if err != nil {
 		s.logger.Errorw("ABAC check failed", "error", err, "user_id", request.Subject.UserID)
-		return false, err
+		return false, ierr.NewErrorf("ABAC check failed").Mark(err)
 	}
 
 	if !abacResult {

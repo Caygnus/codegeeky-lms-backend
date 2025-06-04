@@ -88,32 +88,22 @@ func AuthorizationMiddleware(
 // RequirePermission creates middleware that requires specific permission
 func RequirePermission(permission domainAuth.Permission, resourceType string) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		authContext, exists := c.Get("auth_context")
+		authCtx, exists := GetAuthContext(c)
 		if !exists {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Authentication required"})
-			c.Abort()
-			return
-		}
-
-		authCtx, ok := authContext.(*domainAuth.AuthContext)
-		if !ok {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid auth context"})
-			c.Abort()
+			c.Error(ierr.NewErrorf("no auth context in context").Mark(ierr.ErrUnauthorized))
 			return
 		}
 
 		// Get authorization service from context (you'll need to set this up in your app)
 		authzServiceInterface, exists := c.Get("authz_service")
 		if !exists {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Authorization service not available"})
-			c.Abort()
+			c.Error(ierr.NewErrorf("authorization service not available").Mark(ierr.ErrUnauthorized))
 			return
 		}
 
 		authzService, ok := authzServiceInterface.(auth.AuthorizationService)
 		if !ok {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid authorization service"})
-			c.Abort()
+			c.Error(ierr.NewErrorf("invalid authorization service").Mark(ierr.ErrUnauthorized))
 			return
 		}
 
@@ -144,14 +134,12 @@ func RequirePermission(permission domainAuth.Permission, resourceType string) gi
 		// Check authorization
 		allowed, err := authzService.IsAuthorized(c.Request.Context(), accessRequest)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Authorization check failed"})
-			c.Abort()
+			c.Error(ierr.NewErrorf("authorization check failed").Mark(err))
 			return
 		}
 
 		if !allowed {
-			c.JSON(http.StatusForbidden, gin.H{"error": "Access denied"})
-			c.Abort()
+			c.Error(ierr.NewErrorf("access denied").Mark(ierr.ErrUnauthorized))
 			return
 		}
 
@@ -165,13 +153,11 @@ func RequireRole(allowedRoles ...types.UserRole) gin.HandlerFunc {
 		userRole := types.GetUserRole(c.Request.Context())
 		if userRole == "" {
 			c.Error(ierr.NewErrorf("no user role in context").Mark(ierr.ErrUnauthorized))
-			c.Abort()
 			return
 		}
 
 		if !rbac.ValidateRole(userRole) {
 			c.Error(ierr.NewErrorf("invalid user role").Mark(ierr.ErrUnauthorized))
-			c.Abort()
 			return
 		}
 
@@ -184,7 +170,7 @@ func RequireRole(allowedRoles ...types.UserRole) gin.HandlerFunc {
 		}
 
 		c.Error(ierr.NewErrorf("insufficient permissions").Mark(ierr.ErrPermissionDenied))
-		c.Abort()
+		// NO need to return here, as the error will be handled by the error handler
 	}
 }
 
