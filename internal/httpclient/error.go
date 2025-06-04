@@ -27,7 +27,9 @@ func NewError(statusCode int, response []byte) *Error {
 		InternalError: &ierr.InternalError{
 			Code:    ierr.ErrCodeHTTPClient,
 			Message: "http client error",
-			Err:     ierr.NewError("http client error").Mark(ierr.ErrHTTPClient),
+			Err: ierr.NewError("http client error").
+				WithHintf("response: %s", string(response)).
+				Mark(ierr.ErrHTTPClient),
 		},
 		StatusCode: statusCode,
 		Response:   response,

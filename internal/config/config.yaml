@@ -37,3 +37,6 @@ cloudinary:
   api_secret: "1234567890"
   cloud_name: "dummy_cloud_name"
   api_base_url: "https://api.cloudinary.com"
+
+cache:
+  enabled: true

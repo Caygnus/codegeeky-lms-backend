@@ -23,3 +23,4 @@ dist/
 
 # Ignore all files in the .env.development directory
 .env.development/
+
