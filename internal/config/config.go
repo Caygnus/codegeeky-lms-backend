@@ -19,6 +19,7 @@ type Configuration struct {
 	Supabase   SupabaseConfig   `validate:"required"`
 	Secrets    SecretsConfig    `validate:"required"`
 	Cloudinary CloudinaryConfig `validate:"required"`
+	Cache      CacheConfig      `validate:"required"`
 }
 
 type CloudinaryConfig struct {
@@ -26,6 +27,10 @@ type CloudinaryConfig struct {
 	APISecret  string `mapstructure:"api_secret" validate:"required"`
 	CloudName  string `mapstructure:"cloud_name" validate:"required"`
 	APIBaseURL string `mapstructure:"api_base_url" validate:"required"`
+}
+
+type CacheConfig struct {
+	Enabled bool `mapstructure:"enabled" validate:"required"`
 }
 
 type LoggingConfig struct {
