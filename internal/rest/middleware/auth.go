@@ -25,6 +25,9 @@ func setContextValues(c *gin.Context, userID, userEmail string, userRole types.U
 // GuestAuthenticateMiddleware is a middleware that allows requests without authentication
 // For now it sets a default user ID and user email in the request context
 func GuestAuthenticateMiddleware(c *gin.Context) {
+	// TODO: This is a temporary solution to allow requests without authentication.
+	// We need to find a better way to handle this.
+	c.Set(string(types.CtxIsGuest), true)
 	c.Next()
 }
 

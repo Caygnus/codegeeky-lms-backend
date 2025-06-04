@@ -1,9 +1,6 @@
 package middleware
 
 import (
-	"context"
-	"net/http"
-
 	"github.com/gin-gonic/gin"
 	"github.com/omkar273/codegeeky/internal/auth"
 	"github.com/omkar273/codegeeky/internal/auth/rbac"
@@ -24,27 +21,29 @@ func AuthorizationMiddleware(
 ) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// Skip authorization for guest endpoints
-		if c.GetBool("is_guest") {
+		if c.GetBool(string(types.CtxIsGuest)) {
 			c.Next()
 			return
 		}
 
 		// Get user context from previous auth middleware
-		userID := getUserIDFromContext(c.Request.Context())
-		userEmail := getUserEmailFromContext(c.Request.Context())
-		userRole := getUserRoleFromContext(c.Request.Context())
+		userID := types.GetUserID(c.Request.Context())
+		userEmail := types.GetUserEmail(c.Request.Context())
+		userRole := types.GetUserRole(c.Request.Context())
 
 		if userRole == "" {
 			logger.Warnw("Authorization failed: no user role in context")
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Authentication required"})
-			c.Abort()
+			c.Error(ierr.NewErrorf("no user role in context").
+				WithHint("Please login to continue").
+				Mark(ierr.ErrUnauthorized))
 			return
 		}
 
 		if userID == "" {
 			logger.Warnw("Authorization failed: no user ID in context")
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Authentication required"})
-			c.Abort()
+			c.Error(ierr.NewErrorf("no user ID in context").
+				WithHint("Please login to continue").
+				Mark(ierr.ErrUnauthorized))
 			return
 		}
 
@@ -52,15 +51,17 @@ func AuthorizationMiddleware(
 		user, err := userRepo.Get(c.Request.Context(), userID)
 		if err != nil {
 			logger.Errorw("Failed to get user for authorization", "error", err, "user_id", userID)
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Authorization check failed"})
-			c.Abort()
+			c.Error(ierr.NewErrorf("failed to get user for authorization").
+				WithHint("Please try again later").
+				Mark(err))
 			return
 		}
 
 		if user == nil {
 			logger.Warnw("User not found for authorization", "user_id", userID)
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "User not found"})
-			c.Abort()
+			c.Error(ierr.NewErrorf("user not found for authorization").
+				WithHint("Please login to continue").
+				Mark(ierr.ErrUnauthorized))
 			return
 		}
 
@@ -78,8 +79,7 @@ func AuthorizationMiddleware(
 
 		// Store auth context in gin context for use by handlers
 		c.Set(string(types.CtxAuthContext), authContext)
-		c.Set("user_role", user.Role)
-		c.Set("user", user)
+		c.Set(string(types.CtxUser), user)
 
 		c.Next()
 	}
@@ -90,20 +90,26 @@ func RequirePermission(permission domainAuth.Permission, resourceType domainAuth
 	return func(c *gin.Context) {
 		authCtx, exists := GetAuthContext(c)
 		if !exists {
-			c.Error(ierr.NewErrorf("no auth context in context").Mark(ierr.ErrUnauthorized))
+			c.Error(ierr.NewErrorf("no auth context in context").
+				WithHint("Please login to continue").
+				Mark(ierr.ErrUnauthorized))
 			return
 		}
 
 		// Get authorization service from context (you'll need to set this up in your app)
 		authzServiceInterface, exists := c.Get("authz_service")
 		if !exists {
-			c.Error(ierr.NewErrorf("authorization service not available").Mark(ierr.ErrUnauthorized))
+			c.Error(ierr.NewErrorf("authorization service not available").
+				WithHint("Please try again later").
+				Mark(ierr.ErrUnauthorized))
 			return
 		}
 
 		authzService, ok := authzServiceInterface.(auth.AuthorizationService)
 		if !ok {
-			c.Error(ierr.NewErrorf("invalid authorization service").Mark(ierr.ErrUnauthorized))
+			c.Error(ierr.NewErrorf("invalid authorization service").
+				WithHint("Please try again later").
+				Mark(ierr.ErrUnauthorized))
 			return
 		}
 
@@ -134,12 +140,16 @@ func RequirePermission(permission domainAuth.Permission, resourceType domainAuth
 		// Check authorization
 		allowed, err := authzService.IsAuthorized(c.Request.Context(), accessRequest)
 		if err != nil {
-			c.Error(ierr.NewErrorf("authorization check failed").Mark(err))
+			c.Error(ierr.NewErrorf("authorization check failed").
+				WithHint("Please try again later").
+				Mark(err))
 			return
 		}
 
 		if !allowed {
-			c.Error(ierr.NewErrorf("access denied").Mark(ierr.ErrUnauthorized))
+			c.Error(ierr.NewErrorf("access denied").
+				WithHint("You are not authorized to access this resource").
+				Mark(ierr.ErrUnauthorized))
 			return
 		}
 
@@ -152,12 +162,16 @@ func RequireRole(allowedRoles ...types.UserRole) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		userRole := types.GetUserRole(c.Request.Context())
 		if userRole == "" {
-			c.Error(ierr.NewErrorf("no user role in context").Mark(ierr.ErrUnauthorized))
+			c.Error(ierr.NewErrorf("no user role in context").
+				WithHint("Please login to continue").
+				Mark(ierr.ErrUnauthorized))
 			return
 		}
 
 		if !rbac.ValidateRole(userRole) {
-			c.Error(ierr.NewErrorf("invalid user role").Mark(ierr.ErrUnauthorized))
+			c.Error(ierr.NewErrorf("invalid user role").
+				WithHint("Please login to continue").
+				Mark(ierr.ErrUnauthorized))
 			return
 		}
 
@@ -169,7 +183,9 @@ func RequireRole(allowedRoles ...types.UserRole) gin.HandlerFunc {
 			}
 		}
 
-		c.Error(ierr.NewErrorf("insufficient permissions").Mark(ierr.ErrPermissionDenied))
+		c.Error(ierr.NewErrorf("insufficient permissions").
+			WithHint("You are not authorized to access this resource").
+			Mark(ierr.ErrPermissionDenied))
 		// NO need to return here, as the error will be handled by the error handler
 	}
 }
@@ -184,34 +200,6 @@ func RequireAdmin() gin.HandlerFunc {
 	return RequireRole(types.UserRoleAdmin)
 }
 
-// Helper functions to extract values from context
-func getUserIDFromContext(ctx context.Context) string {
-	if userID := ctx.Value(types.CtxUserID); userID != nil {
-		if id, ok := userID.(string); ok {
-			return id
-		}
-	}
-	return ""
-}
-
-func getUserEmailFromContext(ctx context.Context) string {
-	if userEmail := ctx.Value(types.CtxUserEmail); userEmail != nil {
-		if email, ok := userEmail.(string); ok {
-			return email
-		}
-	}
-	return ""
-}
-
-func getUserRoleFromContext(ctx context.Context) types.UserRole {
-	if userRole := ctx.Value(types.CtxUserRole); userRole != nil {
-		if role, ok := userRole.(types.UserRole); ok {
-			return role
-		}
-	}
-	return ""
-}
-
 // GetAuthContext is a helper function to get auth context from gin context
 func GetAuthContext(c *gin.Context) (*domainAuth.AuthContext, bool) {
 	authContext, exists := c.Get(string(types.CtxAuthContext))
@@ -221,15 +209,4 @@ func GetAuthContext(c *gin.Context) (*domainAuth.AuthContext, bool) {
 
 	authCtx, ok := authContext.(*domainAuth.AuthContext)
 	return authCtx, ok
-}
-
-// GetCurrentUser is a helper function to get current user from gin context
-func GetCurrentUser(c *gin.Context) (*domainUser.User, bool) {
-	user, exists := c.Get("user")
-	if !exists {
-		return nil, false
-	}
-
-	u, ok := user.(*domainUser.User)
-	return u, ok
 }
