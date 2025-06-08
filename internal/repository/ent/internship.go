@@ -41,7 +41,7 @@ func (r *internshipRepository) Create(ctx context.Context, internshipData *domai
 	// Convert domain categories to ent categories
 	entCats := lo.Map(internshipData.Categories, func(c *domainInternship.Category, _ int) *ent.Category {
 		return &ent.Category{ID: c.ID}
-	})
+	}) 
 
 	// Create internship
 	_, err := client.Internship.Create().

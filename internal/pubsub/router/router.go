@@ -16,6 +16,7 @@ import (
 type Router struct {
 	router *message.Router
 	logger *logger.Logger
+	config *config.Webhook
 }
 
 // NewRouter creates a new message router
@@ -39,17 +40,17 @@ func NewRouter(cfg *config.Configuration, logger *logger.Logger) (*Router, error
 		middleware.Recoverer,     // Recover from panics
 		middleware.CorrelationID, // Add correlation IDs
 		middleware.Retry{
-			MaxRetries:          3,
-			InitialInterval:     1 * time.Second,
-			MaxInterval:         10 * time.Second,
-			Multiplier:          2,
-			MaxElapsedTime:      30 * time.Second,
+			MaxRetries:          cfg.Webhook.MaxRetries,
+			InitialInterval:     cfg.Webhook.InitialInterval,
+			MaxInterval:         cfg.Webhook.MaxInterval,
+			Multiplier:          cfg.Webhook.Multiplier,
+			MaxElapsedTime:      cfg.Webhook.MaxElapsedTime,
 			RandomizationFactor: 0.5,
 			Logger:              watermill.NewStdLogger(true, false),
 			OnRetryHook: func(retryNum int, delay time.Duration) {
 				logger.Infow("retrying message",
 					"retry_number", retryNum,
-					"max_retries", 3,
+					"max_retries", cfg.Webhook.MaxRetries,
 					"delay", delay,
 				)
 			},
@@ -59,6 +60,7 @@ func NewRouter(cfg *config.Configuration, logger *logger.Logger) (*Router, error
 	return &Router{
 		router: router,
 		logger: logger,
+		config: &cfg.Webhook,
 	}, nil
 }
 

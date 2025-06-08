@@ -40,3 +40,4 @@ cloudinary:
 
 cache:
   enabled: true
+
