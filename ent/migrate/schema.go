@@ -3,6 +3,7 @@
 package migrate
 
 import (
+	"entgo.io/ent/dialect/entsql"
 	"entgo.io/ent/dialect/sql/schema"
 	"entgo.io/ent/schema/field"
 )
@@ -105,6 +106,106 @@ var (
 			},
 		},
 	}
+	// PaymentsColumns holds the columns for the "payments" table.
+	PaymentsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeString, Unique: true, SchemaType: map[string]string{"postgres": "varchar(50)"}},
+		{Name: "status", Type: field.TypeString, Default: "published", SchemaType: map[string]string{"postgres": "varchar(20)"}},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "created_by", Type: field.TypeString, Nullable: true},
+		{Name: "updated_by", Type: field.TypeString, Nullable: true},
+		{Name: "idempotency_key", Type: field.TypeString, Unique: true, SchemaType: map[string]string{"postgres": "varchar(50)"}},
+		{Name: "destination_type", Type: field.TypeString, SchemaType: map[string]string{"postgres": "varchar(50)"}},
+		{Name: "destination_id", Type: field.TypeString, SchemaType: map[string]string{"postgres": "varchar(50)"}},
+		{Name: "payment_method_type", Type: field.TypeString, SchemaType: map[string]string{"postgres": "varchar(50)"}},
+		{Name: "payment_method_id", Type: field.TypeString, Nullable: true, SchemaType: map[string]string{"postgres": "varchar(50)"}},
+		{Name: "payment_gateway_provider", Type: field.TypeString, Nullable: true, SchemaType: map[string]string{"postgres": "varchar(50)"}},
+		{Name: "gateway_payment_id", Type: field.TypeString, Nullable: true, SchemaType: map[string]string{"postgres": "varchar(255)"}},
+		{Name: "amount", Type: field.TypeOther, SchemaType: map[string]string{"postgres": "numeric(20,8)"}},
+		{Name: "currency", Type: field.TypeString, SchemaType: map[string]string{"postgres": "varchar(10)"}},
+		{Name: "payment_status", Type: field.TypeString, SchemaType: map[string]string{"postgres": "varchar(50)"}},
+		{Name: "track_attempts", Type: field.TypeBool, Default: false},
+		{Name: "metadata", Type: field.TypeJSON, Nullable: true, SchemaType: map[string]string{"postgres": "jsonb"}},
+		{Name: "succeeded_at", Type: field.TypeTime, Nullable: true},
+		{Name: "failed_at", Type: field.TypeTime, Nullable: true},
+		{Name: "refunded_at", Type: field.TypeTime, Nullable: true},
+		{Name: "error_message", Type: field.TypeString, Nullable: true, SchemaType: map[string]string{"postgres": "text"}},
+	}
+	// PaymentsTable holds the schema information for the "payments" table.
+	PaymentsTable = &schema.Table{
+		Name:       "payments",
+		Columns:    PaymentsColumns,
+		PrimaryKey: []*schema.Column{PaymentsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "idx_destination_status",
+				Unique:  false,
+				Columns: []*schema.Column{PaymentsColumns[7], PaymentsColumns[8], PaymentsColumns[15], PaymentsColumns[1]},
+			},
+			{
+				Name:    "idx_tenant_payment_method_status",
+				Unique:  false,
+				Columns: []*schema.Column{PaymentsColumns[9], PaymentsColumns[10], PaymentsColumns[15], PaymentsColumns[1]},
+			},
+			{
+				Name:    "idx_gateway_payment",
+				Unique:  false,
+				Columns: []*schema.Column{PaymentsColumns[11], PaymentsColumns[12]},
+				Annotation: &entsql.IndexAnnotation{
+					Where: "payment_gateway_provider IS NOT NULL AND gateway_payment_id IS NOT NULL",
+				},
+			},
+		},
+	}
+	// PaymentAttemptsColumns holds the columns for the "payment_attempts" table.
+	PaymentAttemptsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeString, Unique: true, SchemaType: map[string]string{"postgres": "varchar(50)"}},
+		{Name: "status", Type: field.TypeString, Default: "published", SchemaType: map[string]string{"postgres": "varchar(20)"}},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "created_by", Type: field.TypeString, Nullable: true},
+		{Name: "updated_by", Type: field.TypeString, Nullable: true},
+		{Name: "payment_status", Type: field.TypeString, SchemaType: map[string]string{"postgres": "varchar(20)"}},
+		{Name: "attempt_number", Type: field.TypeInt, Default: 1, SchemaType: map[string]string{"postgres": "integer"}},
+		{Name: "gateway_attempt_id", Type: field.TypeString, Nullable: true, SchemaType: map[string]string{"postgres": "varchar(255)"}},
+		{Name: "error_message", Type: field.TypeString, Nullable: true, SchemaType: map[string]string{"postgres": "text"}},
+		{Name: "metadata", Type: field.TypeJSON, Nullable: true, SchemaType: map[string]string{"postgres": "jsonb"}},
+		{Name: "payment_id", Type: field.TypeString, SchemaType: map[string]string{"postgres": "varchar(50)"}},
+	}
+	// PaymentAttemptsTable holds the schema information for the "payment_attempts" table.
+	PaymentAttemptsTable = &schema.Table{
+		Name:       "payment_attempts",
+		Columns:    PaymentAttemptsColumns,
+		PrimaryKey: []*schema.Column{PaymentAttemptsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "payment_attempts_payments_attempts",
+				Columns:    []*schema.Column{PaymentAttemptsColumns[11]},
+				RefColumns: []*schema.Column{PaymentsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "idx_payment_attempt_number_unique",
+				Unique:  true,
+				Columns: []*schema.Column{PaymentAttemptsColumns[11], PaymentAttemptsColumns[7]},
+			},
+			{
+				Name:    "idx_payment_attempt_status",
+				Unique:  false,
+				Columns: []*schema.Column{PaymentAttemptsColumns[11], PaymentAttemptsColumns[1]},
+			},
+			{
+				Name:    "idx_gateway_attempt",
+				Unique:  false,
+				Columns: []*schema.Column{PaymentAttemptsColumns[8]},
+				Annotation: &entsql.IndexAnnotation{
+					Where: "gateway_attempt_id IS NOT NULL",
+				},
+			},
+		},
+	}
 	// UsersColumns holds the columns for the "users" table.
 	UsersColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeString, SchemaType: map[string]string{"postgres": "varchar(255)"}},
@@ -146,6 +247,8 @@ var (
 		CategoriesTable,
 		FileUploadsTable,
 		InternshipsTable,
+		PaymentsTable,
+		PaymentAttemptsTable,
 		UsersTable,
 	}
 )
@@ -153,4 +256,5 @@ var (
 func init() {
 	CategoriesTable.ForeignKeys[0].RefTable = InternshipsTable
 	InternshipsTable.ForeignKeys[0].RefTable = CategoriesTable
+	PaymentAttemptsTable.ForeignKeys[0].RefTable = PaymentsTable
 }

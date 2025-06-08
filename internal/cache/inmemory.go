@@ -49,14 +49,6 @@ func NewInMemoryCache() Cache {
 	return globalCache
 }
 
-// GetCache returns the global cache instance
-func GetInMemoryCache() *InMemoryCache {
-	if globalCache == nil {
-		InitializeInMemoryCache()
-	}
-	return globalCache
-}
-
 // Get retrieves a value from the cache
 func (c *InMemoryCache) Get(_ context.Context, key string) (interface{}, bool) {
 	if !c.cfg.Cache.Enabled {

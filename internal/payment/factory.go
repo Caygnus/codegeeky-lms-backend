@@ -10,19 +10,19 @@ import (
 
 // GatewayRegistryService manages registered payment gateway providers
 type gatewayRegistryService struct {
-	providers map[types.PaymentProvider]GatewayProvider
+	providers map[types.PaymentGatewayProvider]GatewayProvider
 	mu        sync.RWMutex
 }
 
 // NewGatewayRegistryService creates a new registry
 func NewGatewayRegistryService() GatewayRegistryService {
 	return &gatewayRegistryService{
-		providers: make(map[types.PaymentProvider]GatewayProvider),
+		providers: make(map[types.PaymentGatewayProvider]GatewayProvider),
 	}
 }
 
 // RegisterProvider registers an instantiated provider under a name
-func (r *gatewayRegistryService) RegisterProvider(name types.PaymentProvider, provider GatewayProvider) {
+func (r *gatewayRegistryService) RegisterProvider(name types.PaymentGatewayProvider, provider GatewayProvider) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	r.providers[name] = provider
@@ -33,19 +33,19 @@ func (r *gatewayRegistryService) GetProvider(ctx context.Context, attrs *types.S
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 
-	provider, ok := r.providers[attrs.PaymentProvider]
+	provider, ok := r.providers[attrs.PaymentGateway]
 	if !ok {
-		return nil, fmt.Errorf("provider %s not found", attrs.PaymentProvider)
+		return nil, fmt.Errorf("provider %s not found", attrs.PaymentGateway)
 	}
 
 	return provider, nil
 }
 
-func (r *gatewayRegistryService) ListAvailableProviders(ctx context.Context) ([]types.PaymentProvider, error) {
+func (r *gatewayRegistryService) ListAvailableProviders(ctx context.Context) ([]types.PaymentGatewayProvider, error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 
-	providers := make([]types.PaymentProvider, 0, len(r.providers))
+	providers := make([]types.PaymentGatewayProvider, 0, len(r.providers))
 	for provider := range r.providers {
 		providers = append(providers, provider)
 	}

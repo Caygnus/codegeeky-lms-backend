@@ -10,7 +10,7 @@ import (
 // GatewayProvider defines a base interface for any external payment provider integration
 type GatewayProvider interface {
 	// Identifies the provider (e.g., "stripe", "razorpay", etc.)
-	ProviderName() types.PaymentProvider
+	ProviderName() types.PaymentGatewayProvider
 
 	// Returns a list of supported capabilities like "refunds", "webhooks", "upi", etc.
 	SupportedFeatures() []types.PaymentGatewayFeatures
@@ -30,6 +30,6 @@ type GatewayProvider interface {
 
 type GatewayRegistryService interface {
 	GetProvider(ctx context.Context, attrs *types.SelectionAttributes) (GatewayProvider, error)
-	ListAvailableProviders(ctx context.Context) ([]types.PaymentProvider, error)
-	RegisterProvider(name types.PaymentProvider, provider GatewayProvider)
+	ListAvailableProviders(ctx context.Context) ([]types.PaymentGatewayProvider, error)
+	RegisterProvider(name types.PaymentGatewayProvider, provider GatewayProvider)
 }

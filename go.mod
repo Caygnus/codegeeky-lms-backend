@@ -5,6 +5,7 @@ go 1.24.0
 require (
 	entgo.io/ent v0.14.4
 	github.com/ThreeDotsLabs/watermill v1.4.6
+	github.com/bojanz/currency v1.3.1
 	github.com/cloudinary/cloudinary-go/v2 v2.10.0
 	github.com/cockroachdb/errors v1.11.3
 	github.com/getsentry/sentry-go v0.30.0
@@ -40,6 +41,7 @@ require (
 	github.com/cenkalti/backoff/v3 v3.2.2 // indirect
 	github.com/cloudwego/base64x v0.1.4 // indirect
 	github.com/cloudwego/iasm v0.2.0 // indirect
+	github.com/cockroachdb/apd/v3 v3.2.1 // indirect
 	github.com/cockroachdb/logtags v0.0.0-20230118201751-21c54148d20b // indirect
 	github.com/cockroachdb/redact v1.1.5 // indirect
 	github.com/creasty/defaults v1.7.0 // indirect

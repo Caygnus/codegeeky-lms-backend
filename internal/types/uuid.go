@@ -41,4 +41,5 @@ const (
 	UUID_PREFIX_INTERNSHIP  = "internship"
 	UUID_PREFIX_CATEGORY    = "category"
 	UUID_PREFIX_FILE_UPLOAD = "file"
+	UUID_PREFIX_PAYMENT     = "payment"
 )

@@ -15,5 +15,11 @@ type FileUpload func(*sql.Selector)
 // Internship is the predicate function for internship builders.
 type Internship func(*sql.Selector)
 
+// Payment is the predicate function for payment builders.
+type Payment func(*sql.Selector)
+
+// PaymentAttempt is the predicate function for paymentattempt builders.
+type PaymentAttempt func(*sql.Selector)
+
 // User is the predicate function for user builders.
 type User func(*sql.Selector)

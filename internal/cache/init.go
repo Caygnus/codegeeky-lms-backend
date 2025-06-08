@@ -5,14 +5,8 @@ import (
 )
 
 // Initialize initializes the cache system
-func Initialize(log *logger.Logger) *InMemoryCache {
+func Initialize(log *logger.Logger) Cache {
 	log.Info("Initializing cache system")
 
-	// Initialize the global cache instance
-	InitializeInMemoryCache()
-
-	log.Info("Cache system initialized")
-
-	// Return the cache instance
-	return GetInMemoryCache()
+	return NewInMemoryCache()
 }

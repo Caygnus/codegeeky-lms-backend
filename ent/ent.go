@@ -15,6 +15,8 @@ import (
 	"github.com/omkar273/codegeeky/ent/category"
 	"github.com/omkar273/codegeeky/ent/fileupload"
 	"github.com/omkar273/codegeeky/ent/internship"
+	"github.com/omkar273/codegeeky/ent/payment"
+	"github.com/omkar273/codegeeky/ent/paymentattempt"
 	"github.com/omkar273/codegeeky/ent/user"
 )
 
@@ -76,10 +78,12 @@ var (
 func checkColumn(table, column string) error {
 	initCheck.Do(func() {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
-			category.Table:   category.ValidColumn,
-			fileupload.Table: fileupload.ValidColumn,
-			internship.Table: internship.ValidColumn,
-			user.Table:       user.ValidColumn,
+			category.Table:       category.ValidColumn,
+			fileupload.Table:     fileupload.ValidColumn,
+			internship.Table:     internship.ValidColumn,
+			payment.Table:        payment.ValidColumn,
+			paymentattempt.Table: paymentattempt.ValidColumn,
+			user.Table:           user.ValidColumn,
 		})
 	})
 	return columnCheck(table, column)
