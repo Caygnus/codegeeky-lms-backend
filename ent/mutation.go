@@ -12,6 +12,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/omkar273/codegeeky/ent/category"
+	"github.com/omkar273/codegeeky/ent/discount"
 	"github.com/omkar273/codegeeky/ent/fileupload"
 	"github.com/omkar273/codegeeky/ent/internship"
 	"github.com/omkar273/codegeeky/ent/payment"
@@ -32,6 +33,7 @@ const (
 
 	// Node types.
 	TypeCategory       = "Category"
+	TypeDiscount       = "Discount"
 	TypeFileUpload     = "FileUpload"
 	TypeInternship     = "Internship"
 	TypePayment        = "Payment"
@@ -900,6 +902,1321 @@ func (m *CategoryMutation) ResetEdge(name string) error {
 		return nil
 	}
 	return fmt.Errorf("unknown Category edge %s", name)
+}
+
+// DiscountMutation represents an operation that mutates the Discount nodes in the graph.
+type DiscountMutation struct {
+	config
+	op              Op
+	typ             string
+	id              *string
+	status          *string
+	created_at      *time.Time
+	updated_at      *time.Time
+	created_by      *string
+	updated_by      *string
+	code            *string
+	description     *string
+	discount_type   *types.DiscountType
+	discount_value  *decimal.Decimal
+	valid_from      *time.Time
+	valid_until     *time.Time
+	is_active       *bool
+	max_uses        *int
+	addmax_uses     *int
+	min_order_value *decimal.Decimal
+	is_combinable   *bool
+	metadata        *map[string]string
+	clearedFields   map[string]struct{}
+	done            bool
+	oldValue        func(context.Context) (*Discount, error)
+	predicates      []predicate.Discount
+}
+
+var _ ent.Mutation = (*DiscountMutation)(nil)
+
+// discountOption allows management of the mutation configuration using functional options.
+type discountOption func(*DiscountMutation)
+
+// newDiscountMutation creates new mutation for the Discount entity.
+func newDiscountMutation(c config, op Op, opts ...discountOption) *DiscountMutation {
+	m := &DiscountMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeDiscount,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withDiscountID sets the ID field of the mutation.
+func withDiscountID(id string) discountOption {
+	return func(m *DiscountMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *Discount
+		)
+		m.oldValue = func(ctx context.Context) (*Discount, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().Discount.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withDiscount sets the old Discount of the mutation.
+func withDiscount(node *Discount) discountOption {
+	return func(m *DiscountMutation) {
+		m.oldValue = func(context.Context) (*Discount, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m DiscountMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m DiscountMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of Discount entities.
+func (m *DiscountMutation) SetID(id string) {
+	m.id = &id
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *DiscountMutation) ID() (id string, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *DiscountMutation) IDs(ctx context.Context) ([]string, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []string{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().Discount.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetStatus sets the "status" field.
+func (m *DiscountMutation) SetStatus(s string) {
+	m.status = &s
+}
+
+// Status returns the value of the "status" field in the mutation.
+func (m *DiscountMutation) Status() (r string, exists bool) {
+	v := m.status
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldStatus returns the old "status" field's value of the Discount entity.
+// If the Discount object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DiscountMutation) OldStatus(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldStatus is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldStatus requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldStatus: %w", err)
+	}
+	return oldValue.Status, nil
+}
+
+// ResetStatus resets all changes to the "status" field.
+func (m *DiscountMutation) ResetStatus() {
+	m.status = nil
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (m *DiscountMutation) SetCreatedAt(t time.Time) {
+	m.created_at = &t
+}
+
+// CreatedAt returns the value of the "created_at" field in the mutation.
+func (m *DiscountMutation) CreatedAt() (r time.Time, exists bool) {
+	v := m.created_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedAt returns the old "created_at" field's value of the Discount entity.
+// If the Discount object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DiscountMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
+	}
+	return oldValue.CreatedAt, nil
+}
+
+// ResetCreatedAt resets all changes to the "created_at" field.
+func (m *DiscountMutation) ResetCreatedAt() {
+	m.created_at = nil
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (m *DiscountMutation) SetUpdatedAt(t time.Time) {
+	m.updated_at = &t
+}
+
+// UpdatedAt returns the value of the "updated_at" field in the mutation.
+func (m *DiscountMutation) UpdatedAt() (r time.Time, exists bool) {
+	v := m.updated_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpdatedAt returns the old "updated_at" field's value of the Discount entity.
+// If the Discount object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DiscountMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUpdatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUpdatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpdatedAt: %w", err)
+	}
+	return oldValue.UpdatedAt, nil
+}
+
+// ResetUpdatedAt resets all changes to the "updated_at" field.
+func (m *DiscountMutation) ResetUpdatedAt() {
+	m.updated_at = nil
+}
+
+// SetCreatedBy sets the "created_by" field.
+func (m *DiscountMutation) SetCreatedBy(s string) {
+	m.created_by = &s
+}
+
+// CreatedBy returns the value of the "created_by" field in the mutation.
+func (m *DiscountMutation) CreatedBy() (r string, exists bool) {
+	v := m.created_by
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedBy returns the old "created_by" field's value of the Discount entity.
+// If the Discount object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DiscountMutation) OldCreatedBy(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreatedBy is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreatedBy requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedBy: %w", err)
+	}
+	return oldValue.CreatedBy, nil
+}
+
+// ClearCreatedBy clears the value of the "created_by" field.
+func (m *DiscountMutation) ClearCreatedBy() {
+	m.created_by = nil
+	m.clearedFields[discount.FieldCreatedBy] = struct{}{}
+}
+
+// CreatedByCleared returns if the "created_by" field was cleared in this mutation.
+func (m *DiscountMutation) CreatedByCleared() bool {
+	_, ok := m.clearedFields[discount.FieldCreatedBy]
+	return ok
+}
+
+// ResetCreatedBy resets all changes to the "created_by" field.
+func (m *DiscountMutation) ResetCreatedBy() {
+	m.created_by = nil
+	delete(m.clearedFields, discount.FieldCreatedBy)
+}
+
+// SetUpdatedBy sets the "updated_by" field.
+func (m *DiscountMutation) SetUpdatedBy(s string) {
+	m.updated_by = &s
+}
+
+// UpdatedBy returns the value of the "updated_by" field in the mutation.
+func (m *DiscountMutation) UpdatedBy() (r string, exists bool) {
+	v := m.updated_by
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpdatedBy returns the old "updated_by" field's value of the Discount entity.
+// If the Discount object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DiscountMutation) OldUpdatedBy(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUpdatedBy is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUpdatedBy requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpdatedBy: %w", err)
+	}
+	return oldValue.UpdatedBy, nil
+}
+
+// ClearUpdatedBy clears the value of the "updated_by" field.
+func (m *DiscountMutation) ClearUpdatedBy() {
+	m.updated_by = nil
+	m.clearedFields[discount.FieldUpdatedBy] = struct{}{}
+}
+
+// UpdatedByCleared returns if the "updated_by" field was cleared in this mutation.
+func (m *DiscountMutation) UpdatedByCleared() bool {
+	_, ok := m.clearedFields[discount.FieldUpdatedBy]
+	return ok
+}
+
+// ResetUpdatedBy resets all changes to the "updated_by" field.
+func (m *DiscountMutation) ResetUpdatedBy() {
+	m.updated_by = nil
+	delete(m.clearedFields, discount.FieldUpdatedBy)
+}
+
+// SetCode sets the "code" field.
+func (m *DiscountMutation) SetCode(s string) {
+	m.code = &s
+}
+
+// Code returns the value of the "code" field in the mutation.
+func (m *DiscountMutation) Code() (r string, exists bool) {
+	v := m.code
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCode returns the old "code" field's value of the Discount entity.
+// If the Discount object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DiscountMutation) OldCode(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCode is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCode requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCode: %w", err)
+	}
+	return oldValue.Code, nil
+}
+
+// ResetCode resets all changes to the "code" field.
+func (m *DiscountMutation) ResetCode() {
+	m.code = nil
+}
+
+// SetDescription sets the "description" field.
+func (m *DiscountMutation) SetDescription(s string) {
+	m.description = &s
+}
+
+// Description returns the value of the "description" field in the mutation.
+func (m *DiscountMutation) Description() (r string, exists bool) {
+	v := m.description
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDescription returns the old "description" field's value of the Discount entity.
+// If the Discount object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DiscountMutation) OldDescription(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDescription is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDescription requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDescription: %w", err)
+	}
+	return oldValue.Description, nil
+}
+
+// ClearDescription clears the value of the "description" field.
+func (m *DiscountMutation) ClearDescription() {
+	m.description = nil
+	m.clearedFields[discount.FieldDescription] = struct{}{}
+}
+
+// DescriptionCleared returns if the "description" field was cleared in this mutation.
+func (m *DiscountMutation) DescriptionCleared() bool {
+	_, ok := m.clearedFields[discount.FieldDescription]
+	return ok
+}
+
+// ResetDescription resets all changes to the "description" field.
+func (m *DiscountMutation) ResetDescription() {
+	m.description = nil
+	delete(m.clearedFields, discount.FieldDescription)
+}
+
+// SetDiscountType sets the "discount_type" field.
+func (m *DiscountMutation) SetDiscountType(tt types.DiscountType) {
+	m.discount_type = &tt
+}
+
+// DiscountType returns the value of the "discount_type" field in the mutation.
+func (m *DiscountMutation) DiscountType() (r types.DiscountType, exists bool) {
+	v := m.discount_type
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDiscountType returns the old "discount_type" field's value of the Discount entity.
+// If the Discount object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DiscountMutation) OldDiscountType(ctx context.Context) (v types.DiscountType, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDiscountType is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDiscountType requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDiscountType: %w", err)
+	}
+	return oldValue.DiscountType, nil
+}
+
+// ResetDiscountType resets all changes to the "discount_type" field.
+func (m *DiscountMutation) ResetDiscountType() {
+	m.discount_type = nil
+}
+
+// SetDiscountValue sets the "discount_value" field.
+func (m *DiscountMutation) SetDiscountValue(d decimal.Decimal) {
+	m.discount_value = &d
+}
+
+// DiscountValue returns the value of the "discount_value" field in the mutation.
+func (m *DiscountMutation) DiscountValue() (r decimal.Decimal, exists bool) {
+	v := m.discount_value
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDiscountValue returns the old "discount_value" field's value of the Discount entity.
+// If the Discount object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DiscountMutation) OldDiscountValue(ctx context.Context) (v decimal.Decimal, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDiscountValue is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDiscountValue requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDiscountValue: %w", err)
+	}
+	return oldValue.DiscountValue, nil
+}
+
+// ResetDiscountValue resets all changes to the "discount_value" field.
+func (m *DiscountMutation) ResetDiscountValue() {
+	m.discount_value = nil
+}
+
+// SetValidFrom sets the "valid_from" field.
+func (m *DiscountMutation) SetValidFrom(t time.Time) {
+	m.valid_from = &t
+}
+
+// ValidFrom returns the value of the "valid_from" field in the mutation.
+func (m *DiscountMutation) ValidFrom() (r time.Time, exists bool) {
+	v := m.valid_from
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldValidFrom returns the old "valid_from" field's value of the Discount entity.
+// If the Discount object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DiscountMutation) OldValidFrom(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldValidFrom is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldValidFrom requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldValidFrom: %w", err)
+	}
+	return oldValue.ValidFrom, nil
+}
+
+// ResetValidFrom resets all changes to the "valid_from" field.
+func (m *DiscountMutation) ResetValidFrom() {
+	m.valid_from = nil
+}
+
+// SetValidUntil sets the "valid_until" field.
+func (m *DiscountMutation) SetValidUntil(t time.Time) {
+	m.valid_until = &t
+}
+
+// ValidUntil returns the value of the "valid_until" field in the mutation.
+func (m *DiscountMutation) ValidUntil() (r time.Time, exists bool) {
+	v := m.valid_until
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldValidUntil returns the old "valid_until" field's value of the Discount entity.
+// If the Discount object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DiscountMutation) OldValidUntil(ctx context.Context) (v *time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldValidUntil is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldValidUntil requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldValidUntil: %w", err)
+	}
+	return oldValue.ValidUntil, nil
+}
+
+// ClearValidUntil clears the value of the "valid_until" field.
+func (m *DiscountMutation) ClearValidUntil() {
+	m.valid_until = nil
+	m.clearedFields[discount.FieldValidUntil] = struct{}{}
+}
+
+// ValidUntilCleared returns if the "valid_until" field was cleared in this mutation.
+func (m *DiscountMutation) ValidUntilCleared() bool {
+	_, ok := m.clearedFields[discount.FieldValidUntil]
+	return ok
+}
+
+// ResetValidUntil resets all changes to the "valid_until" field.
+func (m *DiscountMutation) ResetValidUntil() {
+	m.valid_until = nil
+	delete(m.clearedFields, discount.FieldValidUntil)
+}
+
+// SetIsActive sets the "is_active" field.
+func (m *DiscountMutation) SetIsActive(b bool) {
+	m.is_active = &b
+}
+
+// IsActive returns the value of the "is_active" field in the mutation.
+func (m *DiscountMutation) IsActive() (r bool, exists bool) {
+	v := m.is_active
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldIsActive returns the old "is_active" field's value of the Discount entity.
+// If the Discount object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DiscountMutation) OldIsActive(ctx context.Context) (v bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldIsActive is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldIsActive requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldIsActive: %w", err)
+	}
+	return oldValue.IsActive, nil
+}
+
+// ResetIsActive resets all changes to the "is_active" field.
+func (m *DiscountMutation) ResetIsActive() {
+	m.is_active = nil
+}
+
+// SetMaxUses sets the "max_uses" field.
+func (m *DiscountMutation) SetMaxUses(i int) {
+	m.max_uses = &i
+	m.addmax_uses = nil
+}
+
+// MaxUses returns the value of the "max_uses" field in the mutation.
+func (m *DiscountMutation) MaxUses() (r int, exists bool) {
+	v := m.max_uses
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldMaxUses returns the old "max_uses" field's value of the Discount entity.
+// If the Discount object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DiscountMutation) OldMaxUses(ctx context.Context) (v *int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldMaxUses is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldMaxUses requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldMaxUses: %w", err)
+	}
+	return oldValue.MaxUses, nil
+}
+
+// AddMaxUses adds i to the "max_uses" field.
+func (m *DiscountMutation) AddMaxUses(i int) {
+	if m.addmax_uses != nil {
+		*m.addmax_uses += i
+	} else {
+		m.addmax_uses = &i
+	}
+}
+
+// AddedMaxUses returns the value that was added to the "max_uses" field in this mutation.
+func (m *DiscountMutation) AddedMaxUses() (r int, exists bool) {
+	v := m.addmax_uses
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearMaxUses clears the value of the "max_uses" field.
+func (m *DiscountMutation) ClearMaxUses() {
+	m.max_uses = nil
+	m.addmax_uses = nil
+	m.clearedFields[discount.FieldMaxUses] = struct{}{}
+}
+
+// MaxUsesCleared returns if the "max_uses" field was cleared in this mutation.
+func (m *DiscountMutation) MaxUsesCleared() bool {
+	_, ok := m.clearedFields[discount.FieldMaxUses]
+	return ok
+}
+
+// ResetMaxUses resets all changes to the "max_uses" field.
+func (m *DiscountMutation) ResetMaxUses() {
+	m.max_uses = nil
+	m.addmax_uses = nil
+	delete(m.clearedFields, discount.FieldMaxUses)
+}
+
+// SetMinOrderValue sets the "min_order_value" field.
+func (m *DiscountMutation) SetMinOrderValue(d decimal.Decimal) {
+	m.min_order_value = &d
+}
+
+// MinOrderValue returns the value of the "min_order_value" field in the mutation.
+func (m *DiscountMutation) MinOrderValue() (r decimal.Decimal, exists bool) {
+	v := m.min_order_value
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldMinOrderValue returns the old "min_order_value" field's value of the Discount entity.
+// If the Discount object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DiscountMutation) OldMinOrderValue(ctx context.Context) (v *decimal.Decimal, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldMinOrderValue is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldMinOrderValue requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldMinOrderValue: %w", err)
+	}
+	return oldValue.MinOrderValue, nil
+}
+
+// ClearMinOrderValue clears the value of the "min_order_value" field.
+func (m *DiscountMutation) ClearMinOrderValue() {
+	m.min_order_value = nil
+	m.clearedFields[discount.FieldMinOrderValue] = struct{}{}
+}
+
+// MinOrderValueCleared returns if the "min_order_value" field was cleared in this mutation.
+func (m *DiscountMutation) MinOrderValueCleared() bool {
+	_, ok := m.clearedFields[discount.FieldMinOrderValue]
+	return ok
+}
+
+// ResetMinOrderValue resets all changes to the "min_order_value" field.
+func (m *DiscountMutation) ResetMinOrderValue() {
+	m.min_order_value = nil
+	delete(m.clearedFields, discount.FieldMinOrderValue)
+}
+
+// SetIsCombinable sets the "is_combinable" field.
+func (m *DiscountMutation) SetIsCombinable(b bool) {
+	m.is_combinable = &b
+}
+
+// IsCombinable returns the value of the "is_combinable" field in the mutation.
+func (m *DiscountMutation) IsCombinable() (r bool, exists bool) {
+	v := m.is_combinable
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldIsCombinable returns the old "is_combinable" field's value of the Discount entity.
+// If the Discount object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DiscountMutation) OldIsCombinable(ctx context.Context) (v bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldIsCombinable is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldIsCombinable requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldIsCombinable: %w", err)
+	}
+	return oldValue.IsCombinable, nil
+}
+
+// ResetIsCombinable resets all changes to the "is_combinable" field.
+func (m *DiscountMutation) ResetIsCombinable() {
+	m.is_combinable = nil
+}
+
+// SetMetadata sets the "metadata" field.
+func (m *DiscountMutation) SetMetadata(value map[string]string) {
+	m.metadata = &value
+}
+
+// Metadata returns the value of the "metadata" field in the mutation.
+func (m *DiscountMutation) Metadata() (r map[string]string, exists bool) {
+	v := m.metadata
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldMetadata returns the old "metadata" field's value of the Discount entity.
+// If the Discount object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DiscountMutation) OldMetadata(ctx context.Context) (v map[string]string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldMetadata is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldMetadata requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldMetadata: %w", err)
+	}
+	return oldValue.Metadata, nil
+}
+
+// ClearMetadata clears the value of the "metadata" field.
+func (m *DiscountMutation) ClearMetadata() {
+	m.metadata = nil
+	m.clearedFields[discount.FieldMetadata] = struct{}{}
+}
+
+// MetadataCleared returns if the "metadata" field was cleared in this mutation.
+func (m *DiscountMutation) MetadataCleared() bool {
+	_, ok := m.clearedFields[discount.FieldMetadata]
+	return ok
+}
+
+// ResetMetadata resets all changes to the "metadata" field.
+func (m *DiscountMutation) ResetMetadata() {
+	m.metadata = nil
+	delete(m.clearedFields, discount.FieldMetadata)
+}
+
+// Where appends a list predicates to the DiscountMutation builder.
+func (m *DiscountMutation) Where(ps ...predicate.Discount) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the DiscountMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *DiscountMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.Discount, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *DiscountMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *DiscountMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (Discount).
+func (m *DiscountMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *DiscountMutation) Fields() []string {
+	fields := make([]string, 0, 16)
+	if m.status != nil {
+		fields = append(fields, discount.FieldStatus)
+	}
+	if m.created_at != nil {
+		fields = append(fields, discount.FieldCreatedAt)
+	}
+	if m.updated_at != nil {
+		fields = append(fields, discount.FieldUpdatedAt)
+	}
+	if m.created_by != nil {
+		fields = append(fields, discount.FieldCreatedBy)
+	}
+	if m.updated_by != nil {
+		fields = append(fields, discount.FieldUpdatedBy)
+	}
+	if m.code != nil {
+		fields = append(fields, discount.FieldCode)
+	}
+	if m.description != nil {
+		fields = append(fields, discount.FieldDescription)
+	}
+	if m.discount_type != nil {
+		fields = append(fields, discount.FieldDiscountType)
+	}
+	if m.discount_value != nil {
+		fields = append(fields, discount.FieldDiscountValue)
+	}
+	if m.valid_from != nil {
+		fields = append(fields, discount.FieldValidFrom)
+	}
+	if m.valid_until != nil {
+		fields = append(fields, discount.FieldValidUntil)
+	}
+	if m.is_active != nil {
+		fields = append(fields, discount.FieldIsActive)
+	}
+	if m.max_uses != nil {
+		fields = append(fields, discount.FieldMaxUses)
+	}
+	if m.min_order_value != nil {
+		fields = append(fields, discount.FieldMinOrderValue)
+	}
+	if m.is_combinable != nil {
+		fields = append(fields, discount.FieldIsCombinable)
+	}
+	if m.metadata != nil {
+		fields = append(fields, discount.FieldMetadata)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *DiscountMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case discount.FieldStatus:
+		return m.Status()
+	case discount.FieldCreatedAt:
+		return m.CreatedAt()
+	case discount.FieldUpdatedAt:
+		return m.UpdatedAt()
+	case discount.FieldCreatedBy:
+		return m.CreatedBy()
+	case discount.FieldUpdatedBy:
+		return m.UpdatedBy()
+	case discount.FieldCode:
+		return m.Code()
+	case discount.FieldDescription:
+		return m.Description()
+	case discount.FieldDiscountType:
+		return m.DiscountType()
+	case discount.FieldDiscountValue:
+		return m.DiscountValue()
+	case discount.FieldValidFrom:
+		return m.ValidFrom()
+	case discount.FieldValidUntil:
+		return m.ValidUntil()
+	case discount.FieldIsActive:
+		return m.IsActive()
+	case discount.FieldMaxUses:
+		return m.MaxUses()
+	case discount.FieldMinOrderValue:
+		return m.MinOrderValue()
+	case discount.FieldIsCombinable:
+		return m.IsCombinable()
+	case discount.FieldMetadata:
+		return m.Metadata()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *DiscountMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case discount.FieldStatus:
+		return m.OldStatus(ctx)
+	case discount.FieldCreatedAt:
+		return m.OldCreatedAt(ctx)
+	case discount.FieldUpdatedAt:
+		return m.OldUpdatedAt(ctx)
+	case discount.FieldCreatedBy:
+		return m.OldCreatedBy(ctx)
+	case discount.FieldUpdatedBy:
+		return m.OldUpdatedBy(ctx)
+	case discount.FieldCode:
+		return m.OldCode(ctx)
+	case discount.FieldDescription:
+		return m.OldDescription(ctx)
+	case discount.FieldDiscountType:
+		return m.OldDiscountType(ctx)
+	case discount.FieldDiscountValue:
+		return m.OldDiscountValue(ctx)
+	case discount.FieldValidFrom:
+		return m.OldValidFrom(ctx)
+	case discount.FieldValidUntil:
+		return m.OldValidUntil(ctx)
+	case discount.FieldIsActive:
+		return m.OldIsActive(ctx)
+	case discount.FieldMaxUses:
+		return m.OldMaxUses(ctx)
+	case discount.FieldMinOrderValue:
+		return m.OldMinOrderValue(ctx)
+	case discount.FieldIsCombinable:
+		return m.OldIsCombinable(ctx)
+	case discount.FieldMetadata:
+		return m.OldMetadata(ctx)
+	}
+	return nil, fmt.Errorf("unknown Discount field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *DiscountMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case discount.FieldStatus:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetStatus(v)
+		return nil
+	case discount.FieldCreatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreatedAt(v)
+		return nil
+	case discount.FieldUpdatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUpdatedAt(v)
+		return nil
+	case discount.FieldCreatedBy:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreatedBy(v)
+		return nil
+	case discount.FieldUpdatedBy:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUpdatedBy(v)
+		return nil
+	case discount.FieldCode:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCode(v)
+		return nil
+	case discount.FieldDescription:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDescription(v)
+		return nil
+	case discount.FieldDiscountType:
+		v, ok := value.(types.DiscountType)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDiscountType(v)
+		return nil
+	case discount.FieldDiscountValue:
+		v, ok := value.(decimal.Decimal)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDiscountValue(v)
+		return nil
+	case discount.FieldValidFrom:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetValidFrom(v)
+		return nil
+	case discount.FieldValidUntil:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetValidUntil(v)
+		return nil
+	case discount.FieldIsActive:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetIsActive(v)
+		return nil
+	case discount.FieldMaxUses:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetMaxUses(v)
+		return nil
+	case discount.FieldMinOrderValue:
+		v, ok := value.(decimal.Decimal)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetMinOrderValue(v)
+		return nil
+	case discount.FieldIsCombinable:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetIsCombinable(v)
+		return nil
+	case discount.FieldMetadata:
+		v, ok := value.(map[string]string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetMetadata(v)
+		return nil
+	}
+	return fmt.Errorf("unknown Discount field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *DiscountMutation) AddedFields() []string {
+	var fields []string
+	if m.addmax_uses != nil {
+		fields = append(fields, discount.FieldMaxUses)
+	}
+	return fields
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *DiscountMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case discount.FieldMaxUses:
+		return m.AddedMaxUses()
+	}
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *DiscountMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	case discount.FieldMaxUses:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddMaxUses(v)
+		return nil
+	}
+	return fmt.Errorf("unknown Discount numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *DiscountMutation) ClearedFields() []string {
+	var fields []string
+	if m.FieldCleared(discount.FieldCreatedBy) {
+		fields = append(fields, discount.FieldCreatedBy)
+	}
+	if m.FieldCleared(discount.FieldUpdatedBy) {
+		fields = append(fields, discount.FieldUpdatedBy)
+	}
+	if m.FieldCleared(discount.FieldDescription) {
+		fields = append(fields, discount.FieldDescription)
+	}
+	if m.FieldCleared(discount.FieldValidUntil) {
+		fields = append(fields, discount.FieldValidUntil)
+	}
+	if m.FieldCleared(discount.FieldMaxUses) {
+		fields = append(fields, discount.FieldMaxUses)
+	}
+	if m.FieldCleared(discount.FieldMinOrderValue) {
+		fields = append(fields, discount.FieldMinOrderValue)
+	}
+	if m.FieldCleared(discount.FieldMetadata) {
+		fields = append(fields, discount.FieldMetadata)
+	}
+	return fields
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *DiscountMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *DiscountMutation) ClearField(name string) error {
+	switch name {
+	case discount.FieldCreatedBy:
+		m.ClearCreatedBy()
+		return nil
+	case discount.FieldUpdatedBy:
+		m.ClearUpdatedBy()
+		return nil
+	case discount.FieldDescription:
+		m.ClearDescription()
+		return nil
+	case discount.FieldValidUntil:
+		m.ClearValidUntil()
+		return nil
+	case discount.FieldMaxUses:
+		m.ClearMaxUses()
+		return nil
+	case discount.FieldMinOrderValue:
+		m.ClearMinOrderValue()
+		return nil
+	case discount.FieldMetadata:
+		m.ClearMetadata()
+		return nil
+	}
+	return fmt.Errorf("unknown Discount nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *DiscountMutation) ResetField(name string) error {
+	switch name {
+	case discount.FieldStatus:
+		m.ResetStatus()
+		return nil
+	case discount.FieldCreatedAt:
+		m.ResetCreatedAt()
+		return nil
+	case discount.FieldUpdatedAt:
+		m.ResetUpdatedAt()
+		return nil
+	case discount.FieldCreatedBy:
+		m.ResetCreatedBy()
+		return nil
+	case discount.FieldUpdatedBy:
+		m.ResetUpdatedBy()
+		return nil
+	case discount.FieldCode:
+		m.ResetCode()
+		return nil
+	case discount.FieldDescription:
+		m.ResetDescription()
+		return nil
+	case discount.FieldDiscountType:
+		m.ResetDiscountType()
+		return nil
+	case discount.FieldDiscountValue:
+		m.ResetDiscountValue()
+		return nil
+	case discount.FieldValidFrom:
+		m.ResetValidFrom()
+		return nil
+	case discount.FieldValidUntil:
+		m.ResetValidUntil()
+		return nil
+	case discount.FieldIsActive:
+		m.ResetIsActive()
+		return nil
+	case discount.FieldMaxUses:
+		m.ResetMaxUses()
+		return nil
+	case discount.FieldMinOrderValue:
+		m.ResetMinOrderValue()
+		return nil
+	case discount.FieldIsCombinable:
+		m.ResetIsCombinable()
+		return nil
+	case discount.FieldMetadata:
+		m.ResetMetadata()
+		return nil
+	}
+	return fmt.Errorf("unknown Discount field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *DiscountMutation) AddedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *DiscountMutation) AddedIDs(name string) []ent.Value {
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *DiscountMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *DiscountMutation) RemovedIDs(name string) []ent.Value {
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *DiscountMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *DiscountMutation) EdgeCleared(name string) bool {
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *DiscountMutation) ClearEdge(name string) error {
+	return fmt.Errorf("unknown Discount unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *DiscountMutation) ResetEdge(name string) error {
+	return fmt.Errorf("unknown Discount edge %s", name)
 }
 
 // FileUploadMutation represents an operation that mutates the FileUpload nodes in the graph.

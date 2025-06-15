@@ -6,12 +6,14 @@ import (
 	"time"
 
 	"github.com/omkar273/codegeeky/ent/category"
+	"github.com/omkar273/codegeeky/ent/discount"
 	"github.com/omkar273/codegeeky/ent/fileupload"
 	"github.com/omkar273/codegeeky/ent/internship"
 	"github.com/omkar273/codegeeky/ent/payment"
 	"github.com/omkar273/codegeeky/ent/paymentattempt"
 	"github.com/omkar273/codegeeky/ent/schema"
 	"github.com/omkar273/codegeeky/ent/user"
+	"github.com/omkar273/codegeeky/internal/types"
 	"github.com/shopspring/decimal"
 )
 
@@ -50,6 +52,57 @@ func init() {
 	categoryDescID := categoryFields[0].Descriptor()
 	// category.DefaultID holds the default value on creation for the id field.
 	category.DefaultID = categoryDescID.Default.(func() string)
+	discountMixin := schema.Discount{}.Mixin()
+	discountMixinFields0 := discountMixin[0].Fields()
+	_ = discountMixinFields0
+	discountFields := schema.Discount{}.Fields()
+	_ = discountFields
+	// discountDescStatus is the schema descriptor for status field.
+	discountDescStatus := discountMixinFields0[0].Descriptor()
+	// discount.DefaultStatus holds the default value on creation for the status field.
+	discount.DefaultStatus = discountDescStatus.Default.(string)
+	// discountDescCreatedAt is the schema descriptor for created_at field.
+	discountDescCreatedAt := discountMixinFields0[1].Descriptor()
+	// discount.DefaultCreatedAt holds the default value on creation for the created_at field.
+	discount.DefaultCreatedAt = discountDescCreatedAt.Default.(func() time.Time)
+	// discountDescUpdatedAt is the schema descriptor for updated_at field.
+	discountDescUpdatedAt := discountMixinFields0[2].Descriptor()
+	// discount.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	discount.DefaultUpdatedAt = discountDescUpdatedAt.Default.(func() time.Time)
+	// discount.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	discount.UpdateDefaultUpdatedAt = discountDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// discountDescCode is the schema descriptor for code field.
+	discountDescCode := discountFields[1].Descriptor()
+	// discount.CodeValidator is a validator for the "code" field. It is called by the builders before save.
+	discount.CodeValidator = discountDescCode.Validators[0].(func(string) error)
+	// discountDescDiscountType is the schema descriptor for discount_type field.
+	discountDescDiscountType := discountFields[3].Descriptor()
+	// discount.DefaultDiscountType holds the default value on creation for the discount_type field.
+	discount.DefaultDiscountType = types.DiscountType(discountDescDiscountType.Default.(string))
+	// discountDescDiscountValue is the schema descriptor for discount_value field.
+	discountDescDiscountValue := discountFields[4].Descriptor()
+	// discount.DefaultDiscountValue holds the default value on creation for the discount_value field.
+	discount.DefaultDiscountValue = discountDescDiscountValue.Default.(decimal.Decimal)
+	// discountDescValidFrom is the schema descriptor for valid_from field.
+	discountDescValidFrom := discountFields[5].Descriptor()
+	// discount.DefaultValidFrom holds the default value on creation for the valid_from field.
+	discount.DefaultValidFrom = discountDescValidFrom.Default.(func() time.Time)
+	// discountDescIsActive is the schema descriptor for is_active field.
+	discountDescIsActive := discountFields[7].Descriptor()
+	// discount.DefaultIsActive holds the default value on creation for the is_active field.
+	discount.DefaultIsActive = discountDescIsActive.Default.(bool)
+	// discountDescIsCombinable is the schema descriptor for is_combinable field.
+	discountDescIsCombinable := discountFields[10].Descriptor()
+	// discount.DefaultIsCombinable holds the default value on creation for the is_combinable field.
+	discount.DefaultIsCombinable = discountDescIsCombinable.Default.(bool)
+	// discountDescMetadata is the schema descriptor for metadata field.
+	discountDescMetadata := discountFields[11].Descriptor()
+	// discount.DefaultMetadata holds the default value on creation for the metadata field.
+	discount.DefaultMetadata = discountDescMetadata.Default.(map[string]string)
+	// discountDescID is the schema descriptor for id field.
+	discountDescID := discountFields[0].Descriptor()
+	// discount.DefaultID holds the default value on creation for the id field.
+	discount.DefaultID = discountDescID.Default.(func() string)
 	fileuploadMixin := schema.FileUpload{}.Mixin()
 	fileuploadMixinFields0 := fileuploadMixin[0].Fields()
 	_ = fileuploadMixinFields0

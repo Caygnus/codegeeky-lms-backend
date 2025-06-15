@@ -43,6 +43,32 @@ var (
 			},
 		},
 	}
+	// DiscountsColumns holds the columns for the "discounts" table.
+	DiscountsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeString, SchemaType: map[string]string{"postgres": "varchar(255)"}},
+		{Name: "status", Type: field.TypeString, Default: "published", SchemaType: map[string]string{"postgres": "varchar(20)"}},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "created_by", Type: field.TypeString, Nullable: true},
+		{Name: "updated_by", Type: field.TypeString, Nullable: true},
+		{Name: "code", Type: field.TypeString, Unique: true, SchemaType: map[string]string{"postgres": "varchar(255)"}},
+		{Name: "description", Type: field.TypeString, Nullable: true, SchemaType: map[string]string{"postgres": "varchar(255)"}},
+		{Name: "discount_type", Type: field.TypeString, Default: "flat", SchemaType: map[string]string{"postgres": "varchar(255)"}},
+		{Name: "discount_value", Type: field.TypeOther, SchemaType: map[string]string{"postgres": "decimal(10,2)"}},
+		{Name: "valid_from", Type: field.TypeTime},
+		{Name: "valid_until", Type: field.TypeTime, Nullable: true},
+		{Name: "is_active", Type: field.TypeBool, Default: true},
+		{Name: "max_uses", Type: field.TypeInt, Nullable: true},
+		{Name: "min_order_value", Type: field.TypeOther, Nullable: true, SchemaType: map[string]string{"postgres": "decimal(10,2)"}},
+		{Name: "is_combinable", Type: field.TypeBool, Default: false},
+		{Name: "metadata", Type: field.TypeJSON, Nullable: true},
+	}
+	// DiscountsTable holds the schema information for the "discounts" table.
+	DiscountsTable = &schema.Table{
+		Name:       "discounts",
+		Columns:    DiscountsColumns,
+		PrimaryKey: []*schema.Column{DiscountsColumns[0]},
+	}
 	// FileUploadsColumns holds the columns for the "file_uploads" table.
 	FileUploadsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeString, SchemaType: map[string]string{"postgres": "varchar(255)"}},
@@ -245,6 +271,7 @@ var (
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		CategoriesTable,
+		DiscountsTable,
 		FileUploadsTable,
 		InternshipsTable,
 		PaymentsTable,

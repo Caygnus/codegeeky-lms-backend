@@ -16,6 +16,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/omkar273/codegeeky/ent/category"
+	"github.com/omkar273/codegeeky/ent/discount"
 	"github.com/omkar273/codegeeky/ent/fileupload"
 	"github.com/omkar273/codegeeky/ent/internship"
 	"github.com/omkar273/codegeeky/ent/payment"
@@ -30,6 +31,8 @@ type Client struct {
 	Schema *migrate.Schema
 	// Category is the client for interacting with the Category builders.
 	Category *CategoryClient
+	// Discount is the client for interacting with the Discount builders.
+	Discount *DiscountClient
 	// FileUpload is the client for interacting with the FileUpload builders.
 	FileUpload *FileUploadClient
 	// Internship is the client for interacting with the Internship builders.
@@ -52,6 +55,7 @@ func NewClient(opts ...Option) *Client {
 func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
 	c.Category = NewCategoryClient(c.config)
+	c.Discount = NewDiscountClient(c.config)
 	c.FileUpload = NewFileUploadClient(c.config)
 	c.Internship = NewInternshipClient(c.config)
 	c.Payment = NewPaymentClient(c.config)
@@ -150,6 +154,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		ctx:            ctx,
 		config:         cfg,
 		Category:       NewCategoryClient(cfg),
+		Discount:       NewDiscountClient(cfg),
 		FileUpload:     NewFileUploadClient(cfg),
 		Internship:     NewInternshipClient(cfg),
 		Payment:        NewPaymentClient(cfg),
@@ -175,6 +180,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		ctx:            ctx,
 		config:         cfg,
 		Category:       NewCategoryClient(cfg),
+		Discount:       NewDiscountClient(cfg),
 		FileUpload:     NewFileUploadClient(cfg),
 		Internship:     NewInternshipClient(cfg),
 		Payment:        NewPaymentClient(cfg),
@@ -209,7 +215,8 @@ func (c *Client) Close() error {
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
 	for _, n := range []interface{ Use(...Hook) }{
-		c.Category, c.FileUpload, c.Internship, c.Payment, c.PaymentAttempt, c.User,
+		c.Category, c.Discount, c.FileUpload, c.Internship, c.Payment, c.PaymentAttempt,
+		c.User,
 	} {
 		n.Use(hooks...)
 	}
@@ -219,7 +226,8 @@ func (c *Client) Use(hooks ...Hook) {
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
 	for _, n := range []interface{ Intercept(...Interceptor) }{
-		c.Category, c.FileUpload, c.Internship, c.Payment, c.PaymentAttempt, c.User,
+		c.Category, c.Discount, c.FileUpload, c.Internship, c.Payment, c.PaymentAttempt,
+		c.User,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -230,6 +238,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 	switch m := m.(type) {
 	case *CategoryMutation:
 		return c.Category.mutate(ctx, m)
+	case *DiscountMutation:
+		return c.Discount.mutate(ctx, m)
 	case *FileUploadMutation:
 		return c.FileUpload.mutate(ctx, m)
 	case *InternshipMutation:
@@ -391,6 +401,139 @@ func (c *CategoryClient) mutate(ctx context.Context, m *CategoryMutation) (Value
 		return (&CategoryDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("ent: unknown Category mutation op: %q", m.Op())
+	}
+}
+
+// DiscountClient is a client for the Discount schema.
+type DiscountClient struct {
+	config
+}
+
+// NewDiscountClient returns a client for the Discount from the given config.
+func NewDiscountClient(c config) *DiscountClient {
+	return &DiscountClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `discount.Hooks(f(g(h())))`.
+func (c *DiscountClient) Use(hooks ...Hook) {
+	c.hooks.Discount = append(c.hooks.Discount, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `discount.Intercept(f(g(h())))`.
+func (c *DiscountClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Discount = append(c.inters.Discount, interceptors...)
+}
+
+// Create returns a builder for creating a Discount entity.
+func (c *DiscountClient) Create() *DiscountCreate {
+	mutation := newDiscountMutation(c.config, OpCreate)
+	return &DiscountCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Discount entities.
+func (c *DiscountClient) CreateBulk(builders ...*DiscountCreate) *DiscountCreateBulk {
+	return &DiscountCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *DiscountClient) MapCreateBulk(slice any, setFunc func(*DiscountCreate, int)) *DiscountCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &DiscountCreateBulk{err: fmt.Errorf("calling to DiscountClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*DiscountCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &DiscountCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Discount.
+func (c *DiscountClient) Update() *DiscountUpdate {
+	mutation := newDiscountMutation(c.config, OpUpdate)
+	return &DiscountUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *DiscountClient) UpdateOne(d *Discount) *DiscountUpdateOne {
+	mutation := newDiscountMutation(c.config, OpUpdateOne, withDiscount(d))
+	return &DiscountUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *DiscountClient) UpdateOneID(id string) *DiscountUpdateOne {
+	mutation := newDiscountMutation(c.config, OpUpdateOne, withDiscountID(id))
+	return &DiscountUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Discount.
+func (c *DiscountClient) Delete() *DiscountDelete {
+	mutation := newDiscountMutation(c.config, OpDelete)
+	return &DiscountDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *DiscountClient) DeleteOne(d *Discount) *DiscountDeleteOne {
+	return c.DeleteOneID(d.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *DiscountClient) DeleteOneID(id string) *DiscountDeleteOne {
+	builder := c.Delete().Where(discount.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &DiscountDeleteOne{builder}
+}
+
+// Query returns a query builder for Discount.
+func (c *DiscountClient) Query() *DiscountQuery {
+	return &DiscountQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeDiscount},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a Discount entity by its id.
+func (c *DiscountClient) Get(ctx context.Context, id string) (*Discount, error) {
+	return c.Query().Where(discount.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *DiscountClient) GetX(ctx context.Context, id string) *Discount {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *DiscountClient) Hooks() []Hook {
+	return c.hooks.Discount
+}
+
+// Interceptors returns the client interceptors.
+func (c *DiscountClient) Interceptors() []Interceptor {
+	return c.inters.Discount
+}
+
+func (c *DiscountClient) mutate(ctx context.Context, m *DiscountMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&DiscountCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&DiscountUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&DiscountUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&DiscountDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown Discount mutation op: %q", m.Op())
 	}
 }
 
@@ -1110,10 +1253,11 @@ func (c *UserClient) mutate(ctx context.Context, m *UserMutation) (Value, error)
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		Category, FileUpload, Internship, Payment, PaymentAttempt, User []ent.Hook
+		Category, Discount, FileUpload, Internship, Payment, PaymentAttempt,
+		User []ent.Hook
 	}
 	inters struct {
-		Category, FileUpload, Internship, Payment, PaymentAttempt,
+		Category, Discount, FileUpload, Internship, Payment, PaymentAttempt,
 		User []ent.Interceptor
 	}
 )
