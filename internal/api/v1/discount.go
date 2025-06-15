@@ -42,7 +42,7 @@ func (h *DiscountHandler) CreateDiscount(c *gin.Context) {
 		return
 	}
 
-	discount, err := h.discountService.Create(c, &req)
+	discount, err := h.discountService.Create(c.Request.Context(), &req)
 	if err != nil {
 		c.Error(err)
 		return
@@ -72,7 +72,7 @@ func (h *DiscountHandler) GetDiscount(c *gin.Context) {
 		return
 	}
 
-	discount, err := h.discountService.GetByID(c, id)
+	discount, err := h.discountService.GetByID(c.Request.Context(), id)
 	if err != nil {
 		c.Error(err)
 		return
@@ -112,7 +112,7 @@ func (h *DiscountHandler) UpdateDiscount(c *gin.Context) {
 		return
 	}
 
-	discount, err := h.discountService.Update(c, id, &req)
+	discount, err := h.discountService.Update(c.Request.Context(), id, &req)
 	if err != nil {
 		c.Error(err)
 		return
@@ -142,7 +142,7 @@ func (h *DiscountHandler) DeleteDiscount(c *gin.Context) {
 		return
 	}
 
-	if err := h.discountService.Delete(c, id); err != nil {
+	if err := h.discountService.Delete(c.Request.Context(), id); err != nil {
 		c.Error(err)
 		return
 	}
@@ -175,7 +175,7 @@ func (h *DiscountHandler) ListDiscounts(c *gin.Context) {
 		return
 	}
 
-	discounts, err := h.discountService.List(c, filter)
+	discounts, err := h.discountService.List(c.Request.Context(), filter)
 	if err != nil {
 		c.Error(err)
 		return
@@ -205,7 +205,7 @@ func (h *DiscountHandler) GetDiscountByCode(c *gin.Context) {
 		return
 	}
 
-	discount, err := h.discountService.GetByCode(c, code)
+	discount, err := h.discountService.GetByCode(c.Request.Context(), code)
 	if err != nil {
 		c.Error(err)
 		return

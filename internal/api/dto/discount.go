@@ -76,6 +76,7 @@ func (r *CreateDiscountRequest) Validate() error {
 
 func (r *CreateDiscountRequest) ToDiscount(ctx context.Context) *domainDiscount.Discount {
 	return &domainDiscount.Discount{
+		ID:            types.GenerateUUIDWithPrefix(types.UUID_PREFIX_DISCOUNT),
 		Code:          r.Code,
 		Description:   r.Description,
 		DiscountType:  r.DiscountType,

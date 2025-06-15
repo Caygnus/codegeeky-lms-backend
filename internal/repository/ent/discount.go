@@ -2,7 +2,6 @@ package ent
 
 import (
 	"context"
-	"time"
 
 	"github.com/omkar273/codegeeky/ent"
 	"github.com/omkar273/codegeeky/ent/discount"
@@ -62,11 +61,29 @@ func (r *discountRepository) Create(ctx context.Context, d *domainDiscount.Disco
 		SetIsCombinable(d.IsCombinable).
 		SetMetadata(d.Metadata).
 		SetStatus(string(types.StatusPublished)).
-		SetCreatedAt(time.Now().UTC()).
-		SetUpdatedAt(time.Now().UTC()).
-		SetCreatedBy(types.GetUserID(ctx)).
-		SetUpdatedBy(types.GetUserID(ctx)).
+		SetCreatedAt(d.CreatedAt).
+		SetUpdatedAt(d.UpdatedAt).
+		SetCreatedBy(d.CreatedBy).
+		SetUpdatedBy(d.UpdatedBy).
 		Save(ctx)
+
+	if err != nil {
+		if ent.IsConstraintError(err) {
+			return ierr.WithError(err).
+				WithHint("Discount with this code already exists").
+				WithReportableDetails(map[string]any{
+					"code": d.Code,
+				}).
+				Mark(ierr.ErrAlreadyExists)
+		}
+
+		return ierr.WithError(err).
+			WithHint("Failed to create discount").
+			WithReportableDetails(map[string]any{
+				"discount": d,
+			}).
+			Mark(ierr.ErrDatabase)
+	}
 
 	return err
 }
@@ -86,6 +103,7 @@ func (r *discountRepository) Get(ctx context.Context, id string) (*domainDiscoun
 				}).
 				Mark(ierr.ErrNotFound)
 		}
+
 		return nil, ierr.WithError(err).
 			WithHint("Failed to get discount").
 			WithReportableDetails(map[string]any{

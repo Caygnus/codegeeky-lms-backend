@@ -9,19 +9,19 @@ import (
 )
 
 type Discount struct {
-	ID             string             `json:"id,omitempty"`
-	Code           string             `json:"code,omitempty"`
-	Description    string             `json:"description,omitempty"`
-	DiscountType   types.DiscountType `json:"discount_type,omitempty"`
-	DiscountValue  decimal.Decimal    `json:"discount_value,omitempty"`
-	ValidFrom      time.Time          `json:"valid_from,omitempty"`
-	ValidUntil     *time.Time         `json:"valid_until,omitempty"`
-	IsActive       bool               `json:"is_active,omitempty"`
-	MaxUses        *int               `json:"max_uses,omitempty"`
-	MinOrderValue  *decimal.Decimal   `json:"min_order_value,omitempty"`
-	IsCombinable   bool               `json:"is_combinable,omitempty"`
-	types.Metadata `json:"metadata,omitempty"`
-	types.BaseModel  
+	ID             string             `json:"id,"`
+	Code           string             `json:"code"`
+	Description    string             `json:"description"`
+	DiscountType   types.DiscountType `json:"discount_type"`
+	DiscountValue  decimal.Decimal    `json:"discount_value"`
+	ValidFrom      time.Time          `json:"valid_from"`
+	ValidUntil     *time.Time         `json:"valid_until"`
+	IsActive       bool               `json:"is_active"`
+	MaxUses        *int               `json:"max_uses"`
+	MinOrderValue  *decimal.Decimal   `json:"min_order_value"`
+	IsCombinable   bool               `json:"is_combinable"`
+	types.Metadata `json:"metadata"`
+	types.BaseModel
 }
 
 func FromEnt(ent *ent.Discount) *Discount {
@@ -39,6 +39,7 @@ func FromEnt(ent *ent.Discount) *Discount {
 		IsCombinable:  ent.IsCombinable,
 		Metadata:      ent.Metadata,
 		BaseModel: types.BaseModel{
+			Status:    types.Status(ent.Status),
 			CreatedAt: ent.CreatedAt,
 			UpdatedAt: ent.UpdatedAt,
 			CreatedBy: ent.CreatedBy,
