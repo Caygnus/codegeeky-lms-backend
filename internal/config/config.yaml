@@ -44,3 +44,29 @@ cache:
 razorpay:
   api_key: "rzp_test_1234567890"
   api_secret: "1234567890"
+
+webhook:
+  enabled: false
+  pubsub: "memory"
+  topic: "webhooks"
+  max_retries: 3
+  initial_interval: 1s
+  max_interval: 10s
+  multiplier: 2.0
+  max_elapsed_time: 2m
+  memory:
+    enabled: true
+    max_messages: 1000
+    max_message_size: 1024
+    max_message_ttl: 60000
+    max_message_batch_size: 100
+    max_message_batch_timeout: 1000
+  kafka:
+    enabled: false
+    brokers:
+      - "localhost:9092"
+    topic: "codegeeky-webhook"
+    group_id: "codegeeky-webhook-group"
+    auto_offset_reset: "earliest"
+    enable_auto_commit: true
+    session_timeout: 30000

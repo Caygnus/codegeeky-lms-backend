@@ -22,7 +22,7 @@ type WebhookPublisher interface {
 // Handler implements handler.Handler using watermill's gochannel
 type webhookPublisher struct {
 	pubSub pubsub.PubSub
-	config *config.Webhook
+	config *config.WebhookConfig
 	logger *logger.Logger
 }
 

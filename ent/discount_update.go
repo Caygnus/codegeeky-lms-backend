@@ -69,20 +69,6 @@ func (du *DiscountUpdate) ClearUpdatedBy() *DiscountUpdate {
 	return du
 }
 
-// SetCode sets the "code" field.
-func (du *DiscountUpdate) SetCode(s string) *DiscountUpdate {
-	du.mutation.SetCode(s)
-	return du
-}
-
-// SetNillableCode sets the "code" field if the given value is not nil.
-func (du *DiscountUpdate) SetNillableCode(s *string) *DiscountUpdate {
-	if s != nil {
-		du.SetCode(*s)
-	}
-	return du
-}
-
 // SetDescription sets the "description" field.
 func (du *DiscountUpdate) SetDescription(s string) *DiscountUpdate {
 	du.mutation.SetDescription(s)
@@ -251,20 +237,7 @@ func (du *DiscountUpdate) defaults() {
 	}
 }
 
-// check runs all checks and user-defined validators on the builder.
-func (du *DiscountUpdate) check() error {
-	if v, ok := du.mutation.Code(); ok {
-		if err := discount.CodeValidator(v); err != nil {
-			return &ValidationError{Name: "code", err: fmt.Errorf(`ent: validator failed for field "Discount.code": %w`, err)}
-		}
-	}
-	return nil
-}
-
 func (du *DiscountUpdate) sqlSave(ctx context.Context) (n int, err error) {
-	if err := du.check(); err != nil {
-		return n, err
-	}
 	_spec := sqlgraph.NewUpdateSpec(discount.Table, discount.Columns, sqlgraph.NewFieldSpec(discount.FieldID, field.TypeString))
 	if ps := du.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
@@ -287,9 +260,6 @@ func (du *DiscountUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if du.mutation.UpdatedByCleared() {
 		_spec.ClearField(discount.FieldUpdatedBy, field.TypeString)
-	}
-	if value, ok := du.mutation.Code(); ok {
-		_spec.SetField(discount.FieldCode, field.TypeString, value)
 	}
 	if value, ok := du.mutation.Description(); ok {
 		_spec.SetField(discount.FieldDescription, field.TypeString, value)
@@ -387,20 +357,6 @@ func (duo *DiscountUpdateOne) SetNillableUpdatedBy(s *string) *DiscountUpdateOne
 // ClearUpdatedBy clears the value of the "updated_by" field.
 func (duo *DiscountUpdateOne) ClearUpdatedBy() *DiscountUpdateOne {
 	duo.mutation.ClearUpdatedBy()
-	return duo
-}
-
-// SetCode sets the "code" field.
-func (duo *DiscountUpdateOne) SetCode(s string) *DiscountUpdateOne {
-	duo.mutation.SetCode(s)
-	return duo
-}
-
-// SetNillableCode sets the "code" field if the given value is not nil.
-func (duo *DiscountUpdateOne) SetNillableCode(s *string) *DiscountUpdateOne {
-	if s != nil {
-		duo.SetCode(*s)
-	}
 	return duo
 }
 
@@ -585,20 +541,7 @@ func (duo *DiscountUpdateOne) defaults() {
 	}
 }
 
-// check runs all checks and user-defined validators on the builder.
-func (duo *DiscountUpdateOne) check() error {
-	if v, ok := duo.mutation.Code(); ok {
-		if err := discount.CodeValidator(v); err != nil {
-			return &ValidationError{Name: "code", err: fmt.Errorf(`ent: validator failed for field "Discount.code": %w`, err)}
-		}
-	}
-	return nil
-}
-
 func (duo *DiscountUpdateOne) sqlSave(ctx context.Context) (_node *Discount, err error) {
-	if err := duo.check(); err != nil {
-		return _node, err
-	}
 	_spec := sqlgraph.NewUpdateSpec(discount.Table, discount.Columns, sqlgraph.NewFieldSpec(discount.FieldID, field.TypeString))
 	id, ok := duo.mutation.ID()
 	if !ok {
@@ -638,9 +581,6 @@ func (duo *DiscountUpdateOne) sqlSave(ctx context.Context) (_node *Discount, err
 	}
 	if duo.mutation.UpdatedByCleared() {
 		_spec.ClearField(discount.FieldUpdatedBy, field.TypeString)
-	}
-	if value, ok := duo.mutation.Code(); ok {
-		_spec.SetField(discount.FieldCode, field.TypeString, value)
 	}
 	if value, ok := duo.mutation.Description(); ok {
 		_spec.SetField(discount.FieldDescription, field.TypeString, value)

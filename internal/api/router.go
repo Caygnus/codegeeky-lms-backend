@@ -16,6 +16,7 @@ type Handlers struct {
 	User       *v1.UserHandler
 	Internship *v1.InternshipHandler
 	Category   *v1.CategoryHandler
+	Discount   *v1.DiscountHandler
 }
 
 func NewRouter(handlers *Handlers, cfg *config.Configuration, logger *logger.Logger) *gin.Engine {
@@ -69,6 +70,19 @@ func NewRouter(handlers *Handlers, cfg *config.Configuration, logger *logger.Log
 		v1Category.POST("", handlers.Category.CreateCategory)
 		v1Category.PUT("/:id", handlers.Category.UpdateCategory)
 		v1Category.DELETE("/:id", handlers.Category.DeleteCategory)
+	}
+
+	// Discount routes
+	v1Discount := v1Router.Group("/discounts")
+	{
+		v1Discount.GET("", handlers.Discount.ListDiscounts)
+		v1Discount.GET("/:id", handlers.Discount.GetDiscount)
+		v1Discount.GET("/code/:code", handlers.Discount.GetDiscountByCode)
+
+		v1Discount.Use(middleware.AuthenticateMiddleware(cfg, logger))
+		v1Discount.POST("", handlers.Discount.CreateDiscount)
+		v1Discount.PUT("/:id", handlers.Discount.UpdateDiscount)
+		v1Discount.DELETE("/:id", handlers.Discount.DeleteDiscount)
 	}
 
 	return router

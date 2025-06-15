@@ -16,7 +16,7 @@ import (
 type Router struct {
 	router *message.Router
 	logger *logger.Logger
-	config *config.Webhook
+	config *config.WebhookConfig
 }
 
 // NewRouter creates a new message router

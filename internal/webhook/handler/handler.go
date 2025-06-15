@@ -21,7 +21,7 @@ type Handler interface {
 // handler implements handler.Handler using watermill's gochannel
 type handler struct {
 	pubSub   pubsub.PubSub
-	config   *config.Webhook
+	config   *config.WebhookConfig
 	factory  payload.PayloadBuilderFactory
 	client   httpclient.Client
 	logger   *logger.Logger
@@ -30,11 +30,12 @@ type handler struct {
 
 func NewHandler(
 	pubSub pubsub.PubSub,
-	config *config.Webhook,
+	config *config.WebhookConfig,
 	factory payload.PayloadBuilderFactory,
 	client httpclient.Client,
 	logger *logger.Logger,
 	services *payload.Services,
+
 ) Handler {
 	return &handler{
 		pubSub:   pubSub,

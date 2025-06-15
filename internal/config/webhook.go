@@ -6,8 +6,8 @@ import (
 	"github.com/omkar273/codegeeky/internal/types"
 )
 
-// Webhook represents the configuration for the webhook system
-type Webhook struct {
+// WebhookConfig represents the configuration for the webhook system
+type WebhookConfig struct {
 	Enabled         bool                         `mapstructure:"enabled"`
 	Topic           string                       `mapstructure:"topic" default:"webhooks"`
 	PubSub          types.PubSubType             `mapstructure:"pubsub" default:"memory"`

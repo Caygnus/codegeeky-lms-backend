@@ -79,6 +79,9 @@ func main() {
 			// category repository
 			repository.NewCategoryRepository,
 
+			// discount repository
+			repository.NewDiscountRepository,
+
 			// pubsub router
 			pubsubRouter.NewRouter,
 		),
@@ -97,6 +100,7 @@ func main() {
 		service.NewOnboardingService,
 		service.NewInternshipService,
 		service.NewCategoryService,
+		service.NewDiscountService,
 	))
 
 	// factory layer
@@ -140,6 +144,7 @@ func provideHandlers(
 	userService service.UserService,
 	internshipService service.InternshipService,
 	categoryService service.CategoryService,
+	discountService service.DiscountService,
 ) *api.Handlers {
 	return &api.Handlers{
 		Health:     v1.NewHealthHandler(logger),
@@ -147,6 +152,7 @@ func provideHandlers(
 		User:       v1.NewUserHandler(userService),
 		Internship: v1.NewInternshipHandler(internshipService, logger),
 		Category:   v1.NewCategoryHandler(categoryService, logger),
+		Discount:   v1.NewDiscountHandler(discountService, logger),
 	}
 }
 

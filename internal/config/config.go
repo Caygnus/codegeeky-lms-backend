@@ -13,7 +13,7 @@ import (
 )
 
 type Configuration struct {
-	Webhook    Webhook          `validate:"required"`
+	Webhook    WebhookConfig    `validate:"required"`
 	Server     ServerConfig     `validate:"required"`
 	Logging    LoggingConfig    `validate:"required"`
 	Postgres   PostgresConfig   `validate:"required"`

@@ -37,7 +37,8 @@ func (Discount) Fields() []ent.Field {
 		field.String("code").
 			SchemaType(map[string]string{"postgres": "varchar(255)"}).
 			NotEmpty().
-			Unique(),
+			Unique().
+			Immutable(),
 
 		// Description for admins
 		field.String("description").

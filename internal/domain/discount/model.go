@@ -21,7 +21,7 @@ type Discount struct {
 	MinOrderValue  *decimal.Decimal   `json:"min_order_value,omitempty"`
 	IsCombinable   bool               `json:"is_combinable,omitempty"`
 	types.Metadata `json:"metadata,omitempty"`
-	types.BaseModel
+	types.BaseModel  
 }
 
 func FromEnt(ent *ent.Discount) *Discount {

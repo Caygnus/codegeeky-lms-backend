@@ -16,7 +16,7 @@ import (
 // PubSub implements both Publisher and Subscriber interfaces using watermill's gochannel
 type PubSub struct {
 	pubsub *gochannel.GoChannel
-	config *config.Webhook
+	config *config.WebhookConfig
 	logger *logger.Logger
 }
 

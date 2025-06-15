@@ -19,6 +19,12 @@ var Module = fx.Options(
 	fx.Provide(
 		// PubSub for sending webhook events
 		providePubSub,
+
+		// Webhook config provider
+		provideWebhookConfig,
+
+		// Payload services
+		providePayloadServices,
 	),
 
 	// Webhook components
@@ -37,21 +43,30 @@ var Module = fx.Options(
 	),
 )
 
-// providePayloadBuilderFactory creates a new payload builder factory with all required services
-func providePayloadBuilderFactory(
+// provideWebhookConfig provides the webhook configuration
+func provideWebhookConfig(cfg *config.Configuration) *config.WebhookConfig {
+	return &cfg.Webhook
+}
+
+// providePayloadServices creates payload services container
+func providePayloadServices(
 	userService service.UserService,
 	authService service.AuthService,
 	categoryService service.CategoryService,
 	onboardingService service.OnboardingService,
 	internshipService service.InternshipService,
-) payload.PayloadBuilderFactory {
-	services := payload.NewServices(
+) *payload.Services {
+	return payload.NewServices(
 		userService,
 		authService,
 		categoryService,
 		onboardingService,
 		internshipService,
 	)
+}
+
+// providePayloadBuilderFactory creates a new payload builder factory with all required services
+func providePayloadBuilderFactory(services *payload.Services) payload.PayloadBuilderFactory {
 	return payload.NewPayloadBuilderFactory(services)
 }
 
