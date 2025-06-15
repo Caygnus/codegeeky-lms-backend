@@ -41,3 +41,6 @@ cloudinary:
 cache:
   enabled: true
 
+razorpay:
+  api_key: "rzp_test_1234567890"
+  api_secret: "1234567890"

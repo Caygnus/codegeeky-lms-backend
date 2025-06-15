@@ -24,6 +24,9 @@ type PaymentStatus struct {
 }
 
 type WebhookResult struct {
-	EventType string
+	EventName string
+	EventID   string
 	Payload   map[string]interface{}
+	Headers   map[string]string
+	Raw       map[string]interface{}
 }

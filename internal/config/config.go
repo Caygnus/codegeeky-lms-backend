@@ -21,6 +21,7 @@ type Configuration struct {
 	Secrets    SecretsConfig    `validate:"required"`
 	Cloudinary CloudinaryConfig `validate:"required"`
 	Cache      CacheConfig      `validate:"required"`
+	Razorpay   RazorpayConfig   `validate:"required"`
 }
 
 type CloudinaryConfig struct {
@@ -75,6 +76,11 @@ type SupabaseConfig struct {
 	ServiceKey string `mapstructure:"service_key" validate:"required"`
 }
 
+type RazorpayConfig struct {
+	APIKey    string `mapstructure:"api_key" validate:"required"`
+	APISecret string `mapstructure:"api_secret" validate:"required"`
+}
+
 func NewConfig() (*Configuration, error) {
 	v := viper.New()
 
@@ -127,7 +133,7 @@ func NewConfig() (*Configuration, error) {
 	if err != nil {
 		fmt.Printf("Error marshalling config to JSON: %v\n", err)
 	}
-	if cfg.Server.Env == EnvDev {
+	if cfg.Server.Env == EnvDev || cfg.Server.Env == EnvLocal {
 		fmt.Printf("Config: %s\n\n", string(jsonConfig))
 	}
 

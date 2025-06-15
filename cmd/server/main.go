@@ -10,12 +10,15 @@ import (
 	v1 "github.com/omkar273/codegeeky/internal/api/v1"
 	"github.com/omkar273/codegeeky/internal/auth"
 	"github.com/omkar273/codegeeky/internal/config"
+	"github.com/omkar273/codegeeky/internal/httpclient"
 	"github.com/omkar273/codegeeky/internal/logger"
 	"github.com/omkar273/codegeeky/internal/postgres"
+	pubsubRouter "github.com/omkar273/codegeeky/internal/pubsub/router"
 	"github.com/omkar273/codegeeky/internal/repository"
 	"github.com/omkar273/codegeeky/internal/security"
 	"github.com/omkar273/codegeeky/internal/service"
 	"github.com/omkar273/codegeeky/internal/validator"
+	"github.com/omkar273/codegeeky/internal/webhook"
 	"go.uber.org/fx"
 )
 
@@ -64,6 +67,9 @@ func main() {
 			// auth provider
 			auth.NewSupabaseProvider,
 
+			// http client
+			httpclient.NewDefaultClient,
+
 			// user repository
 			repository.NewUserRepository,
 
@@ -72,8 +78,14 @@ func main() {
 
 			// category repository
 			repository.NewCategoryRepository,
+
+			// pubsub router
+			pubsubRouter.NewRouter,
 		),
 	)
+
+	// Webhook module (must be initialised before services)
+	opts = append(opts, webhook.Module)
 
 	// services
 	opts = append(opts, fx.Provide(
@@ -112,9 +124,14 @@ func startServer(
 	cfg *config.Configuration,
 	r *gin.Engine,
 	log *logger.Logger,
+	router *pubsubRouter.Router,
+	webhookService *webhook.WebhookService,
 ) {
 	// start api server
 	startAPIServer(lc, r, cfg, log)
+
+	// start message router
+	startMessageRouter(lc, router, webhookService, log)
 }
 
 func provideHandlers(
@@ -159,6 +176,32 @@ func startAPIServer(
 		OnStop: func(ctx context.Context) error {
 			log.Info("Shutting down server...")
 			return nil
+		},
+	})
+}
+
+func startMessageRouter(
+	lc fx.Lifecycle,
+	router *pubsubRouter.Router,
+	webhookService *webhook.WebhookService,
+	logger *logger.Logger,
+) {
+	// Register handlers before starting the router
+	webhookService.RegisterHandler(router)
+
+	lc.Append(fx.Hook{
+		OnStart: func(ctx context.Context) error {
+			logger.Info("starting message router")
+			go func() {
+				if err := router.Run(); err != nil {
+					logger.Errorw("message router failed", "error", err)
+				}
+			}()
+			return nil
+		},
+		OnStop: func(ctx context.Context) error {
+			logger.Info("stopping message router")
+			return router.Close()
 		},
 	})
 }

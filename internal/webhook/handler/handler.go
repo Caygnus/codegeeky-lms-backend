@@ -28,8 +28,22 @@ type handler struct {
 	services *payload.Services
 }
 
-func NewHandler(pubSub pubsub.PubSub, config *config.Webhook, factory payload.PayloadBuilderFactory, client httpclient.Client, logger *logger.Logger, services *payload.Services) Handler {
-	return &handler{pubSub: pubSub, config: config, factory: factory, client: client, logger: logger, services: services}
+func NewHandler(
+	pubSub pubsub.PubSub,
+	config *config.Webhook,
+	factory payload.PayloadBuilderFactory,
+	client httpclient.Client,
+	logger *logger.Logger,
+	services *payload.Services,
+) Handler {
+	return &handler{
+		pubSub:   pubSub,
+		config:   config,
+		factory:  factory,
+		client:   client,
+		logger:   logger,
+		services: services,
+	}
 }
 
 func (h *handler) RegisterHandler(router *pubsubRouter.Router) error {

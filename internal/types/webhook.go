@@ -22,3 +22,11 @@ const (
 	WebhookEventUserLogin   = "user.login"
 	WebhookEventUserLogout  = "user.logout"
 )
+
+// EventSource defines the source of an event
+type EventSource string
+
+const (
+	EventSourceInternal EventSource = "internal"
+	EventSourceRazorpay EventSource = "razorpay"
+)

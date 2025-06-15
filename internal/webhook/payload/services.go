@@ -1,8 +1,6 @@
 package payload
 
-import (
-	"github.com/omkar273/codegeeky/internal/service"
-)
+import "github.com/omkar273/codegeeky/internal/service"
 
 // Services container for all services needed by payload builders
 type Services struct {
