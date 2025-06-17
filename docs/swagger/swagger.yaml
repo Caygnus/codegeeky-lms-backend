@@ -1,5 +1,76 @@
 basePath: /api/v1
 definitions:
+  dto.CategoryResponse:
+    properties:
+      created_at:
+        type: string
+      created_by:
+        type: string
+      description:
+        description: Description holds the value of the "description" field.
+        type: string
+      id:
+        description: ID of the ent.
+        type: string
+      internships:
+        description: Internships holds the value of the internships edge.
+        items:
+          $ref: '#/definitions/internship.Internship'
+        type: array
+      lookup_key:
+        description: LookupKey holds the value of the "lookup_key" field.
+        type: string
+      name:
+        description: Name holds the value of the "name" field.
+        type: string
+      status:
+        $ref: '#/definitions/types.Status'
+      updated_at:
+        type: string
+      updated_by:
+        type: string
+    type: object
+  dto.CreateCategoryRequest:
+    properties:
+      description:
+        type: string
+      lookup_key:
+        type: string
+      name:
+        type: string
+    required:
+    - lookup_key
+    - name
+    type: object
+  dto.CreateDiscountRequest:
+    properties:
+      code:
+        type: string
+      description:
+        type: string
+      discount_type:
+        $ref: '#/definitions/types.DiscountType'
+      discount_value:
+        type: number
+      is_active:
+        type: boolean
+      is_combinable:
+        type: boolean
+      max_uses:
+        type: integer
+      metadata:
+        $ref: '#/definitions/types.Metadata'
+      min_order_value:
+        type: number
+      valid_from:
+        type: string
+      valid_until:
+        type: string
+    required:
+    - code
+    - discount_type
+    - discount_value
+    type: object
   dto.CreateInternshipRequest:
     properties:
       benefits:
@@ -54,6 +125,43 @@ definitions:
     - mode
     - price
     - title
+    type: object
+  dto.DiscountResponse:
+    properties:
+      code:
+        type: string
+      created_at:
+        type: string
+      created_by:
+        type: string
+      description:
+        type: string
+      discount_type:
+        $ref: '#/definitions/types.DiscountType'
+      discount_value:
+        type: number
+      id:
+        type: string
+      is_active:
+        type: boolean
+      is_combinable:
+        type: boolean
+      max_uses:
+        type: integer
+      metadata:
+        $ref: '#/definitions/types.Metadata'
+      min_order_value:
+        type: number
+      status:
+        $ref: '#/definitions/types.Status'
+      updated_at:
+        type: string
+      updated_by:
+        type: string
+      valid_from:
+        type: string
+      valid_until:
+        type: string
     type: object
   dto.InternshipResponse:
     properties:
@@ -128,6 +236,24 @@ definitions:
       updated_by:
         type: string
     type: object
+  dto.ListCategoryResponse:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/dto.CategoryResponse'
+        type: array
+      pagination:
+        $ref: '#/definitions/types.PaginationResponse'
+    type: object
+  dto.ListDiscountResponse:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/dto.DiscountResponse'
+        type: array
+      pagination:
+        $ref: '#/definitions/types.PaginationResponse'
+    type: object
   dto.ListInternshipResponse:
     properties:
       items:
@@ -177,6 +303,34 @@ definitions:
       access_token:
         type: string
       id:
+        type: string
+    type: object
+  dto.UpdateCategoryRequest:
+    properties:
+      description:
+        type: string
+      lookup_key:
+        type: string
+      name:
+        type: string
+    type: object
+  dto.UpdateDiscountRequest:
+    properties:
+      description:
+        type: string
+      is_active:
+        type: boolean
+      is_combinable:
+        type: boolean
+      max_uses:
+        type: integer
+      metadata:
+        $ref: '#/definitions/types.Metadata'
+      min_order_value:
+        type: number
+      valid_from:
+        type: string
+      valid_until:
         type: string
     type: object
   dto.UpdateInternshipRequest:
@@ -353,6 +507,14 @@ definitions:
       updated_by:
         type: string
     type: object
+  types.DiscountType:
+    enum:
+    - flat
+    - percentage
+    type: string
+    x-enum-varnames:
+    - DiscountTypeFlat
+    - DiscountTypePercentage
   types.InternshipLevel:
     enum:
     - beginner
@@ -373,6 +535,10 @@ definitions:
     - InternshipModeRemote
     - InternshipModeHybrid
     - InternshipModeOnsite
+  types.Metadata:
+    additionalProperties:
+      type: string
+    type: object
   types.PaginationResponse:
     properties:
       limit:
@@ -438,6 +604,464 @@ paths:
       summary: Signup
       tags:
       - Auth
+  /categories:
+    get:
+      consumes:
+      - application/json
+      description: List categories with optional filtering
+      parameters:
+      - collectionFormat: csv
+        in: query
+        items:
+          type: string
+        name: category_ids
+        type: array
+      - in: query
+        name: end_time
+        type: string
+      - in: query
+        name: expand
+        type: string
+      - collectionFormat: csv
+        in: query
+        items:
+          type: string
+        name: internship_ids
+        type: array
+      - in: query
+        maximum: 1000
+        minimum: 1
+        name: limit
+        type: integer
+      - description: These fields are used to filter categories by name
+        in: query
+        name: name
+        type: string
+      - in: query
+        minimum: 0
+        name: offset
+        type: integer
+      - enum:
+        - asc
+        - desc
+        in: query
+        name: order
+        type: string
+      - in: query
+        name: sort
+        type: string
+      - in: query
+        name: start_time
+        type: string
+      - enum:
+        - published
+        - deleted
+        - archived
+        - inactive
+        - pending
+        in: query
+        name: status
+        type: string
+        x-enum-varnames:
+        - StatusPublished
+        - StatusDeleted
+        - StatusArchived
+        - StatusInactive
+        - StatusPending
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ListCategoryResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ierr.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ierr.ErrorResponse'
+      summary: List categories
+      tags:
+      - Category
+    post:
+      consumes:
+      - application/json
+      description: Create a new category with the provided details
+      parameters:
+      - description: Category details
+        in: body
+        name: category
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateCategoryRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.CategoryResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ierr.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ierr.ErrorResponse'
+      summary: Create a new category
+      tags:
+      - Category
+  /categories/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a category by its unique identifier
+      parameters:
+      - description: Category ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ierr.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/ierr.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ierr.ErrorResponse'
+      summary: Delete a category
+      tags:
+      - Category
+    get:
+      consumes:
+      - application/json
+      description: Get a category by its unique identifier
+      parameters:
+      - description: Category ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.CategoryResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ierr.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/ierr.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ierr.ErrorResponse'
+      summary: Get a category by ID
+      tags:
+      - Category
+    put:
+      consumes:
+      - application/json
+      description: Update a category by its unique identifier
+      parameters:
+      - description: Category ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Category details
+        in: body
+        name: category
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateCategoryRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.CategoryResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ierr.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/ierr.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ierr.ErrorResponse'
+      summary: Update a category
+      tags:
+      - Category
+  /discounts:
+    get:
+      consumes:
+      - application/json
+      description: List discounts with optional filtering
+      parameters:
+      - enum:
+        - flat
+        - percentage
+        in: query
+        name: discount_type
+        type: string
+        x-enum-varnames:
+        - DiscountTypeFlat
+        - DiscountTypePercentage
+      - in: query
+        name: end_time
+        type: string
+      - in: query
+        name: expand
+        type: string
+      - in: query
+        name: is_combinable
+        type: boolean
+      - in: query
+        maximum: 1000
+        minimum: 1
+        name: limit
+        type: integer
+      - in: query
+        name: min_order_value
+        type: number
+      - in: query
+        minimum: 0
+        name: offset
+        type: integer
+      - enum:
+        - asc
+        - desc
+        in: query
+        name: order
+        type: string
+      - in: query
+        name: sort
+        type: string
+      - in: query
+        name: start_time
+        type: string
+      - enum:
+        - published
+        - deleted
+        - archived
+        - inactive
+        - pending
+        in: query
+        name: status
+        type: string
+        x-enum-varnames:
+        - StatusPublished
+        - StatusDeleted
+        - StatusArchived
+        - StatusInactive
+        - StatusPending
+      - in: query
+        name: valid_from
+        type: string
+      - in: query
+        name: valid_until
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ListDiscountResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ierr.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ierr.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: List discounts
+      tags:
+      - Discount
+    post:
+      consumes:
+      - application/json
+      description: Create a new discount with the provided details
+      parameters:
+      - description: Discount details
+        in: body
+        name: discount
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateDiscountRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.DiscountResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ierr.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ierr.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Create a new discount
+      tags:
+      - Discount
+  /discounts/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a discount by its unique identifier
+      parameters:
+      - description: Discount ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ierr.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ierr.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Delete a discount by ID
+      tags:
+      - Discount
+    get:
+      consumes:
+      - application/json
+      description: Get a discount by its unique identifier
+      parameters:
+      - description: Discount ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.DiscountResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ierr.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ierr.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Get a discount by ID
+      tags:
+      - Discount
+    put:
+      consumes:
+      - application/json
+      description: Update a discount by its unique identifier
+      parameters:
+      - description: Discount ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Discount details
+        in: body
+        name: discount
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateDiscountRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.DiscountResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ierr.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ierr.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Update a discount by ID
+      tags:
+      - Discount
+  /discounts/code/{code}:
+    get:
+      consumes:
+      - application/json
+      description: Get a discount by its unique code
+      parameters:
+      - description: Discount code
+        in: path
+        name: code
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.DiscountResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ierr.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ierr.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Get a discount by code
+      tags:
+      - Discount
   /internships:
     get:
       consumes:
