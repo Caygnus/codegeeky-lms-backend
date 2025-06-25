@@ -13,6 +13,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"github.com/omkar273/codegeeky/ent/category"
 	"github.com/omkar273/codegeeky/ent/discount"
+	"github.com/omkar273/codegeeky/ent/enrollment"
 	"github.com/omkar273/codegeeky/ent/fileupload"
 	"github.com/omkar273/codegeeky/ent/internship"
 	"github.com/omkar273/codegeeky/ent/payment"
@@ -34,6 +35,7 @@ const (
 	// Node types.
 	TypeCategory       = "Category"
 	TypeDiscount       = "Discount"
+	TypeEnrollment     = "Enrollment"
 	TypeFileUpload     = "FileUpload"
 	TypeInternship     = "Internship"
 	TypePayment        = "Payment"
@@ -52,6 +54,7 @@ type CategoryMutation struct {
 	updated_at         *time.Time
 	created_by         *string
 	updated_by         *string
+	metadata           *map[string]string
 	name               *string
 	lookup_key         *string
 	description        *string
@@ -374,6 +377,55 @@ func (m *CategoryMutation) ResetUpdatedBy() {
 	delete(m.clearedFields, category.FieldUpdatedBy)
 }
 
+// SetMetadata sets the "metadata" field.
+func (m *CategoryMutation) SetMetadata(value map[string]string) {
+	m.metadata = &value
+}
+
+// Metadata returns the value of the "metadata" field in the mutation.
+func (m *CategoryMutation) Metadata() (r map[string]string, exists bool) {
+	v := m.metadata
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldMetadata returns the old "metadata" field's value of the Category entity.
+// If the Category object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *CategoryMutation) OldMetadata(ctx context.Context) (v map[string]string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldMetadata is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldMetadata requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldMetadata: %w", err)
+	}
+	return oldValue.Metadata, nil
+}
+
+// ClearMetadata clears the value of the "metadata" field.
+func (m *CategoryMutation) ClearMetadata() {
+	m.metadata = nil
+	m.clearedFields[category.FieldMetadata] = struct{}{}
+}
+
+// MetadataCleared returns if the "metadata" field was cleared in this mutation.
+func (m *CategoryMutation) MetadataCleared() bool {
+	_, ok := m.clearedFields[category.FieldMetadata]
+	return ok
+}
+
+// ResetMetadata resets all changes to the "metadata" field.
+func (m *CategoryMutation) ResetMetadata() {
+	m.metadata = nil
+	delete(m.clearedFields, category.FieldMetadata)
+}
+
 // SetName sets the "name" field.
 func (m *CategoryMutation) SetName(s string) {
 	m.name = &s
@@ -583,7 +635,7 @@ func (m *CategoryMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *CategoryMutation) Fields() []string {
-	fields := make([]string, 0, 8)
+	fields := make([]string, 0, 9)
 	if m.status != nil {
 		fields = append(fields, category.FieldStatus)
 	}
@@ -598,6 +650,9 @@ func (m *CategoryMutation) Fields() []string {
 	}
 	if m.updated_by != nil {
 		fields = append(fields, category.FieldUpdatedBy)
+	}
+	if m.metadata != nil {
+		fields = append(fields, category.FieldMetadata)
 	}
 	if m.name != nil {
 		fields = append(fields, category.FieldName)
@@ -626,6 +681,8 @@ func (m *CategoryMutation) Field(name string) (ent.Value, bool) {
 		return m.CreatedBy()
 	case category.FieldUpdatedBy:
 		return m.UpdatedBy()
+	case category.FieldMetadata:
+		return m.Metadata()
 	case category.FieldName:
 		return m.Name()
 	case category.FieldLookupKey:
@@ -651,6 +708,8 @@ func (m *CategoryMutation) OldField(ctx context.Context, name string) (ent.Value
 		return m.OldCreatedBy(ctx)
 	case category.FieldUpdatedBy:
 		return m.OldUpdatedBy(ctx)
+	case category.FieldMetadata:
+		return m.OldMetadata(ctx)
 	case category.FieldName:
 		return m.OldName(ctx)
 	case category.FieldLookupKey:
@@ -700,6 +759,13 @@ func (m *CategoryMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetUpdatedBy(v)
+		return nil
+	case category.FieldMetadata:
+		v, ok := value.(map[string]string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetMetadata(v)
 		return nil
 	case category.FieldName:
 		v, ok := value.(string)
@@ -758,6 +824,9 @@ func (m *CategoryMutation) ClearedFields() []string {
 	if m.FieldCleared(category.FieldUpdatedBy) {
 		fields = append(fields, category.FieldUpdatedBy)
 	}
+	if m.FieldCleared(category.FieldMetadata) {
+		fields = append(fields, category.FieldMetadata)
+	}
 	if m.FieldCleared(category.FieldDescription) {
 		fields = append(fields, category.FieldDescription)
 	}
@@ -780,6 +849,9 @@ func (m *CategoryMutation) ClearField(name string) error {
 		return nil
 	case category.FieldUpdatedBy:
 		m.ClearUpdatedBy()
+		return nil
+	case category.FieldMetadata:
+		m.ClearMetadata()
 		return nil
 	case category.FieldDescription:
 		m.ClearDescription()
@@ -806,6 +878,9 @@ func (m *CategoryMutation) ResetField(name string) error {
 		return nil
 	case category.FieldUpdatedBy:
 		m.ResetUpdatedBy()
+		return nil
+	case category.FieldMetadata:
+		m.ResetMetadata()
 		return nil
 	case category.FieldName:
 		m.ResetName()
@@ -2217,6 +2292,1195 @@ func (m *DiscountMutation) ClearEdge(name string) error {
 // It returns an error if the edge is not defined in the schema.
 func (m *DiscountMutation) ResetEdge(name string) error {
 	return fmt.Errorf("unknown Discount edge %s", name)
+}
+
+// EnrollmentMutation represents an operation that mutates the Enrollment nodes in the graph.
+type EnrollmentMutation struct {
+	config
+	op                  Op
+	typ                 string
+	id                  *string
+	status              *string
+	created_at          *time.Time
+	updated_at          *time.Time
+	created_by          *string
+	updated_by          *string
+	metadata            *map[string]string
+	user_id             *string
+	internship_id       *string
+	enrollment_status   *types.EnrollmentStatus
+	enrolled_at         *time.Time
+	payment_id          *string
+	refunded_at         *time.Time
+	cancellation_reason *string
+	refund_reason       *string
+	clearedFields       map[string]struct{}
+	done                bool
+	oldValue            func(context.Context) (*Enrollment, error)
+	predicates          []predicate.Enrollment
+}
+
+var _ ent.Mutation = (*EnrollmentMutation)(nil)
+
+// enrollmentOption allows management of the mutation configuration using functional options.
+type enrollmentOption func(*EnrollmentMutation)
+
+// newEnrollmentMutation creates new mutation for the Enrollment entity.
+func newEnrollmentMutation(c config, op Op, opts ...enrollmentOption) *EnrollmentMutation {
+	m := &EnrollmentMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeEnrollment,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withEnrollmentID sets the ID field of the mutation.
+func withEnrollmentID(id string) enrollmentOption {
+	return func(m *EnrollmentMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *Enrollment
+		)
+		m.oldValue = func(ctx context.Context) (*Enrollment, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().Enrollment.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withEnrollment sets the old Enrollment of the mutation.
+func withEnrollment(node *Enrollment) enrollmentOption {
+	return func(m *EnrollmentMutation) {
+		m.oldValue = func(context.Context) (*Enrollment, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m EnrollmentMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m EnrollmentMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of Enrollment entities.
+func (m *EnrollmentMutation) SetID(id string) {
+	m.id = &id
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *EnrollmentMutation) ID() (id string, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *EnrollmentMutation) IDs(ctx context.Context) ([]string, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []string{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().Enrollment.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetStatus sets the "status" field.
+func (m *EnrollmentMutation) SetStatus(s string) {
+	m.status = &s
+}
+
+// Status returns the value of the "status" field in the mutation.
+func (m *EnrollmentMutation) Status() (r string, exists bool) {
+	v := m.status
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldStatus returns the old "status" field's value of the Enrollment entity.
+// If the Enrollment object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *EnrollmentMutation) OldStatus(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldStatus is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldStatus requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldStatus: %w", err)
+	}
+	return oldValue.Status, nil
+}
+
+// ResetStatus resets all changes to the "status" field.
+func (m *EnrollmentMutation) ResetStatus() {
+	m.status = nil
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (m *EnrollmentMutation) SetCreatedAt(t time.Time) {
+	m.created_at = &t
+}
+
+// CreatedAt returns the value of the "created_at" field in the mutation.
+func (m *EnrollmentMutation) CreatedAt() (r time.Time, exists bool) {
+	v := m.created_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedAt returns the old "created_at" field's value of the Enrollment entity.
+// If the Enrollment object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *EnrollmentMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
+	}
+	return oldValue.CreatedAt, nil
+}
+
+// ResetCreatedAt resets all changes to the "created_at" field.
+func (m *EnrollmentMutation) ResetCreatedAt() {
+	m.created_at = nil
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (m *EnrollmentMutation) SetUpdatedAt(t time.Time) {
+	m.updated_at = &t
+}
+
+// UpdatedAt returns the value of the "updated_at" field in the mutation.
+func (m *EnrollmentMutation) UpdatedAt() (r time.Time, exists bool) {
+	v := m.updated_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpdatedAt returns the old "updated_at" field's value of the Enrollment entity.
+// If the Enrollment object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *EnrollmentMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUpdatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUpdatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpdatedAt: %w", err)
+	}
+	return oldValue.UpdatedAt, nil
+}
+
+// ResetUpdatedAt resets all changes to the "updated_at" field.
+func (m *EnrollmentMutation) ResetUpdatedAt() {
+	m.updated_at = nil
+}
+
+// SetCreatedBy sets the "created_by" field.
+func (m *EnrollmentMutation) SetCreatedBy(s string) {
+	m.created_by = &s
+}
+
+// CreatedBy returns the value of the "created_by" field in the mutation.
+func (m *EnrollmentMutation) CreatedBy() (r string, exists bool) {
+	v := m.created_by
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedBy returns the old "created_by" field's value of the Enrollment entity.
+// If the Enrollment object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *EnrollmentMutation) OldCreatedBy(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreatedBy is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreatedBy requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedBy: %w", err)
+	}
+	return oldValue.CreatedBy, nil
+}
+
+// ClearCreatedBy clears the value of the "created_by" field.
+func (m *EnrollmentMutation) ClearCreatedBy() {
+	m.created_by = nil
+	m.clearedFields[enrollment.FieldCreatedBy] = struct{}{}
+}
+
+// CreatedByCleared returns if the "created_by" field was cleared in this mutation.
+func (m *EnrollmentMutation) CreatedByCleared() bool {
+	_, ok := m.clearedFields[enrollment.FieldCreatedBy]
+	return ok
+}
+
+// ResetCreatedBy resets all changes to the "created_by" field.
+func (m *EnrollmentMutation) ResetCreatedBy() {
+	m.created_by = nil
+	delete(m.clearedFields, enrollment.FieldCreatedBy)
+}
+
+// SetUpdatedBy sets the "updated_by" field.
+func (m *EnrollmentMutation) SetUpdatedBy(s string) {
+	m.updated_by = &s
+}
+
+// UpdatedBy returns the value of the "updated_by" field in the mutation.
+func (m *EnrollmentMutation) UpdatedBy() (r string, exists bool) {
+	v := m.updated_by
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpdatedBy returns the old "updated_by" field's value of the Enrollment entity.
+// If the Enrollment object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *EnrollmentMutation) OldUpdatedBy(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUpdatedBy is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUpdatedBy requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpdatedBy: %w", err)
+	}
+	return oldValue.UpdatedBy, nil
+}
+
+// ClearUpdatedBy clears the value of the "updated_by" field.
+func (m *EnrollmentMutation) ClearUpdatedBy() {
+	m.updated_by = nil
+	m.clearedFields[enrollment.FieldUpdatedBy] = struct{}{}
+}
+
+// UpdatedByCleared returns if the "updated_by" field was cleared in this mutation.
+func (m *EnrollmentMutation) UpdatedByCleared() bool {
+	_, ok := m.clearedFields[enrollment.FieldUpdatedBy]
+	return ok
+}
+
+// ResetUpdatedBy resets all changes to the "updated_by" field.
+func (m *EnrollmentMutation) ResetUpdatedBy() {
+	m.updated_by = nil
+	delete(m.clearedFields, enrollment.FieldUpdatedBy)
+}
+
+// SetMetadata sets the "metadata" field.
+func (m *EnrollmentMutation) SetMetadata(value map[string]string) {
+	m.metadata = &value
+}
+
+// Metadata returns the value of the "metadata" field in the mutation.
+func (m *EnrollmentMutation) Metadata() (r map[string]string, exists bool) {
+	v := m.metadata
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldMetadata returns the old "metadata" field's value of the Enrollment entity.
+// If the Enrollment object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *EnrollmentMutation) OldMetadata(ctx context.Context) (v map[string]string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldMetadata is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldMetadata requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldMetadata: %w", err)
+	}
+	return oldValue.Metadata, nil
+}
+
+// ClearMetadata clears the value of the "metadata" field.
+func (m *EnrollmentMutation) ClearMetadata() {
+	m.metadata = nil
+	m.clearedFields[enrollment.FieldMetadata] = struct{}{}
+}
+
+// MetadataCleared returns if the "metadata" field was cleared in this mutation.
+func (m *EnrollmentMutation) MetadataCleared() bool {
+	_, ok := m.clearedFields[enrollment.FieldMetadata]
+	return ok
+}
+
+// ResetMetadata resets all changes to the "metadata" field.
+func (m *EnrollmentMutation) ResetMetadata() {
+	m.metadata = nil
+	delete(m.clearedFields, enrollment.FieldMetadata)
+}
+
+// SetUserID sets the "user_id" field.
+func (m *EnrollmentMutation) SetUserID(s string) {
+	m.user_id = &s
+}
+
+// UserID returns the value of the "user_id" field in the mutation.
+func (m *EnrollmentMutation) UserID() (r string, exists bool) {
+	v := m.user_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUserID returns the old "user_id" field's value of the Enrollment entity.
+// If the Enrollment object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *EnrollmentMutation) OldUserID(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUserID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUserID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUserID: %w", err)
+	}
+	return oldValue.UserID, nil
+}
+
+// ResetUserID resets all changes to the "user_id" field.
+func (m *EnrollmentMutation) ResetUserID() {
+	m.user_id = nil
+}
+
+// SetInternshipID sets the "internship_id" field.
+func (m *EnrollmentMutation) SetInternshipID(s string) {
+	m.internship_id = &s
+}
+
+// InternshipID returns the value of the "internship_id" field in the mutation.
+func (m *EnrollmentMutation) InternshipID() (r string, exists bool) {
+	v := m.internship_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldInternshipID returns the old "internship_id" field's value of the Enrollment entity.
+// If the Enrollment object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *EnrollmentMutation) OldInternshipID(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldInternshipID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldInternshipID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldInternshipID: %w", err)
+	}
+	return oldValue.InternshipID, nil
+}
+
+// ResetInternshipID resets all changes to the "internship_id" field.
+func (m *EnrollmentMutation) ResetInternshipID() {
+	m.internship_id = nil
+}
+
+// SetEnrollmentStatus sets the "enrollment_status" field.
+func (m *EnrollmentMutation) SetEnrollmentStatus(ts types.EnrollmentStatus) {
+	m.enrollment_status = &ts
+}
+
+// EnrollmentStatus returns the value of the "enrollment_status" field in the mutation.
+func (m *EnrollmentMutation) EnrollmentStatus() (r types.EnrollmentStatus, exists bool) {
+	v := m.enrollment_status
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldEnrollmentStatus returns the old "enrollment_status" field's value of the Enrollment entity.
+// If the Enrollment object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *EnrollmentMutation) OldEnrollmentStatus(ctx context.Context) (v types.EnrollmentStatus, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldEnrollmentStatus is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldEnrollmentStatus requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldEnrollmentStatus: %w", err)
+	}
+	return oldValue.EnrollmentStatus, nil
+}
+
+// ResetEnrollmentStatus resets all changes to the "enrollment_status" field.
+func (m *EnrollmentMutation) ResetEnrollmentStatus() {
+	m.enrollment_status = nil
+}
+
+// SetEnrolledAt sets the "enrolled_at" field.
+func (m *EnrollmentMutation) SetEnrolledAt(t time.Time) {
+	m.enrolled_at = &t
+}
+
+// EnrolledAt returns the value of the "enrolled_at" field in the mutation.
+func (m *EnrollmentMutation) EnrolledAt() (r time.Time, exists bool) {
+	v := m.enrolled_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldEnrolledAt returns the old "enrolled_at" field's value of the Enrollment entity.
+// If the Enrollment object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *EnrollmentMutation) OldEnrolledAt(ctx context.Context) (v *time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldEnrolledAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldEnrolledAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldEnrolledAt: %w", err)
+	}
+	return oldValue.EnrolledAt, nil
+}
+
+// ClearEnrolledAt clears the value of the "enrolled_at" field.
+func (m *EnrollmentMutation) ClearEnrolledAt() {
+	m.enrolled_at = nil
+	m.clearedFields[enrollment.FieldEnrolledAt] = struct{}{}
+}
+
+// EnrolledAtCleared returns if the "enrolled_at" field was cleared in this mutation.
+func (m *EnrollmentMutation) EnrolledAtCleared() bool {
+	_, ok := m.clearedFields[enrollment.FieldEnrolledAt]
+	return ok
+}
+
+// ResetEnrolledAt resets all changes to the "enrolled_at" field.
+func (m *EnrollmentMutation) ResetEnrolledAt() {
+	m.enrolled_at = nil
+	delete(m.clearedFields, enrollment.FieldEnrolledAt)
+}
+
+// SetPaymentID sets the "payment_id" field.
+func (m *EnrollmentMutation) SetPaymentID(s string) {
+	m.payment_id = &s
+}
+
+// PaymentID returns the value of the "payment_id" field in the mutation.
+func (m *EnrollmentMutation) PaymentID() (r string, exists bool) {
+	v := m.payment_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldPaymentID returns the old "payment_id" field's value of the Enrollment entity.
+// If the Enrollment object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *EnrollmentMutation) OldPaymentID(ctx context.Context) (v *string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldPaymentID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldPaymentID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldPaymentID: %w", err)
+	}
+	return oldValue.PaymentID, nil
+}
+
+// ClearPaymentID clears the value of the "payment_id" field.
+func (m *EnrollmentMutation) ClearPaymentID() {
+	m.payment_id = nil
+	m.clearedFields[enrollment.FieldPaymentID] = struct{}{}
+}
+
+// PaymentIDCleared returns if the "payment_id" field was cleared in this mutation.
+func (m *EnrollmentMutation) PaymentIDCleared() bool {
+	_, ok := m.clearedFields[enrollment.FieldPaymentID]
+	return ok
+}
+
+// ResetPaymentID resets all changes to the "payment_id" field.
+func (m *EnrollmentMutation) ResetPaymentID() {
+	m.payment_id = nil
+	delete(m.clearedFields, enrollment.FieldPaymentID)
+}
+
+// SetRefundedAt sets the "refunded_at" field.
+func (m *EnrollmentMutation) SetRefundedAt(t time.Time) {
+	m.refunded_at = &t
+}
+
+// RefundedAt returns the value of the "refunded_at" field in the mutation.
+func (m *EnrollmentMutation) RefundedAt() (r time.Time, exists bool) {
+	v := m.refunded_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldRefundedAt returns the old "refunded_at" field's value of the Enrollment entity.
+// If the Enrollment object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *EnrollmentMutation) OldRefundedAt(ctx context.Context) (v *time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldRefundedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldRefundedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldRefundedAt: %w", err)
+	}
+	return oldValue.RefundedAt, nil
+}
+
+// ClearRefundedAt clears the value of the "refunded_at" field.
+func (m *EnrollmentMutation) ClearRefundedAt() {
+	m.refunded_at = nil
+	m.clearedFields[enrollment.FieldRefundedAt] = struct{}{}
+}
+
+// RefundedAtCleared returns if the "refunded_at" field was cleared in this mutation.
+func (m *EnrollmentMutation) RefundedAtCleared() bool {
+	_, ok := m.clearedFields[enrollment.FieldRefundedAt]
+	return ok
+}
+
+// ResetRefundedAt resets all changes to the "refunded_at" field.
+func (m *EnrollmentMutation) ResetRefundedAt() {
+	m.refunded_at = nil
+	delete(m.clearedFields, enrollment.FieldRefundedAt)
+}
+
+// SetCancellationReason sets the "cancellation_reason" field.
+func (m *EnrollmentMutation) SetCancellationReason(s string) {
+	m.cancellation_reason = &s
+}
+
+// CancellationReason returns the value of the "cancellation_reason" field in the mutation.
+func (m *EnrollmentMutation) CancellationReason() (r string, exists bool) {
+	v := m.cancellation_reason
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCancellationReason returns the old "cancellation_reason" field's value of the Enrollment entity.
+// If the Enrollment object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *EnrollmentMutation) OldCancellationReason(ctx context.Context) (v *string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCancellationReason is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCancellationReason requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCancellationReason: %w", err)
+	}
+	return oldValue.CancellationReason, nil
+}
+
+// ClearCancellationReason clears the value of the "cancellation_reason" field.
+func (m *EnrollmentMutation) ClearCancellationReason() {
+	m.cancellation_reason = nil
+	m.clearedFields[enrollment.FieldCancellationReason] = struct{}{}
+}
+
+// CancellationReasonCleared returns if the "cancellation_reason" field was cleared in this mutation.
+func (m *EnrollmentMutation) CancellationReasonCleared() bool {
+	_, ok := m.clearedFields[enrollment.FieldCancellationReason]
+	return ok
+}
+
+// ResetCancellationReason resets all changes to the "cancellation_reason" field.
+func (m *EnrollmentMutation) ResetCancellationReason() {
+	m.cancellation_reason = nil
+	delete(m.clearedFields, enrollment.FieldCancellationReason)
+}
+
+// SetRefundReason sets the "refund_reason" field.
+func (m *EnrollmentMutation) SetRefundReason(s string) {
+	m.refund_reason = &s
+}
+
+// RefundReason returns the value of the "refund_reason" field in the mutation.
+func (m *EnrollmentMutation) RefundReason() (r string, exists bool) {
+	v := m.refund_reason
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldRefundReason returns the old "refund_reason" field's value of the Enrollment entity.
+// If the Enrollment object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *EnrollmentMutation) OldRefundReason(ctx context.Context) (v *string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldRefundReason is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldRefundReason requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldRefundReason: %w", err)
+	}
+	return oldValue.RefundReason, nil
+}
+
+// ClearRefundReason clears the value of the "refund_reason" field.
+func (m *EnrollmentMutation) ClearRefundReason() {
+	m.refund_reason = nil
+	m.clearedFields[enrollment.FieldRefundReason] = struct{}{}
+}
+
+// RefundReasonCleared returns if the "refund_reason" field was cleared in this mutation.
+func (m *EnrollmentMutation) RefundReasonCleared() bool {
+	_, ok := m.clearedFields[enrollment.FieldRefundReason]
+	return ok
+}
+
+// ResetRefundReason resets all changes to the "refund_reason" field.
+func (m *EnrollmentMutation) ResetRefundReason() {
+	m.refund_reason = nil
+	delete(m.clearedFields, enrollment.FieldRefundReason)
+}
+
+// Where appends a list predicates to the EnrollmentMutation builder.
+func (m *EnrollmentMutation) Where(ps ...predicate.Enrollment) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the EnrollmentMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *EnrollmentMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.Enrollment, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *EnrollmentMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *EnrollmentMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (Enrollment).
+func (m *EnrollmentMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *EnrollmentMutation) Fields() []string {
+	fields := make([]string, 0, 14)
+	if m.status != nil {
+		fields = append(fields, enrollment.FieldStatus)
+	}
+	if m.created_at != nil {
+		fields = append(fields, enrollment.FieldCreatedAt)
+	}
+	if m.updated_at != nil {
+		fields = append(fields, enrollment.FieldUpdatedAt)
+	}
+	if m.created_by != nil {
+		fields = append(fields, enrollment.FieldCreatedBy)
+	}
+	if m.updated_by != nil {
+		fields = append(fields, enrollment.FieldUpdatedBy)
+	}
+	if m.metadata != nil {
+		fields = append(fields, enrollment.FieldMetadata)
+	}
+	if m.user_id != nil {
+		fields = append(fields, enrollment.FieldUserID)
+	}
+	if m.internship_id != nil {
+		fields = append(fields, enrollment.FieldInternshipID)
+	}
+	if m.enrollment_status != nil {
+		fields = append(fields, enrollment.FieldEnrollmentStatus)
+	}
+	if m.enrolled_at != nil {
+		fields = append(fields, enrollment.FieldEnrolledAt)
+	}
+	if m.payment_id != nil {
+		fields = append(fields, enrollment.FieldPaymentID)
+	}
+	if m.refunded_at != nil {
+		fields = append(fields, enrollment.FieldRefundedAt)
+	}
+	if m.cancellation_reason != nil {
+		fields = append(fields, enrollment.FieldCancellationReason)
+	}
+	if m.refund_reason != nil {
+		fields = append(fields, enrollment.FieldRefundReason)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *EnrollmentMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case enrollment.FieldStatus:
+		return m.Status()
+	case enrollment.FieldCreatedAt:
+		return m.CreatedAt()
+	case enrollment.FieldUpdatedAt:
+		return m.UpdatedAt()
+	case enrollment.FieldCreatedBy:
+		return m.CreatedBy()
+	case enrollment.FieldUpdatedBy:
+		return m.UpdatedBy()
+	case enrollment.FieldMetadata:
+		return m.Metadata()
+	case enrollment.FieldUserID:
+		return m.UserID()
+	case enrollment.FieldInternshipID:
+		return m.InternshipID()
+	case enrollment.FieldEnrollmentStatus:
+		return m.EnrollmentStatus()
+	case enrollment.FieldEnrolledAt:
+		return m.EnrolledAt()
+	case enrollment.FieldPaymentID:
+		return m.PaymentID()
+	case enrollment.FieldRefundedAt:
+		return m.RefundedAt()
+	case enrollment.FieldCancellationReason:
+		return m.CancellationReason()
+	case enrollment.FieldRefundReason:
+		return m.RefundReason()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *EnrollmentMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case enrollment.FieldStatus:
+		return m.OldStatus(ctx)
+	case enrollment.FieldCreatedAt:
+		return m.OldCreatedAt(ctx)
+	case enrollment.FieldUpdatedAt:
+		return m.OldUpdatedAt(ctx)
+	case enrollment.FieldCreatedBy:
+		return m.OldCreatedBy(ctx)
+	case enrollment.FieldUpdatedBy:
+		return m.OldUpdatedBy(ctx)
+	case enrollment.FieldMetadata:
+		return m.OldMetadata(ctx)
+	case enrollment.FieldUserID:
+		return m.OldUserID(ctx)
+	case enrollment.FieldInternshipID:
+		return m.OldInternshipID(ctx)
+	case enrollment.FieldEnrollmentStatus:
+		return m.OldEnrollmentStatus(ctx)
+	case enrollment.FieldEnrolledAt:
+		return m.OldEnrolledAt(ctx)
+	case enrollment.FieldPaymentID:
+		return m.OldPaymentID(ctx)
+	case enrollment.FieldRefundedAt:
+		return m.OldRefundedAt(ctx)
+	case enrollment.FieldCancellationReason:
+		return m.OldCancellationReason(ctx)
+	case enrollment.FieldRefundReason:
+		return m.OldRefundReason(ctx)
+	}
+	return nil, fmt.Errorf("unknown Enrollment field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *EnrollmentMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case enrollment.FieldStatus:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetStatus(v)
+		return nil
+	case enrollment.FieldCreatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreatedAt(v)
+		return nil
+	case enrollment.FieldUpdatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUpdatedAt(v)
+		return nil
+	case enrollment.FieldCreatedBy:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreatedBy(v)
+		return nil
+	case enrollment.FieldUpdatedBy:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUpdatedBy(v)
+		return nil
+	case enrollment.FieldMetadata:
+		v, ok := value.(map[string]string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetMetadata(v)
+		return nil
+	case enrollment.FieldUserID:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUserID(v)
+		return nil
+	case enrollment.FieldInternshipID:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetInternshipID(v)
+		return nil
+	case enrollment.FieldEnrollmentStatus:
+		v, ok := value.(types.EnrollmentStatus)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetEnrollmentStatus(v)
+		return nil
+	case enrollment.FieldEnrolledAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetEnrolledAt(v)
+		return nil
+	case enrollment.FieldPaymentID:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetPaymentID(v)
+		return nil
+	case enrollment.FieldRefundedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetRefundedAt(v)
+		return nil
+	case enrollment.FieldCancellationReason:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCancellationReason(v)
+		return nil
+	case enrollment.FieldRefundReason:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetRefundReason(v)
+		return nil
+	}
+	return fmt.Errorf("unknown Enrollment field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *EnrollmentMutation) AddedFields() []string {
+	return nil
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *EnrollmentMutation) AddedField(name string) (ent.Value, bool) {
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *EnrollmentMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	}
+	return fmt.Errorf("unknown Enrollment numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *EnrollmentMutation) ClearedFields() []string {
+	var fields []string
+	if m.FieldCleared(enrollment.FieldCreatedBy) {
+		fields = append(fields, enrollment.FieldCreatedBy)
+	}
+	if m.FieldCleared(enrollment.FieldUpdatedBy) {
+		fields = append(fields, enrollment.FieldUpdatedBy)
+	}
+	if m.FieldCleared(enrollment.FieldMetadata) {
+		fields = append(fields, enrollment.FieldMetadata)
+	}
+	if m.FieldCleared(enrollment.FieldEnrolledAt) {
+		fields = append(fields, enrollment.FieldEnrolledAt)
+	}
+	if m.FieldCleared(enrollment.FieldPaymentID) {
+		fields = append(fields, enrollment.FieldPaymentID)
+	}
+	if m.FieldCleared(enrollment.FieldRefundedAt) {
+		fields = append(fields, enrollment.FieldRefundedAt)
+	}
+	if m.FieldCleared(enrollment.FieldCancellationReason) {
+		fields = append(fields, enrollment.FieldCancellationReason)
+	}
+	if m.FieldCleared(enrollment.FieldRefundReason) {
+		fields = append(fields, enrollment.FieldRefundReason)
+	}
+	return fields
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *EnrollmentMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *EnrollmentMutation) ClearField(name string) error {
+	switch name {
+	case enrollment.FieldCreatedBy:
+		m.ClearCreatedBy()
+		return nil
+	case enrollment.FieldUpdatedBy:
+		m.ClearUpdatedBy()
+		return nil
+	case enrollment.FieldMetadata:
+		m.ClearMetadata()
+		return nil
+	case enrollment.FieldEnrolledAt:
+		m.ClearEnrolledAt()
+		return nil
+	case enrollment.FieldPaymentID:
+		m.ClearPaymentID()
+		return nil
+	case enrollment.FieldRefundedAt:
+		m.ClearRefundedAt()
+		return nil
+	case enrollment.FieldCancellationReason:
+		m.ClearCancellationReason()
+		return nil
+	case enrollment.FieldRefundReason:
+		m.ClearRefundReason()
+		return nil
+	}
+	return fmt.Errorf("unknown Enrollment nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *EnrollmentMutation) ResetField(name string) error {
+	switch name {
+	case enrollment.FieldStatus:
+		m.ResetStatus()
+		return nil
+	case enrollment.FieldCreatedAt:
+		m.ResetCreatedAt()
+		return nil
+	case enrollment.FieldUpdatedAt:
+		m.ResetUpdatedAt()
+		return nil
+	case enrollment.FieldCreatedBy:
+		m.ResetCreatedBy()
+		return nil
+	case enrollment.FieldUpdatedBy:
+		m.ResetUpdatedBy()
+		return nil
+	case enrollment.FieldMetadata:
+		m.ResetMetadata()
+		return nil
+	case enrollment.FieldUserID:
+		m.ResetUserID()
+		return nil
+	case enrollment.FieldInternshipID:
+		m.ResetInternshipID()
+		return nil
+	case enrollment.FieldEnrollmentStatus:
+		m.ResetEnrollmentStatus()
+		return nil
+	case enrollment.FieldEnrolledAt:
+		m.ResetEnrolledAt()
+		return nil
+	case enrollment.FieldPaymentID:
+		m.ResetPaymentID()
+		return nil
+	case enrollment.FieldRefundedAt:
+		m.ResetRefundedAt()
+		return nil
+	case enrollment.FieldCancellationReason:
+		m.ResetCancellationReason()
+		return nil
+	case enrollment.FieldRefundReason:
+		m.ResetRefundReason()
+		return nil
+	}
+	return fmt.Errorf("unknown Enrollment field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *EnrollmentMutation) AddedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *EnrollmentMutation) AddedIDs(name string) []ent.Value {
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *EnrollmentMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *EnrollmentMutation) RemovedIDs(name string) []ent.Value {
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *EnrollmentMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *EnrollmentMutation) EdgeCleared(name string) bool {
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *EnrollmentMutation) ClearEdge(name string) error {
+	return fmt.Errorf("unknown Enrollment unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *EnrollmentMutation) ResetEdge(name string) error {
+	return fmt.Errorf("unknown Enrollment edge %s", name)
 }
 
 // FileUploadMutation represents an operation that mutates the FileUpload nodes in the graph.

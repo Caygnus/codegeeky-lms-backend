@@ -17,6 +17,7 @@ var (
 		{Name: "updated_at", Type: field.TypeTime},
 		{Name: "created_by", Type: field.TypeString, Nullable: true},
 		{Name: "updated_by", Type: field.TypeString, Nullable: true},
+		{Name: "metadata", Type: field.TypeJSON, Nullable: true},
 		{Name: "name", Type: field.TypeString, SchemaType: map[string]string{"postgres": "varchar(255)"}},
 		{Name: "lookup_key", Type: field.TypeString, SchemaType: map[string]string{"postgres": "varchar(255)"}},
 		{Name: "description", Type: field.TypeString, Nullable: true, SchemaType: map[string]string{"postgres": "text"}},
@@ -30,7 +31,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "categories_internships_categories",
-				Columns:    []*schema.Column{CategoriesColumns[9]},
+				Columns:    []*schema.Column{CategoriesColumns[10]},
 				RefColumns: []*schema.Column{InternshipsColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
@@ -39,7 +40,7 @@ var (
 			{
 				Name:    "category_name",
 				Unique:  true,
-				Columns: []*schema.Column{CategoriesColumns[6]},
+				Columns: []*schema.Column{CategoriesColumns[7]},
 			},
 		},
 	}
@@ -68,6 +69,30 @@ var (
 		Name:       "discounts",
 		Columns:    DiscountsColumns,
 		PrimaryKey: []*schema.Column{DiscountsColumns[0]},
+	}
+	// EnrollmentsColumns holds the columns for the "enrollments" table.
+	EnrollmentsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeString, SchemaType: map[string]string{"postgres": "varchar(255)"}},
+		{Name: "status", Type: field.TypeString, Default: "published", SchemaType: map[string]string{"postgres": "varchar(20)"}},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "created_by", Type: field.TypeString, Nullable: true},
+		{Name: "updated_by", Type: field.TypeString, Nullable: true},
+		{Name: "metadata", Type: field.TypeJSON, Nullable: true},
+		{Name: "user_id", Type: field.TypeString, SchemaType: map[string]string{"postgres": "varchar(255)"}},
+		{Name: "internship_id", Type: field.TypeString, SchemaType: map[string]string{"postgres": "varchar(255)"}},
+		{Name: "enrollment_status", Type: field.TypeString, Default: "pending", SchemaType: map[string]string{"postgres": "varchar(255)"}},
+		{Name: "enrolled_at", Type: field.TypeTime, Nullable: true},
+		{Name: "payment_id", Type: field.TypeString, Nullable: true, SchemaType: map[string]string{"postgres": "varchar(255)"}},
+		{Name: "refunded_at", Type: field.TypeTime, Nullable: true},
+		{Name: "cancellation_reason", Type: field.TypeString, Nullable: true},
+		{Name: "refund_reason", Type: field.TypeString, Nullable: true},
+	}
+	// EnrollmentsTable holds the schema information for the "enrollments" table.
+	EnrollmentsTable = &schema.Table{
+		Name:       "enrollments",
+		Columns:    EnrollmentsColumns,
+		PrimaryKey: []*schema.Column{EnrollmentsColumns[0]},
 	}
 	// FileUploadsColumns holds the columns for the "file_uploads" table.
 	FileUploadsColumns = []*schema.Column{
@@ -272,6 +297,7 @@ var (
 	Tables = []*schema.Table{
 		CategoriesTable,
 		DiscountsTable,
+		EnrollmentsTable,
 		FileUploadsTable,
 		InternshipsTable,
 		PaymentsTable,

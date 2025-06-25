@@ -33,6 +33,18 @@ func (f DiscountFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, er
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.DiscountMutation", m)
 }
 
+// The EnrollmentFunc type is an adapter to allow the use of ordinary
+// function as Enrollment mutator.
+type EnrollmentFunc func(context.Context, *ent.EnrollmentMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f EnrollmentFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.EnrollmentMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.EnrollmentMutation", m)
+}
+
 // The FileUploadFunc type is an adapter to allow the use of ordinary
 // function as FileUpload mutator.
 type FileUploadFunc func(context.Context, *ent.FileUploadMutation) (ent.Value, error)

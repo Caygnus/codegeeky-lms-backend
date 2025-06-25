@@ -400,6 +400,16 @@ func UpdatedByContainsFold(v string) predicate.Category {
 	return predicate.Category(sql.FieldContainsFold(FieldUpdatedBy, v))
 }
 
+// MetadataIsNil applies the IsNil predicate on the "metadata" field.
+func MetadataIsNil() predicate.Category {
+	return predicate.Category(sql.FieldIsNull(FieldMetadata))
+}
+
+// MetadataNotNil applies the NotNil predicate on the "metadata" field.
+func MetadataNotNil() predicate.Category {
+	return predicate.Category(sql.FieldNotNull(FieldMetadata))
+}
+
 // NameEQ applies the EQ predicate on the "name" field.
 func NameEQ(v string) predicate.Category {
 	return predicate.Category(sql.FieldEQ(FieldName, v))

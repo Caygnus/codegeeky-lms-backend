@@ -14,6 +14,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/omkar273/codegeeky/ent/category"
 	"github.com/omkar273/codegeeky/ent/discount"
+	"github.com/omkar273/codegeeky/ent/enrollment"
 	"github.com/omkar273/codegeeky/ent/fileupload"
 	"github.com/omkar273/codegeeky/ent/internship"
 	"github.com/omkar273/codegeeky/ent/payment"
@@ -81,6 +82,7 @@ func checkColumn(table, column string) error {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
 			category.Table:       category.ValidColumn,
 			discount.Table:       discount.ValidColumn,
+			enrollment.Table:     enrollment.ValidColumn,
 			fileupload.Table:     fileupload.ValidColumn,
 			internship.Table:     internship.ValidColumn,
 			payment.Table:        payment.ValidColumn,

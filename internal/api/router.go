@@ -84,6 +84,5 @@ func NewRouter(handlers *Handlers, cfg *config.Configuration, logger *logger.Log
 		v1Discount.PUT("/:id", handlers.Discount.UpdateDiscount)
 		v1Discount.DELETE("/:id", handlers.Discount.DeleteDiscount)
 	}
-
 	return router
 }

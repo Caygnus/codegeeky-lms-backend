@@ -43,4 +43,5 @@ const (
 	UUID_PREFIX_FILE_UPLOAD = "file"
 	UUID_PREFIX_PAYMENT     = "payment"
 	UUID_PREFIX_DISCOUNT    = "discount"
+	UUID_PREFIX_ENROLLMENT  = "enrollment"
 )
