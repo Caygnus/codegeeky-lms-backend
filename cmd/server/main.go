@@ -12,6 +12,7 @@ import (
 	"github.com/omkar273/codegeeky/internal/config"
 	"github.com/omkar273/codegeeky/internal/httpclient"
 	"github.com/omkar273/codegeeky/internal/logger"
+	gateway "github.com/omkar273/codegeeky/internal/payment"
 	"github.com/omkar273/codegeeky/internal/postgres"
 	pubsubRouter "github.com/omkar273/codegeeky/internal/pubsub/router"
 	"github.com/omkar273/codegeeky/internal/repository"
@@ -70,6 +71,9 @@ func main() {
 			// http client
 			httpclient.NewDefaultClient,
 
+			// payment gateway registry
+			gateway.InitializeProviders,
+
 			// user repository
 			repository.NewUserRepository,
 
@@ -81,6 +85,9 @@ func main() {
 
 			// discount repository
 			repository.NewDiscountRepository,
+
+			// payment repository
+			repository.NewPaymentRepository,
 
 			// pubsub router
 			pubsubRouter.NewRouter,

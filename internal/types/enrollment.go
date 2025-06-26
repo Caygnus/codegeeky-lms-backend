@@ -15,4 +15,3 @@ const (
 	EnrollmentStatusCancelled = "cancelled"
 	EnrollmentStatusFailed    = "failed"
 )
-

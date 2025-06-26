@@ -149,6 +149,12 @@ func init() {
 	enrollment.DefaultEnrollmentStatus = types.EnrollmentStatus(enrollmentDescEnrollmentStatus.Default.(string))
 	// enrollment.EnrollmentStatusValidator is a validator for the "enrollment_status" field. It is called by the builders before save.
 	enrollment.EnrollmentStatusValidator = enrollmentDescEnrollmentStatus.Validators[0].(func(string) error)
+	// enrollmentDescPaymentStatus is the schema descriptor for payment_status field.
+	enrollmentDescPaymentStatus := enrollmentFields[4].Descriptor()
+	// enrollment.DefaultPaymentStatus holds the default value on creation for the payment_status field.
+	enrollment.DefaultPaymentStatus = types.PaymentStatus(enrollmentDescPaymentStatus.Default.(string))
+	// enrollment.PaymentStatusValidator is a validator for the "payment_status" field. It is called by the builders before save.
+	enrollment.PaymentStatusValidator = enrollmentDescPaymentStatus.Validators[0].(func(string) error)
 	// enrollmentDescID is the schema descriptor for id field.
 	enrollmentDescID := enrollmentFields[0].Descriptor()
 	// enrollment.DefaultID holds the default value on creation for the id field.
@@ -270,18 +276,6 @@ func init() {
 	payment.DefaultUpdatedAt = paymentDescUpdatedAt.Default.(func() time.Time)
 	// payment.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
 	payment.UpdateDefaultUpdatedAt = paymentDescUpdatedAt.UpdateDefault.(func() time.Time)
-	// paymentDescDestinationType is the schema descriptor for destination_type field.
-	paymentDescDestinationType := paymentFields[2].Descriptor()
-	// payment.DestinationTypeValidator is a validator for the "destination_type" field. It is called by the builders before save.
-	payment.DestinationTypeValidator = paymentDescDestinationType.Validators[0].(func(string) error)
-	// paymentDescDestinationID is the schema descriptor for destination_id field.
-	paymentDescDestinationID := paymentFields[3].Descriptor()
-	// payment.DestinationIDValidator is a validator for the "destination_id" field. It is called by the builders before save.
-	payment.DestinationIDValidator = paymentDescDestinationID.Validators[0].(func(string) error)
-	// paymentDescPaymentMethodType is the schema descriptor for payment_method_type field.
-	paymentDescPaymentMethodType := paymentFields[4].Descriptor()
-	// payment.PaymentMethodTypeValidator is a validator for the "payment_method_type" field. It is called by the builders before save.
-	payment.PaymentMethodTypeValidator = paymentDescPaymentMethodType.Validators[0].(func(string) error)
 	// paymentDescAmount is the schema descriptor for amount field.
 	paymentDescAmount := paymentFields[8].Descriptor()
 	// payment.DefaultAmount holds the default value on creation for the amount field.
@@ -292,12 +286,18 @@ func init() {
 	payment.CurrencyValidator = paymentDescCurrency.Validators[0].(func(string) error)
 	// paymentDescPaymentStatus is the schema descriptor for payment_status field.
 	paymentDescPaymentStatus := paymentFields[10].Descriptor()
+	// payment.DefaultPaymentStatus holds the default value on creation for the payment_status field.
+	payment.DefaultPaymentStatus = types.PaymentStatus(paymentDescPaymentStatus.Default.(string))
 	// payment.PaymentStatusValidator is a validator for the "payment_status" field. It is called by the builders before save.
 	payment.PaymentStatusValidator = paymentDescPaymentStatus.Validators[0].(func(string) error)
 	// paymentDescTrackAttempts is the schema descriptor for track_attempts field.
 	paymentDescTrackAttempts := paymentFields[11].Descriptor()
 	// payment.DefaultTrackAttempts holds the default value on creation for the track_attempts field.
 	payment.DefaultTrackAttempts = paymentDescTrackAttempts.Default.(bool)
+	// paymentDescMetadata is the schema descriptor for metadata field.
+	paymentDescMetadata := paymentFields[12].Descriptor()
+	// payment.DefaultMetadata holds the default value on creation for the metadata field.
+	payment.DefaultMetadata = paymentDescMetadata.Default.(map[string]string)
 	paymentattemptMixin := schema.PaymentAttempt{}.Mixin()
 	paymentattemptMixinFields0 := paymentattemptMixin[0].Fields()
 	_ = paymentattemptMixinFields0

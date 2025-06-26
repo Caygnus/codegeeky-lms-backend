@@ -106,6 +106,12 @@ func EnrollmentStatus(v types.EnrollmentStatus) predicate.Enrollment {
 	return predicate.Enrollment(sql.FieldEQ(FieldEnrollmentStatus, vc))
 }
 
+// PaymentStatus applies equality check predicate on the "payment_status" field. It's identical to PaymentStatusEQ.
+func PaymentStatus(v types.PaymentStatus) predicate.Enrollment {
+	vc := string(v)
+	return predicate.Enrollment(sql.FieldEQ(FieldPaymentStatus, vc))
+}
+
 // EnrolledAt applies equality check predicate on the "enrolled_at" field. It's identical to EnrolledAtEQ.
 func EnrolledAt(v time.Time) predicate.Enrollment {
 	return predicate.Enrollment(sql.FieldEQ(FieldEnrolledAt, v))
@@ -648,6 +654,90 @@ func EnrollmentStatusEqualFold(v types.EnrollmentStatus) predicate.Enrollment {
 func EnrollmentStatusContainsFold(v types.EnrollmentStatus) predicate.Enrollment {
 	vc := string(v)
 	return predicate.Enrollment(sql.FieldContainsFold(FieldEnrollmentStatus, vc))
+}
+
+// PaymentStatusEQ applies the EQ predicate on the "payment_status" field.
+func PaymentStatusEQ(v types.PaymentStatus) predicate.Enrollment {
+	vc := string(v)
+	return predicate.Enrollment(sql.FieldEQ(FieldPaymentStatus, vc))
+}
+
+// PaymentStatusNEQ applies the NEQ predicate on the "payment_status" field.
+func PaymentStatusNEQ(v types.PaymentStatus) predicate.Enrollment {
+	vc := string(v)
+	return predicate.Enrollment(sql.FieldNEQ(FieldPaymentStatus, vc))
+}
+
+// PaymentStatusIn applies the In predicate on the "payment_status" field.
+func PaymentStatusIn(vs ...types.PaymentStatus) predicate.Enrollment {
+	v := make([]any, len(vs))
+	for i := range v {
+		v[i] = string(vs[i])
+	}
+	return predicate.Enrollment(sql.FieldIn(FieldPaymentStatus, v...))
+}
+
+// PaymentStatusNotIn applies the NotIn predicate on the "payment_status" field.
+func PaymentStatusNotIn(vs ...types.PaymentStatus) predicate.Enrollment {
+	v := make([]any, len(vs))
+	for i := range v {
+		v[i] = string(vs[i])
+	}
+	return predicate.Enrollment(sql.FieldNotIn(FieldPaymentStatus, v...))
+}
+
+// PaymentStatusGT applies the GT predicate on the "payment_status" field.
+func PaymentStatusGT(v types.PaymentStatus) predicate.Enrollment {
+	vc := string(v)
+	return predicate.Enrollment(sql.FieldGT(FieldPaymentStatus, vc))
+}
+
+// PaymentStatusGTE applies the GTE predicate on the "payment_status" field.
+func PaymentStatusGTE(v types.PaymentStatus) predicate.Enrollment {
+	vc := string(v)
+	return predicate.Enrollment(sql.FieldGTE(FieldPaymentStatus, vc))
+}
+
+// PaymentStatusLT applies the LT predicate on the "payment_status" field.
+func PaymentStatusLT(v types.PaymentStatus) predicate.Enrollment {
+	vc := string(v)
+	return predicate.Enrollment(sql.FieldLT(FieldPaymentStatus, vc))
+}
+
+// PaymentStatusLTE applies the LTE predicate on the "payment_status" field.
+func PaymentStatusLTE(v types.PaymentStatus) predicate.Enrollment {
+	vc := string(v)
+	return predicate.Enrollment(sql.FieldLTE(FieldPaymentStatus, vc))
+}
+
+// PaymentStatusContains applies the Contains predicate on the "payment_status" field.
+func PaymentStatusContains(v types.PaymentStatus) predicate.Enrollment {
+	vc := string(v)
+	return predicate.Enrollment(sql.FieldContains(FieldPaymentStatus, vc))
+}
+
+// PaymentStatusHasPrefix applies the HasPrefix predicate on the "payment_status" field.
+func PaymentStatusHasPrefix(v types.PaymentStatus) predicate.Enrollment {
+	vc := string(v)
+	return predicate.Enrollment(sql.FieldHasPrefix(FieldPaymentStatus, vc))
+}
+
+// PaymentStatusHasSuffix applies the HasSuffix predicate on the "payment_status" field.
+func PaymentStatusHasSuffix(v types.PaymentStatus) predicate.Enrollment {
+	vc := string(v)
+	return predicate.Enrollment(sql.FieldHasSuffix(FieldPaymentStatus, vc))
+}
+
+// PaymentStatusEqualFold applies the EqualFold predicate on the "payment_status" field.
+func PaymentStatusEqualFold(v types.PaymentStatus) predicate.Enrollment {
+	vc := string(v)
+	return predicate.Enrollment(sql.FieldEqualFold(FieldPaymentStatus, vc))
+}
+
+// PaymentStatusContainsFold applies the ContainsFold predicate on the "payment_status" field.
+func PaymentStatusContainsFold(v types.PaymentStatus) predicate.Enrollment {
+	vc := string(v)
+	return predicate.Enrollment(sql.FieldContainsFold(FieldPaymentStatus, vc))
 }
 
 // EnrolledAtEQ applies the EQ predicate on the "enrolled_at" field.

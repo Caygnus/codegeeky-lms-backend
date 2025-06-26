@@ -2309,6 +2309,7 @@ type EnrollmentMutation struct {
 	user_id             *string
 	internship_id       *string
 	enrollment_status   *types.EnrollmentStatus
+	payment_status      *types.PaymentStatus
 	enrolled_at         *time.Time
 	payment_id          *string
 	refunded_at         *time.Time
@@ -2787,6 +2788,42 @@ func (m *EnrollmentMutation) ResetEnrollmentStatus() {
 	m.enrollment_status = nil
 }
 
+// SetPaymentStatus sets the "payment_status" field.
+func (m *EnrollmentMutation) SetPaymentStatus(ts types.PaymentStatus) {
+	m.payment_status = &ts
+}
+
+// PaymentStatus returns the value of the "payment_status" field in the mutation.
+func (m *EnrollmentMutation) PaymentStatus() (r types.PaymentStatus, exists bool) {
+	v := m.payment_status
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldPaymentStatus returns the old "payment_status" field's value of the Enrollment entity.
+// If the Enrollment object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *EnrollmentMutation) OldPaymentStatus(ctx context.Context) (v types.PaymentStatus, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldPaymentStatus is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldPaymentStatus requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldPaymentStatus: %w", err)
+	}
+	return oldValue.PaymentStatus, nil
+}
+
+// ResetPaymentStatus resets all changes to the "payment_status" field.
+func (m *EnrollmentMutation) ResetPaymentStatus() {
+	m.payment_status = nil
+}
+
 // SetEnrolledAt sets the "enrolled_at" field.
 func (m *EnrollmentMutation) SetEnrolledAt(t time.Time) {
 	m.enrolled_at = &t
@@ -3066,7 +3103,7 @@ func (m *EnrollmentMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *EnrollmentMutation) Fields() []string {
-	fields := make([]string, 0, 14)
+	fields := make([]string, 0, 15)
 	if m.status != nil {
 		fields = append(fields, enrollment.FieldStatus)
 	}
@@ -3093,6 +3130,9 @@ func (m *EnrollmentMutation) Fields() []string {
 	}
 	if m.enrollment_status != nil {
 		fields = append(fields, enrollment.FieldEnrollmentStatus)
+	}
+	if m.payment_status != nil {
+		fields = append(fields, enrollment.FieldPaymentStatus)
 	}
 	if m.enrolled_at != nil {
 		fields = append(fields, enrollment.FieldEnrolledAt)
@@ -3135,6 +3175,8 @@ func (m *EnrollmentMutation) Field(name string) (ent.Value, bool) {
 		return m.InternshipID()
 	case enrollment.FieldEnrollmentStatus:
 		return m.EnrollmentStatus()
+	case enrollment.FieldPaymentStatus:
+		return m.PaymentStatus()
 	case enrollment.FieldEnrolledAt:
 		return m.EnrolledAt()
 	case enrollment.FieldPaymentID:
@@ -3172,6 +3214,8 @@ func (m *EnrollmentMutation) OldField(ctx context.Context, name string) (ent.Val
 		return m.OldInternshipID(ctx)
 	case enrollment.FieldEnrollmentStatus:
 		return m.OldEnrollmentStatus(ctx)
+	case enrollment.FieldPaymentStatus:
+		return m.OldPaymentStatus(ctx)
 	case enrollment.FieldEnrolledAt:
 		return m.OldEnrolledAt(ctx)
 	case enrollment.FieldPaymentID:
@@ -3253,6 +3297,13 @@ func (m *EnrollmentMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetEnrollmentStatus(v)
+		return nil
+	case enrollment.FieldPaymentStatus:
+		v, ok := value.(types.PaymentStatus)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetPaymentStatus(v)
 		return nil
 	case enrollment.FieldEnrolledAt:
 		v, ok := value.(time.Time)
@@ -3415,6 +3466,9 @@ func (m *EnrollmentMutation) ResetField(name string) error {
 		return nil
 	case enrollment.FieldEnrollmentStatus:
 		m.ResetEnrollmentStatus()
+		return nil
+	case enrollment.FieldPaymentStatus:
+		m.ResetPaymentStatus()
 		return nil
 	case enrollment.FieldEnrolledAt:
 		m.ResetEnrolledAt()
@@ -6890,7 +6944,7 @@ func (m *PaymentMutation) PaymentMethodType() (r types.PaymentMethodType, exists
 // OldPaymentMethodType returns the old "payment_method_type" field's value of the Payment entity.
 // If the Payment object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PaymentMutation) OldPaymentMethodType(ctx context.Context) (v types.PaymentMethodType, err error) {
+func (m *PaymentMutation) OldPaymentMethodType(ctx context.Context) (v *types.PaymentMethodType, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldPaymentMethodType is only allowed on UpdateOne operations")
 	}
@@ -6904,9 +6958,22 @@ func (m *PaymentMutation) OldPaymentMethodType(ctx context.Context) (v types.Pay
 	return oldValue.PaymentMethodType, nil
 }
 
+// ClearPaymentMethodType clears the value of the "payment_method_type" field.
+func (m *PaymentMutation) ClearPaymentMethodType() {
+	m.payment_method_type = nil
+	m.clearedFields[payment.FieldPaymentMethodType] = struct{}{}
+}
+
+// PaymentMethodTypeCleared returns if the "payment_method_type" field was cleared in this mutation.
+func (m *PaymentMutation) PaymentMethodTypeCleared() bool {
+	_, ok := m.clearedFields[payment.FieldPaymentMethodType]
+	return ok
+}
+
 // ResetPaymentMethodType resets all changes to the "payment_method_type" field.
 func (m *PaymentMutation) ResetPaymentMethodType() {
 	m.payment_method_type = nil
+	delete(m.clearedFields, payment.FieldPaymentMethodType)
 }
 
 // SetPaymentMethodID sets the "payment_method_id" field.
@@ -6975,7 +7042,7 @@ func (m *PaymentMutation) PaymentGatewayProvider() (r types.PaymentGatewayProvid
 // OldPaymentGatewayProvider returns the old "payment_gateway_provider" field's value of the Payment entity.
 // If the Payment object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PaymentMutation) OldPaymentGatewayProvider(ctx context.Context) (v *types.PaymentGatewayProvider, err error) {
+func (m *PaymentMutation) OldPaymentGatewayProvider(ctx context.Context) (v types.PaymentGatewayProvider, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldPaymentGatewayProvider is only allowed on UpdateOne operations")
 	}
@@ -6989,22 +7056,9 @@ func (m *PaymentMutation) OldPaymentGatewayProvider(ctx context.Context) (v *typ
 	return oldValue.PaymentGatewayProvider, nil
 }
 
-// ClearPaymentGatewayProvider clears the value of the "payment_gateway_provider" field.
-func (m *PaymentMutation) ClearPaymentGatewayProvider() {
-	m.payment_gateway_provider = nil
-	m.clearedFields[payment.FieldPaymentGatewayProvider] = struct{}{}
-}
-
-// PaymentGatewayProviderCleared returns if the "payment_gateway_provider" field was cleared in this mutation.
-func (m *PaymentMutation) PaymentGatewayProviderCleared() bool {
-	_, ok := m.clearedFields[payment.FieldPaymentGatewayProvider]
-	return ok
-}
-
 // ResetPaymentGatewayProvider resets all changes to the "payment_gateway_provider" field.
 func (m *PaymentMutation) ResetPaymentGatewayProvider() {
 	m.payment_gateway_provider = nil
-	delete(m.clearedFields, payment.FieldPaymentGatewayProvider)
 }
 
 // SetGatewayPaymentID sets the "gateway_payment_id" field.
@@ -7890,11 +7944,11 @@ func (m *PaymentMutation) ClearedFields() []string {
 	if m.FieldCleared(payment.FieldUpdatedBy) {
 		fields = append(fields, payment.FieldUpdatedBy)
 	}
+	if m.FieldCleared(payment.FieldPaymentMethodType) {
+		fields = append(fields, payment.FieldPaymentMethodType)
+	}
 	if m.FieldCleared(payment.FieldPaymentMethodID) {
 		fields = append(fields, payment.FieldPaymentMethodID)
-	}
-	if m.FieldCleared(payment.FieldPaymentGatewayProvider) {
-		fields = append(fields, payment.FieldPaymentGatewayProvider)
 	}
 	if m.FieldCleared(payment.FieldGatewayPaymentID) {
 		fields = append(fields, payment.FieldGatewayPaymentID)
@@ -7934,11 +7988,11 @@ func (m *PaymentMutation) ClearField(name string) error {
 	case payment.FieldUpdatedBy:
 		m.ClearUpdatedBy()
 		return nil
+	case payment.FieldPaymentMethodType:
+		m.ClearPaymentMethodType()
+		return nil
 	case payment.FieldPaymentMethodID:
 		m.ClearPaymentMethodID()
-		return nil
-	case payment.FieldPaymentGatewayProvider:
-		m.ClearPaymentGatewayProvider()
 		return nil
 	case payment.FieldGatewayPaymentID:
 		m.ClearGatewayPaymentID()

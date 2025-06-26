@@ -123,6 +123,20 @@ func (ec *EnrollmentCreate) SetNillableEnrollmentStatus(ts *types.EnrollmentStat
 	return ec
 }
 
+// SetPaymentStatus sets the "payment_status" field.
+func (ec *EnrollmentCreate) SetPaymentStatus(ts types.PaymentStatus) *EnrollmentCreate {
+	ec.mutation.SetPaymentStatus(ts)
+	return ec
+}
+
+// SetNillablePaymentStatus sets the "payment_status" field if the given value is not nil.
+func (ec *EnrollmentCreate) SetNillablePaymentStatus(ts *types.PaymentStatus) *EnrollmentCreate {
+	if ts != nil {
+		ec.SetPaymentStatus(*ts)
+	}
+	return ec
+}
+
 // SetEnrolledAt sets the "enrolled_at" field.
 func (ec *EnrollmentCreate) SetEnrolledAt(t time.Time) *EnrollmentCreate {
 	ec.mutation.SetEnrolledAt(t)
@@ -262,6 +276,10 @@ func (ec *EnrollmentCreate) defaults() {
 		v := enrollment.DefaultEnrollmentStatus
 		ec.mutation.SetEnrollmentStatus(v)
 	}
+	if _, ok := ec.mutation.PaymentStatus(); !ok {
+		v := enrollment.DefaultPaymentStatus
+		ec.mutation.SetPaymentStatus(v)
+	}
 	if _, ok := ec.mutation.ID(); !ok {
 		v := enrollment.DefaultID()
 		ec.mutation.SetID(v)
@@ -301,6 +319,14 @@ func (ec *EnrollmentCreate) check() error {
 	if v, ok := ec.mutation.EnrollmentStatus(); ok {
 		if err := enrollment.EnrollmentStatusValidator(string(v)); err != nil {
 			return &ValidationError{Name: "enrollment_status", err: fmt.Errorf(`ent: validator failed for field "Enrollment.enrollment_status": %w`, err)}
+		}
+	}
+	if _, ok := ec.mutation.PaymentStatus(); !ok {
+		return &ValidationError{Name: "payment_status", err: errors.New(`ent: missing required field "Enrollment.payment_status"`)}
+	}
+	if v, ok := ec.mutation.PaymentStatus(); ok {
+		if err := enrollment.PaymentStatusValidator(string(v)); err != nil {
+			return &ValidationError{Name: "payment_status", err: fmt.Errorf(`ent: validator failed for field "Enrollment.payment_status": %w`, err)}
 		}
 	}
 	return nil
@@ -373,6 +399,10 @@ func (ec *EnrollmentCreate) createSpec() (*Enrollment, *sqlgraph.CreateSpec) {
 	if value, ok := ec.mutation.EnrollmentStatus(); ok {
 		_spec.SetField(enrollment.FieldEnrollmentStatus, field.TypeString, value)
 		_node.EnrollmentStatus = value
+	}
+	if value, ok := ec.mutation.PaymentStatus(); ok {
+		_spec.SetField(enrollment.FieldPaymentStatus, field.TypeString, value)
+		_node.PaymentStatus = value
 	}
 	if value, ok := ec.mutation.EnrolledAt(); ok {
 		_spec.SetField(enrollment.FieldEnrolledAt, field.TypeTime, value)

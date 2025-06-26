@@ -32,6 +32,8 @@ const (
 	FieldInternshipID = "internship_id"
 	// FieldEnrollmentStatus holds the string denoting the enrollment_status field in the database.
 	FieldEnrollmentStatus = "enrollment_status"
+	// FieldPaymentStatus holds the string denoting the payment_status field in the database.
+	FieldPaymentStatus = "payment_status"
 	// FieldEnrolledAt holds the string denoting the enrolled_at field in the database.
 	FieldEnrolledAt = "enrolled_at"
 	// FieldPaymentID holds the string denoting the payment_id field in the database.
@@ -58,6 +60,7 @@ var Columns = []string{
 	FieldUserID,
 	FieldInternshipID,
 	FieldEnrollmentStatus,
+	FieldPaymentStatus,
 	FieldEnrolledAt,
 	FieldPaymentID,
 	FieldRefundedAt,
@@ -94,6 +97,10 @@ var (
 	DefaultEnrollmentStatus types.EnrollmentStatus
 	// EnrollmentStatusValidator is a validator for the "enrollment_status" field. It is called by the builders before save.
 	EnrollmentStatusValidator func(string) error
+	// DefaultPaymentStatus holds the default value on creation for the "payment_status" field.
+	DefaultPaymentStatus types.PaymentStatus
+	// PaymentStatusValidator is a validator for the "payment_status" field. It is called by the builders before save.
+	PaymentStatusValidator func(string) error
 	// DefaultID holds the default value on creation for the "id" field.
 	DefaultID func() string
 )
@@ -144,6 +151,11 @@ func ByInternshipID(opts ...sql.OrderTermOption) OrderOption {
 // ByEnrollmentStatus orders the results by the enrollment_status field.
 func ByEnrollmentStatus(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldEnrollmentStatus, opts...).ToFunc()
+}
+
+// ByPaymentStatus orders the results by the payment_status field.
+func ByPaymentStatus(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldPaymentStatus, opts...).ToFunc()
 }
 
 // ByEnrolledAt orders the results by the enrolled_at field.

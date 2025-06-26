@@ -123,6 +123,20 @@ func (eu *EnrollmentUpdate) SetNillableEnrollmentStatus(ts *types.EnrollmentStat
 	return eu
 }
 
+// SetPaymentStatus sets the "payment_status" field.
+func (eu *EnrollmentUpdate) SetPaymentStatus(ts types.PaymentStatus) *EnrollmentUpdate {
+	eu.mutation.SetPaymentStatus(ts)
+	return eu
+}
+
+// SetNillablePaymentStatus sets the "payment_status" field if the given value is not nil.
+func (eu *EnrollmentUpdate) SetNillablePaymentStatus(ts *types.PaymentStatus) *EnrollmentUpdate {
+	if ts != nil {
+		eu.SetPaymentStatus(*ts)
+	}
+	return eu
+}
+
 // SetEnrolledAt sets the "enrolled_at" field.
 func (eu *EnrollmentUpdate) SetEnrolledAt(t time.Time) *EnrollmentUpdate {
 	eu.mutation.SetEnrolledAt(t)
@@ -281,6 +295,11 @@ func (eu *EnrollmentUpdate) check() error {
 			return &ValidationError{Name: "enrollment_status", err: fmt.Errorf(`ent: validator failed for field "Enrollment.enrollment_status": %w`, err)}
 		}
 	}
+	if v, ok := eu.mutation.PaymentStatus(); ok {
+		if err := enrollment.PaymentStatusValidator(string(v)); err != nil {
+			return &ValidationError{Name: "payment_status", err: fmt.Errorf(`ent: validator failed for field "Enrollment.payment_status": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -325,6 +344,9 @@ func (eu *EnrollmentUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := eu.mutation.EnrollmentStatus(); ok {
 		_spec.SetField(enrollment.FieldEnrollmentStatus, field.TypeString, value)
+	}
+	if value, ok := eu.mutation.PaymentStatus(); ok {
+		_spec.SetField(enrollment.FieldPaymentStatus, field.TypeString, value)
 	}
 	if value, ok := eu.mutation.EnrolledAt(); ok {
 		_spec.SetField(enrollment.FieldEnrolledAt, field.TypeTime, value)
@@ -466,6 +488,20 @@ func (euo *EnrollmentUpdateOne) SetEnrollmentStatus(ts types.EnrollmentStatus) *
 func (euo *EnrollmentUpdateOne) SetNillableEnrollmentStatus(ts *types.EnrollmentStatus) *EnrollmentUpdateOne {
 	if ts != nil {
 		euo.SetEnrollmentStatus(*ts)
+	}
+	return euo
+}
+
+// SetPaymentStatus sets the "payment_status" field.
+func (euo *EnrollmentUpdateOne) SetPaymentStatus(ts types.PaymentStatus) *EnrollmentUpdateOne {
+	euo.mutation.SetPaymentStatus(ts)
+	return euo
+}
+
+// SetNillablePaymentStatus sets the "payment_status" field if the given value is not nil.
+func (euo *EnrollmentUpdateOne) SetNillablePaymentStatus(ts *types.PaymentStatus) *EnrollmentUpdateOne {
+	if ts != nil {
+		euo.SetPaymentStatus(*ts)
 	}
 	return euo
 }
@@ -641,6 +677,11 @@ func (euo *EnrollmentUpdateOne) check() error {
 			return &ValidationError{Name: "enrollment_status", err: fmt.Errorf(`ent: validator failed for field "Enrollment.enrollment_status": %w`, err)}
 		}
 	}
+	if v, ok := euo.mutation.PaymentStatus(); ok {
+		if err := enrollment.PaymentStatusValidator(string(v)); err != nil {
+			return &ValidationError{Name: "payment_status", err: fmt.Errorf(`ent: validator failed for field "Enrollment.payment_status": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -702,6 +743,9 @@ func (euo *EnrollmentUpdateOne) sqlSave(ctx context.Context) (_node *Enrollment,
 	}
 	if value, ok := euo.mutation.EnrollmentStatus(); ok {
 		_spec.SetField(enrollment.FieldEnrollmentStatus, field.TypeString, value)
+	}
+	if value, ok := euo.mutation.PaymentStatus(); ok {
+		_spec.SetField(enrollment.FieldPaymentStatus, field.TypeString, value)
 	}
 	if value, ok := euo.mutation.EnrolledAt(); ok {
 		_spec.SetField(enrollment.FieldEnrolledAt, field.TypeTime, value)

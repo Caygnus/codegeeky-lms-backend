@@ -4,6 +4,7 @@ import (
 	"github.com/omkar273/codegeeky/internal/config"
 	"github.com/omkar273/codegeeky/internal/domain/discount"
 	"github.com/omkar273/codegeeky/internal/domain/internship"
+	"github.com/omkar273/codegeeky/internal/domain/payment"
 	"github.com/omkar273/codegeeky/internal/domain/user"
 	"github.com/omkar273/codegeeky/internal/logger"
 	"github.com/omkar273/codegeeky/internal/postgres"
@@ -45,4 +46,8 @@ func NewCategoryRepository(params RepositoryParams) internship.CategoryRepositor
 
 func NewDiscountRepository(params RepositoryParams) discount.Repository {
 	return ent.NewDiscountRepository(params.Client, params.Logger)
+}
+
+func NewPaymentRepository(params RepositoryParams) payment.Repository {
+	return ent.NewPaymentRepository(params.Client, params.Logger)
 }

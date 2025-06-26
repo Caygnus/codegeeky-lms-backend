@@ -48,6 +48,15 @@ func (Enrollment) Fields() []ent.Field {
 			Default(types.EnrollmentStatusPending).
 			NotEmpty(),
 
+		// Enrollment payment status
+		field.String("payment_status").
+			SchemaType(map[string]string{
+				"postgres": "varchar(255)",
+			}).
+			GoType(types.PaymentStatus("")).
+			Default(string(types.PaymentStatusPending)).
+			NotEmpty(),
+
 		// When enrollment was confirmed
 		field.Time("enrolled_at").
 			Optional().

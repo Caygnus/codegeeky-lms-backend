@@ -117,6 +117,14 @@ func (pc *PaymentCreate) SetPaymentMethodType(tmt types.PaymentMethodType) *Paym
 	return pc
 }
 
+// SetNillablePaymentMethodType sets the "payment_method_type" field if the given value is not nil.
+func (pc *PaymentCreate) SetNillablePaymentMethodType(tmt *types.PaymentMethodType) *PaymentCreate {
+	if tmt != nil {
+		pc.SetPaymentMethodType(*tmt)
+	}
+	return pc
+}
+
 // SetPaymentMethodID sets the "payment_method_id" field.
 func (pc *PaymentCreate) SetPaymentMethodID(s string) *PaymentCreate {
 	pc.mutation.SetPaymentMethodID(s)
@@ -134,14 +142,6 @@ func (pc *PaymentCreate) SetNillablePaymentMethodID(s *string) *PaymentCreate {
 // SetPaymentGatewayProvider sets the "payment_gateway_provider" field.
 func (pc *PaymentCreate) SetPaymentGatewayProvider(tgp types.PaymentGatewayProvider) *PaymentCreate {
 	pc.mutation.SetPaymentGatewayProvider(tgp)
-	return pc
-}
-
-// SetNillablePaymentGatewayProvider sets the "payment_gateway_provider" field if the given value is not nil.
-func (pc *PaymentCreate) SetNillablePaymentGatewayProvider(tgp *types.PaymentGatewayProvider) *PaymentCreate {
-	if tgp != nil {
-		pc.SetPaymentGatewayProvider(*tgp)
-	}
 	return pc
 }
 
@@ -182,6 +182,14 @@ func (pc *PaymentCreate) SetCurrency(t types.Currency) *PaymentCreate {
 // SetPaymentStatus sets the "payment_status" field.
 func (pc *PaymentCreate) SetPaymentStatus(ts types.PaymentStatus) *PaymentCreate {
 	pc.mutation.SetPaymentStatus(ts)
+	return pc
+}
+
+// SetNillablePaymentStatus sets the "payment_status" field if the given value is not nil.
+func (pc *PaymentCreate) SetNillablePaymentStatus(ts *types.PaymentStatus) *PaymentCreate {
+	if ts != nil {
+		pc.SetPaymentStatus(*ts)
+	}
 	return pc
 }
 
@@ -333,9 +341,17 @@ func (pc *PaymentCreate) defaults() {
 		v := payment.DefaultAmount
 		pc.mutation.SetAmount(v)
 	}
+	if _, ok := pc.mutation.PaymentStatus(); !ok {
+		v := payment.DefaultPaymentStatus
+		pc.mutation.SetPaymentStatus(v)
+	}
 	if _, ok := pc.mutation.TrackAttempts(); !ok {
 		v := payment.DefaultTrackAttempts
 		pc.mutation.SetTrackAttempts(v)
+	}
+	if _, ok := pc.mutation.Metadata(); !ok {
+		v := payment.DefaultMetadata
+		pc.mutation.SetMetadata(v)
 	}
 }
 
@@ -357,25 +373,20 @@ func (pc *PaymentCreate) check() error {
 		return &ValidationError{Name: "destination_type", err: errors.New(`ent: missing required field "Payment.destination_type"`)}
 	}
 	if v, ok := pc.mutation.DestinationType(); ok {
-		if err := payment.DestinationTypeValidator(string(v)); err != nil {
+		if err := v.Validate(); err != nil {
 			return &ValidationError{Name: "destination_type", err: fmt.Errorf(`ent: validator failed for field "Payment.destination_type": %w`, err)}
 		}
 	}
 	if _, ok := pc.mutation.DestinationID(); !ok {
 		return &ValidationError{Name: "destination_id", err: errors.New(`ent: missing required field "Payment.destination_id"`)}
 	}
-	if v, ok := pc.mutation.DestinationID(); ok {
-		if err := payment.DestinationIDValidator(v); err != nil {
-			return &ValidationError{Name: "destination_id", err: fmt.Errorf(`ent: validator failed for field "Payment.destination_id": %w`, err)}
-		}
-	}
-	if _, ok := pc.mutation.PaymentMethodType(); !ok {
-		return &ValidationError{Name: "payment_method_type", err: errors.New(`ent: missing required field "Payment.payment_method_type"`)}
-	}
 	if v, ok := pc.mutation.PaymentMethodType(); ok {
-		if err := payment.PaymentMethodTypeValidator(string(v)); err != nil {
+		if err := v.Validate(); err != nil {
 			return &ValidationError{Name: "payment_method_type", err: fmt.Errorf(`ent: validator failed for field "Payment.payment_method_type": %w`, err)}
 		}
+	}
+	if _, ok := pc.mutation.PaymentGatewayProvider(); !ok {
+		return &ValidationError{Name: "payment_gateway_provider", err: errors.New(`ent: missing required field "Payment.payment_gateway_provider"`)}
 	}
 	if v, ok := pc.mutation.PaymentGatewayProvider(); ok {
 		if err := v.Validate(); err != nil {
@@ -473,7 +484,7 @@ func (pc *PaymentCreate) createSpec() (*Payment, *sqlgraph.CreateSpec) {
 	}
 	if value, ok := pc.mutation.PaymentMethodType(); ok {
 		_spec.SetField(payment.FieldPaymentMethodType, field.TypeString, value)
-		_node.PaymentMethodType = value
+		_node.PaymentMethodType = &value
 	}
 	if value, ok := pc.mutation.PaymentMethodID(); ok {
 		_spec.SetField(payment.FieldPaymentMethodID, field.TypeString, value)
@@ -481,7 +492,7 @@ func (pc *PaymentCreate) createSpec() (*Payment, *sqlgraph.CreateSpec) {
 	}
 	if value, ok := pc.mutation.PaymentGatewayProvider(); ok {
 		_spec.SetField(payment.FieldPaymentGatewayProvider, field.TypeString, value)
-		_node.PaymentGatewayProvider = &value
+		_node.PaymentGatewayProvider = value
 	}
 	if value, ok := pc.mutation.GatewayPaymentID(); ok {
 		_spec.SetField(payment.FieldGatewayPaymentID, field.TypeString, value)

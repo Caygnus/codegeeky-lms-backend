@@ -37,6 +37,8 @@ type Enrollment struct {
 	InternshipID string `json:"internship_id,omitempty"`
 	// EnrollmentStatus holds the value of the "enrollment_status" field.
 	EnrollmentStatus types.EnrollmentStatus `json:"enrollment_status,omitempty"`
+	// PaymentStatus holds the value of the "payment_status" field.
+	PaymentStatus types.PaymentStatus `json:"payment_status,omitempty"`
 	// EnrolledAt holds the value of the "enrolled_at" field.
 	EnrolledAt *time.Time `json:"enrolled_at,omitempty"`
 	// PaymentID holds the value of the "payment_id" field.
@@ -57,7 +59,7 @@ func (*Enrollment) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case enrollment.FieldMetadata:
 			values[i] = new([]byte)
-		case enrollment.FieldID, enrollment.FieldStatus, enrollment.FieldCreatedBy, enrollment.FieldUpdatedBy, enrollment.FieldUserID, enrollment.FieldInternshipID, enrollment.FieldEnrollmentStatus, enrollment.FieldPaymentID, enrollment.FieldCancellationReason, enrollment.FieldRefundReason:
+		case enrollment.FieldID, enrollment.FieldStatus, enrollment.FieldCreatedBy, enrollment.FieldUpdatedBy, enrollment.FieldUserID, enrollment.FieldInternshipID, enrollment.FieldEnrollmentStatus, enrollment.FieldPaymentStatus, enrollment.FieldPaymentID, enrollment.FieldCancellationReason, enrollment.FieldRefundReason:
 			values[i] = new(sql.NullString)
 		case enrollment.FieldCreatedAt, enrollment.FieldUpdatedAt, enrollment.FieldEnrolledAt, enrollment.FieldRefundedAt:
 			values[i] = new(sql.NullTime)
@@ -137,6 +139,12 @@ func (e *Enrollment) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field enrollment_status", values[i])
 			} else if value.Valid {
 				e.EnrollmentStatus = types.EnrollmentStatus(value.String)
+			}
+		case enrollment.FieldPaymentStatus:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field payment_status", values[i])
+			} else if value.Valid {
+				e.PaymentStatus = types.PaymentStatus(value.String)
 			}
 		case enrollment.FieldEnrolledAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
@@ -235,6 +243,9 @@ func (e *Enrollment) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("enrollment_status=")
 	builder.WriteString(fmt.Sprintf("%v", e.EnrollmentStatus))
+	builder.WriteString(", ")
+	builder.WriteString("payment_status=")
+	builder.WriteString(fmt.Sprintf("%v", e.PaymentStatus))
 	builder.WriteString(", ")
 	if v := e.EnrolledAt; v != nil {
 		builder.WriteString("enrolled_at=")

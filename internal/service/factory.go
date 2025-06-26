@@ -3,6 +3,7 @@ package service
 import (
 	"github.com/omkar273/codegeeky/internal/config"
 	"github.com/omkar273/codegeeky/internal/domain/discount"
+	"github.com/omkar273/codegeeky/internal/domain/payment"
 	"github.com/omkar273/codegeeky/internal/domain/user"
 	"github.com/omkar273/codegeeky/internal/httpclient"
 	"github.com/omkar273/codegeeky/internal/logger"
@@ -22,6 +23,7 @@ type ServiceParams struct {
 	// Repository dependencies
 	UserRepo     user.Repository
 	DiscountRepo discount.Repository
+	PaymentRepo  payment.Repository
 
 	// Service dependencies
 	WebhookPublisher publisher.WebhookPublisher
