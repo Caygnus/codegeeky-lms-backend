@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/omkar273/codegeeky/internal/api/dto"
-	"github.com/omkar273/codegeeky/internal/domain/user"
 	ierr "github.com/omkar273/codegeeky/internal/errors"
 	"github.com/omkar273/codegeeky/internal/types"
 )
@@ -15,12 +14,12 @@ type UserService interface {
 }
 
 type userService struct {
-	userRepository user.Repository
+	ServiceParams
 }
 
 // NewUserService creates a new user service
-func NewUserService(userRepository user.Repository) UserService {
-	return &userService{userRepository: userRepository}
+func NewUserService(params ServiceParams) UserService {
+	return &userService{ServiceParams: params}
 }
 
 // Me returns the current user
@@ -33,7 +32,7 @@ func (s *userService) Me(ctx context.Context) (*dto.MeResponse, error) {
 			Mark(ierr.ErrPermissionDenied)
 	}
 
-	user, err := s.userRepository.Get(ctx, userID)
+	user, err := s.UserRepo.Get(ctx, userID)
 	if err != nil {
 		return nil, ierr.WithError(err).
 			WithHint("Failed to get user").
@@ -58,7 +57,7 @@ func (s *userService) Update(ctx context.Context, req *dto.UpdateUserRequest) (*
 			Mark(ierr.ErrPermissionDenied)
 	}
 
-	user, err := s.userRepository.Get(ctx, userID)
+	user, err := s.UserRepo.Get(ctx, userID)
 	if err != nil {
 		return nil, ierr.WithError(err).
 			WithHint("Failed to get user").
@@ -72,7 +71,7 @@ func (s *userService) Update(ctx context.Context, req *dto.UpdateUserRequest) (*
 		user.Phone = req.Phone
 	}
 
-	err = s.userRepository.Update(ctx, user)
+	err = s.UserRepo.Update(ctx, user)
 	if err != nil {
 		return nil, err
 	}

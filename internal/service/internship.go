@@ -4,9 +4,7 @@ import (
 	"context"
 
 	"github.com/omkar273/codegeeky/internal/api/dto"
-	domainInternship "github.com/omkar273/codegeeky/internal/domain/internship"
 	ierr "github.com/omkar273/codegeeky/internal/errors"
-	"github.com/omkar273/codegeeky/internal/logger"
 	"github.com/omkar273/codegeeky/internal/types"
 	"github.com/samber/lo"
 )
@@ -20,17 +18,14 @@ type InternshipService interface {
 }
 
 type internshipService struct {
-	internshipRepo domainInternship.InternshipRepository
-	logger         *logger.Logger
+	ServiceParams
 }
 
 func NewInternshipService(
-	internshipRepo domainInternship.InternshipRepository,
-	logger *logger.Logger,
+	params ServiceParams,
 ) InternshipService {
 	return &internshipService{
-		internshipRepo: internshipRepo,
-		logger:         logger,
+		ServiceParams: params,
 	}
 }
 
@@ -42,7 +37,7 @@ func (s *internshipService) Create(ctx context.Context, req *dto.CreateInternshi
 
 	internship := req.ToInternship(ctx)
 
-	err := s.internshipRepo.Create(ctx, internship)
+	err := s.InternshipRepo.Create(ctx, internship)
 	if err != nil {
 		return nil, err
 	}
@@ -54,7 +49,7 @@ func (s *internshipService) Create(ctx context.Context, req *dto.CreateInternshi
 
 func (s *internshipService) GetByID(ctx context.Context, id string) (*dto.InternshipResponse, error) {
 
-	internship, err := s.internshipRepo.Get(ctx, id)
+	internship, err := s.InternshipRepo.Get(ctx, id)
 	if err != nil {
 		return nil, err
 	}
@@ -74,7 +69,7 @@ func (s *internshipService) Update(ctx context.Context, id string, req *dto.Upda
 		return nil, err
 	}
 
-	existingInternship, err := s.internshipRepo.Get(ctx, id)
+	existingInternship, err := s.InternshipRepo.Get(ctx, id)
 	if err != nil {
 		return nil, err
 	}
@@ -119,7 +114,7 @@ func (s *internshipService) Update(ctx context.Context, id string, req *dto.Upda
 		existingInternship.Benefits = req.Benefits
 	}
 
-	err = s.internshipRepo.Update(ctx, existingInternship)
+	err = s.InternshipRepo.Update(ctx, existingInternship)
 	if err != nil {
 		return nil, err
 	}
@@ -131,12 +126,12 @@ func (s *internshipService) Update(ctx context.Context, id string, req *dto.Upda
 
 func (s *internshipService) Delete(ctx context.Context, id string) error {
 
-	_, err := s.internshipRepo.Get(ctx, id)
+	_, err := s.InternshipRepo.Get(ctx, id)
 	if err != nil {
 		return err
 	}
 
-	err = s.internshipRepo.Delete(ctx, id)
+	err = s.InternshipRepo.Delete(ctx, id)
 	if err != nil {
 		return err
 	}
@@ -154,12 +149,12 @@ func (s *internshipService) List(ctx context.Context, filter *types.InternshipFi
 		return nil, err
 	}
 
-	count, err := s.internshipRepo.Count(ctx, filter)
+	count, err := s.InternshipRepo.Count(ctx, filter)
 	if err != nil {
 		return nil, err
 	}
 
-	internships, err := s.internshipRepo.List(ctx, filter)
+	internships, err := s.InternshipRepo.List(ctx, filter)
 	if err != nil {
 		return nil, err
 	}
