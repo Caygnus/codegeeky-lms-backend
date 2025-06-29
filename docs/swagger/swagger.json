@@ -11,7 +11,7 @@
         "version": "1.0"
     },
     "host": "localhost:8080",
-    "basePath": "/api/v1",
+    "basePath": "/v1",
     "paths": {
         "/auth/signup": {
             "post": {
@@ -1214,7 +1214,7 @@
                     "type": "string"
                 },
                 "internships": {
-                    "description": "Internships holds the value of the internships edge.",
+                    "description": "internships holds the value of the internships edge.",
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/internship.Internship"
@@ -1802,7 +1802,7 @@
                     "type": "string"
                 },
                 "internships": {
-                    "description": "Internships holds the value of the internships edge.",
+                    "description": "internships holds the value of the internships edge.",
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/internship.Internship"

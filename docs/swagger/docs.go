@@ -1220,7 +1220,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "internships": {
-                    "description": "Internships holds the value of the internships edge.",
+                    "description": "internships holds the value of the internships edge.",
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/internship.Internship"
@@ -1820,7 +1820,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "internships": {
-                    "description": "Internships holds the value of the internships edge.",
+                    "description": "internships holds the value of the internships edge.",
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/internship.Internship"
@@ -2054,7 +2054,7 @@ const docTemplate = `{
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
 	Host:             "localhost:8080",
-	BasePath:         "/api/v1",
+	BasePath:         "/v1",
 	Schemes:          []string{},
 	Title:            "CodeGeeky API",
 	Description:      "API for CodeGeeky",

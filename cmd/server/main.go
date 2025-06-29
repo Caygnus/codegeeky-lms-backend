@@ -32,7 +32,8 @@ import (
 // @contact.email  support@example.com
 
 // @host      localhost:8080
-// @BasePath  /api/v1
+// @BasePath  /v1
+// @Host      localhost:8080
 
 // @securityDefinitions.apikey Authorization
 // @in header
