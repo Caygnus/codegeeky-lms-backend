@@ -11,6 +11,7 @@ import (
 	"github.com/omkar273/codegeeky/internal/logger"
 	"github.com/omkar273/codegeeky/internal/postgres"
 	"github.com/omkar273/codegeeky/internal/types"
+	"github.com/samber/lo"
 )
 
 type paymentRepository struct {
@@ -66,35 +67,16 @@ func (r *paymentRepository) Create(ctx context.Context, p *domainPayment.Payment
 		SetCreatedAt(p.CreatedAt).
 		SetUpdatedAt(p.UpdatedAt).
 		SetCreatedBy(p.CreatedBy).
-		SetUpdatedBy(p.UpdatedBy)
+		SetNillableGatewayPaymentID(p.GatewayPaymentID).
+		SetNillableSucceededAt(p.SucceededAt).
+		SetNillableFailedAt(p.FailedAt).
+		SetNillableRefundedAt(p.RefundedAt).
+		SetNillableErrorMessage(p.ErrorMessage).
+		SetUpdatedBy(p.UpdatedBy).
+		SetNillablePaymentMethodType(p.PaymentMethodType).
+		SetNillablePaymentMethodID(lo.ToPtr(p.PaymentMethodID))
 
-	if p.PaymentMethodType != nil {
-		builder = builder.SetPaymentMethodType(*p.PaymentMethodType)
-	}
-
-	if p.GatewayPaymentID != nil {
-		builder = builder.SetGatewayPaymentID(*p.GatewayPaymentID)
-	}
-
-	if p.SucceededAt != nil {
-		builder = builder.SetSucceededAt(*p.SucceededAt)
-	}
-
-	if p.FailedAt != nil {
-		builder = builder.SetFailedAt(*p.FailedAt)
-	}
-
-	if p.RefundedAt != nil {
-		builder = builder.SetRefundedAt(*p.RefundedAt)
-	}
-
-	if p.ErrorMessage != nil {
-		builder = builder.SetErrorMessage(*p.ErrorMessage)
-	}
-
-	_, err := builder.Save(ctx)
-
-	if err != nil {
+	if _, err := builder.Save(ctx); err != nil {
 		if ent.IsConstraintError(err) {
 			return ierr.WithError(err).
 				WithHint("Payment with this idempotency key already exists").
@@ -537,7 +519,7 @@ func (o PaymentQueryOptions) ApplyEntityQueryOptions(
 		return query
 	}
 
-	if f.PaymentIDs != nil && len(f.PaymentIDs) > 0 {
+	if f.PaymentIDs != nil {
 		query = query.Where(payment.IDIn(f.PaymentIDs...))
 	}
 

@@ -3,6 +3,7 @@ package repository
 import (
 	"github.com/omkar273/codegeeky/internal/config"
 	"github.com/omkar273/codegeeky/internal/domain/discount"
+	"github.com/omkar273/codegeeky/internal/domain/enrollment"
 	"github.com/omkar273/codegeeky/internal/domain/internship"
 	"github.com/omkar273/codegeeky/internal/domain/payment"
 	"github.com/omkar273/codegeeky/internal/domain/user"
@@ -50,4 +51,8 @@ func NewDiscountRepository(params RepositoryParams) discount.Repository {
 
 func NewPaymentRepository(params RepositoryParams) payment.Repository {
 	return ent.NewPaymentRepository(params.Client, params.Logger)
+}
+
+func NewEnrollmentRepository(params RepositoryParams) enrollment.Repository {
+	return ent.NewEnrollmentRepository(params.Client, params.Logger)
 }

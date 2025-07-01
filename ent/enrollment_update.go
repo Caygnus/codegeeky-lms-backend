@@ -237,6 +237,26 @@ func (eu *EnrollmentUpdate) ClearRefundReason() *EnrollmentUpdate {
 	return eu
 }
 
+// SetIdempotencyKey sets the "idempotency_key" field.
+func (eu *EnrollmentUpdate) SetIdempotencyKey(s string) *EnrollmentUpdate {
+	eu.mutation.SetIdempotencyKey(s)
+	return eu
+}
+
+// SetNillableIdempotencyKey sets the "idempotency_key" field if the given value is not nil.
+func (eu *EnrollmentUpdate) SetNillableIdempotencyKey(s *string) *EnrollmentUpdate {
+	if s != nil {
+		eu.SetIdempotencyKey(*s)
+	}
+	return eu
+}
+
+// ClearIdempotencyKey clears the value of the "idempotency_key" field.
+func (eu *EnrollmentUpdate) ClearIdempotencyKey() *EnrollmentUpdate {
+	eu.mutation.ClearIdempotencyKey()
+	return eu
+}
+
 // Mutation returns the EnrollmentMutation object of the builder.
 func (eu *EnrollmentUpdate) Mutation() *EnrollmentMutation {
 	return eu.mutation
@@ -377,6 +397,12 @@ func (eu *EnrollmentUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if eu.mutation.RefundReasonCleared() {
 		_spec.ClearField(enrollment.FieldRefundReason, field.TypeString)
+	}
+	if value, ok := eu.mutation.IdempotencyKey(); ok {
+		_spec.SetField(enrollment.FieldIdempotencyKey, field.TypeString, value)
+	}
+	if eu.mutation.IdempotencyKeyCleared() {
+		_spec.ClearField(enrollment.FieldIdempotencyKey, field.TypeString)
 	}
 	if n, err = sqlgraph.UpdateNodes(ctx, eu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -606,6 +632,26 @@ func (euo *EnrollmentUpdateOne) ClearRefundReason() *EnrollmentUpdateOne {
 	return euo
 }
 
+// SetIdempotencyKey sets the "idempotency_key" field.
+func (euo *EnrollmentUpdateOne) SetIdempotencyKey(s string) *EnrollmentUpdateOne {
+	euo.mutation.SetIdempotencyKey(s)
+	return euo
+}
+
+// SetNillableIdempotencyKey sets the "idempotency_key" field if the given value is not nil.
+func (euo *EnrollmentUpdateOne) SetNillableIdempotencyKey(s *string) *EnrollmentUpdateOne {
+	if s != nil {
+		euo.SetIdempotencyKey(*s)
+	}
+	return euo
+}
+
+// ClearIdempotencyKey clears the value of the "idempotency_key" field.
+func (euo *EnrollmentUpdateOne) ClearIdempotencyKey() *EnrollmentUpdateOne {
+	euo.mutation.ClearIdempotencyKey()
+	return euo
+}
+
 // Mutation returns the EnrollmentMutation object of the builder.
 func (euo *EnrollmentUpdateOne) Mutation() *EnrollmentMutation {
 	return euo.mutation
@@ -776,6 +822,12 @@ func (euo *EnrollmentUpdateOne) sqlSave(ctx context.Context) (_node *Enrollment,
 	}
 	if euo.mutation.RefundReasonCleared() {
 		_spec.ClearField(enrollment.FieldRefundReason, field.TypeString)
+	}
+	if value, ok := euo.mutation.IdempotencyKey(); ok {
+		_spec.SetField(enrollment.FieldIdempotencyKey, field.TypeString, value)
+	}
+	if euo.mutation.IdempotencyKeyCleared() {
+		_spec.ClearField(enrollment.FieldIdempotencyKey, field.TypeString)
 	}
 	_node = &Enrollment{config: euo.config}
 	_spec.Assign = _node.assignValues

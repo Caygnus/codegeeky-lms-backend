@@ -44,6 +44,8 @@ const (
 	FieldCancellationReason = "cancellation_reason"
 	// FieldRefundReason holds the string denoting the refund_reason field in the database.
 	FieldRefundReason = "refund_reason"
+	// FieldIdempotencyKey holds the string denoting the idempotency_key field in the database.
+	FieldIdempotencyKey = "idempotency_key"
 	// Table holds the table name of the enrollment in the database.
 	Table = "enrollments"
 )
@@ -66,6 +68,7 @@ var Columns = []string{
 	FieldRefundedAt,
 	FieldCancellationReason,
 	FieldRefundReason,
+	FieldIdempotencyKey,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -181,4 +184,9 @@ func ByCancellationReason(opts ...sql.OrderTermOption) OrderOption {
 // ByRefundReason orders the results by the refund_reason field.
 func ByRefundReason(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldRefundReason, opts...).ToFunc()
+}
+
+// ByIdempotencyKey orders the results by the idempotency_key field.
+func ByIdempotencyKey(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldIdempotencyKey, opts...).ToFunc()
 }

@@ -49,7 +49,9 @@ type Enrollment struct {
 	CancellationReason *string `json:"cancellation_reason,omitempty"`
 	// RefundReason holds the value of the "refund_reason" field.
 	RefundReason *string `json:"refund_reason,omitempty"`
-	selectValues sql.SelectValues
+	// IdempotencyKey holds the value of the "idempotency_key" field.
+	IdempotencyKey *string `json:"idempotency_key,omitempty"`
+	selectValues   sql.SelectValues
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -59,7 +61,7 @@ func (*Enrollment) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case enrollment.FieldMetadata:
 			values[i] = new([]byte)
-		case enrollment.FieldID, enrollment.FieldStatus, enrollment.FieldCreatedBy, enrollment.FieldUpdatedBy, enrollment.FieldUserID, enrollment.FieldInternshipID, enrollment.FieldEnrollmentStatus, enrollment.FieldPaymentStatus, enrollment.FieldPaymentID, enrollment.FieldCancellationReason, enrollment.FieldRefundReason:
+		case enrollment.FieldID, enrollment.FieldStatus, enrollment.FieldCreatedBy, enrollment.FieldUpdatedBy, enrollment.FieldUserID, enrollment.FieldInternshipID, enrollment.FieldEnrollmentStatus, enrollment.FieldPaymentStatus, enrollment.FieldPaymentID, enrollment.FieldCancellationReason, enrollment.FieldRefundReason, enrollment.FieldIdempotencyKey:
 			values[i] = new(sql.NullString)
 		case enrollment.FieldCreatedAt, enrollment.FieldUpdatedAt, enrollment.FieldEnrolledAt, enrollment.FieldRefundedAt:
 			values[i] = new(sql.NullTime)
@@ -181,6 +183,13 @@ func (e *Enrollment) assignValues(columns []string, values []any) error {
 				e.RefundReason = new(string)
 				*e.RefundReason = value.String
 			}
+		case enrollment.FieldIdempotencyKey:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field idempotency_key", values[i])
+			} else if value.Valid {
+				e.IdempotencyKey = new(string)
+				*e.IdempotencyKey = value.String
+			}
 		default:
 			e.selectValues.Set(columns[i], values[i])
 		}
@@ -269,6 +278,11 @@ func (e *Enrollment) String() string {
 	builder.WriteString(", ")
 	if v := e.RefundReason; v != nil {
 		builder.WriteString("refund_reason=")
+		builder.WriteString(*v)
+	}
+	builder.WriteString(", ")
+	if v := e.IdempotencyKey; v != nil {
+		builder.WriteString("idempotency_key=")
 		builder.WriteString(*v)
 	}
 	builder.WriteByte(')')

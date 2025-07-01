@@ -81,5 +81,11 @@ func (Enrollment) Fields() []ent.Field {
 		field.String("refund_reason").
 			Optional().
 			Nillable(),
+
+		// Idempotency key
+		field.String("idempotency_key").
+			SchemaType(map[string]string{"postgres": "varchar(255)"}).
+			Optional().
+			Nillable(),
 	}
 }

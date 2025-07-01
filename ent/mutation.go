@@ -2315,6 +2315,7 @@ type EnrollmentMutation struct {
 	refunded_at         *time.Time
 	cancellation_reason *string
 	refund_reason       *string
+	idempotency_key     *string
 	clearedFields       map[string]struct{}
 	done                bool
 	oldValue            func(context.Context) (*Enrollment, error)
@@ -3069,6 +3070,55 @@ func (m *EnrollmentMutation) ResetRefundReason() {
 	delete(m.clearedFields, enrollment.FieldRefundReason)
 }
 
+// SetIdempotencyKey sets the "idempotency_key" field.
+func (m *EnrollmentMutation) SetIdempotencyKey(s string) {
+	m.idempotency_key = &s
+}
+
+// IdempotencyKey returns the value of the "idempotency_key" field in the mutation.
+func (m *EnrollmentMutation) IdempotencyKey() (r string, exists bool) {
+	v := m.idempotency_key
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldIdempotencyKey returns the old "idempotency_key" field's value of the Enrollment entity.
+// If the Enrollment object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *EnrollmentMutation) OldIdempotencyKey(ctx context.Context) (v *string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldIdempotencyKey is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldIdempotencyKey requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldIdempotencyKey: %w", err)
+	}
+	return oldValue.IdempotencyKey, nil
+}
+
+// ClearIdempotencyKey clears the value of the "idempotency_key" field.
+func (m *EnrollmentMutation) ClearIdempotencyKey() {
+	m.idempotency_key = nil
+	m.clearedFields[enrollment.FieldIdempotencyKey] = struct{}{}
+}
+
+// IdempotencyKeyCleared returns if the "idempotency_key" field was cleared in this mutation.
+func (m *EnrollmentMutation) IdempotencyKeyCleared() bool {
+	_, ok := m.clearedFields[enrollment.FieldIdempotencyKey]
+	return ok
+}
+
+// ResetIdempotencyKey resets all changes to the "idempotency_key" field.
+func (m *EnrollmentMutation) ResetIdempotencyKey() {
+	m.idempotency_key = nil
+	delete(m.clearedFields, enrollment.FieldIdempotencyKey)
+}
+
 // Where appends a list predicates to the EnrollmentMutation builder.
 func (m *EnrollmentMutation) Where(ps ...predicate.Enrollment) {
 	m.predicates = append(m.predicates, ps...)
@@ -3103,7 +3153,7 @@ func (m *EnrollmentMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *EnrollmentMutation) Fields() []string {
-	fields := make([]string, 0, 15)
+	fields := make([]string, 0, 16)
 	if m.status != nil {
 		fields = append(fields, enrollment.FieldStatus)
 	}
@@ -3149,6 +3199,9 @@ func (m *EnrollmentMutation) Fields() []string {
 	if m.refund_reason != nil {
 		fields = append(fields, enrollment.FieldRefundReason)
 	}
+	if m.idempotency_key != nil {
+		fields = append(fields, enrollment.FieldIdempotencyKey)
+	}
 	return fields
 }
 
@@ -3187,6 +3240,8 @@ func (m *EnrollmentMutation) Field(name string) (ent.Value, bool) {
 		return m.CancellationReason()
 	case enrollment.FieldRefundReason:
 		return m.RefundReason()
+	case enrollment.FieldIdempotencyKey:
+		return m.IdempotencyKey()
 	}
 	return nil, false
 }
@@ -3226,6 +3281,8 @@ func (m *EnrollmentMutation) OldField(ctx context.Context, name string) (ent.Val
 		return m.OldCancellationReason(ctx)
 	case enrollment.FieldRefundReason:
 		return m.OldRefundReason(ctx)
+	case enrollment.FieldIdempotencyKey:
+		return m.OldIdempotencyKey(ctx)
 	}
 	return nil, fmt.Errorf("unknown Enrollment field %s", name)
 }
@@ -3340,6 +3397,13 @@ func (m *EnrollmentMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetRefundReason(v)
 		return nil
+	case enrollment.FieldIdempotencyKey:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetIdempotencyKey(v)
+		return nil
 	}
 	return fmt.Errorf("unknown Enrollment field %s", name)
 }
@@ -3394,6 +3458,9 @@ func (m *EnrollmentMutation) ClearedFields() []string {
 	if m.FieldCleared(enrollment.FieldRefundReason) {
 		fields = append(fields, enrollment.FieldRefundReason)
 	}
+	if m.FieldCleared(enrollment.FieldIdempotencyKey) {
+		fields = append(fields, enrollment.FieldIdempotencyKey)
+	}
 	return fields
 }
 
@@ -3431,6 +3498,9 @@ func (m *EnrollmentMutation) ClearField(name string) error {
 		return nil
 	case enrollment.FieldRefundReason:
 		m.ClearRefundReason()
+		return nil
+	case enrollment.FieldIdempotencyKey:
+		m.ClearIdempotencyKey()
 		return nil
 	}
 	return fmt.Errorf("unknown Enrollment nullable field %s", name)
@@ -3484,6 +3554,9 @@ func (m *EnrollmentMutation) ResetField(name string) error {
 		return nil
 	case enrollment.FieldRefundReason:
 		m.ResetRefundReason()
+		return nil
+	case enrollment.FieldIdempotencyKey:
+		m.ResetIdempotencyKey()
 		return nil
 	}
 	return fmt.Errorf("unknown Enrollment field %s", name)

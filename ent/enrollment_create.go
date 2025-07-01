@@ -207,6 +207,20 @@ func (ec *EnrollmentCreate) SetNillableRefundReason(s *string) *EnrollmentCreate
 	return ec
 }
 
+// SetIdempotencyKey sets the "idempotency_key" field.
+func (ec *EnrollmentCreate) SetIdempotencyKey(s string) *EnrollmentCreate {
+	ec.mutation.SetIdempotencyKey(s)
+	return ec
+}
+
+// SetNillableIdempotencyKey sets the "idempotency_key" field if the given value is not nil.
+func (ec *EnrollmentCreate) SetNillableIdempotencyKey(s *string) *EnrollmentCreate {
+	if s != nil {
+		ec.SetIdempotencyKey(*s)
+	}
+	return ec
+}
+
 // SetID sets the "id" field.
 func (ec *EnrollmentCreate) SetID(s string) *EnrollmentCreate {
 	ec.mutation.SetID(s)
@@ -423,6 +437,10 @@ func (ec *EnrollmentCreate) createSpec() (*Enrollment, *sqlgraph.CreateSpec) {
 	if value, ok := ec.mutation.RefundReason(); ok {
 		_spec.SetField(enrollment.FieldRefundReason, field.TypeString, value)
 		_node.RefundReason = &value
+	}
+	if value, ok := ec.mutation.IdempotencyKey(); ok {
+		_spec.SetField(enrollment.FieldIdempotencyKey, field.TypeString, value)
+		_node.IdempotencyKey = &value
 	}
 	return _node, _spec
 }

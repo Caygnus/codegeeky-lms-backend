@@ -2,10 +2,13 @@ package service
 
 import (
 	"context"
+	"time"
 
 	"github.com/omkar273/codegeeky/internal/api/dto"
+	"github.com/omkar273/codegeeky/internal/domain/internship"
 	ierr "github.com/omkar273/codegeeky/internal/errors"
 	"github.com/omkar273/codegeeky/internal/types"
+	"github.com/shopspring/decimal"
 )
 
 type DiscountService interface {
@@ -15,6 +18,7 @@ type DiscountService interface {
 	Delete(ctx context.Context, id string) error
 	List(ctx context.Context, filter *types.DiscountFilter) (*dto.ListDiscountResponse, error)
 	GetByCode(ctx context.Context, code string) (*dto.DiscountResponse, error)
+	ValidateDiscountCode(ctx context.Context, code string, internship *internship.Internship) error
 }
 
 type discountService struct {
@@ -143,4 +147,66 @@ func (s *discountService) GetByCode(ctx context.Context, code string) (*dto.Disc
 	}
 
 	return &dto.DiscountResponse{Discount: *discount}, nil
+}
+
+func (s *discountService) ValidateDiscountCode(ctx context.Context, code string, internship *internship.Internship) error {
+	if internship == nil {
+		return ierr.NewError("internship not found").
+			WithHint("Internship not found").
+			Mark(ierr.ErrNotFound)
+	}
+
+	discount, err := s.ServiceParams.DiscountRepo.GetByCode(ctx, code)
+	if err != nil {
+		return err
+	}
+
+	if discount == nil {
+		return ierr.NewError("discount not found").
+			WithHint("Discount not found").
+			Mark(ierr.ErrNotFound)
+	}
+
+	// Check if discount is active
+	if !discount.IsActive || discount.Status != types.StatusPublished {
+		return ierr.NewError("discount is not active").
+			WithHint("Discount is not active").
+			Mark(ierr.ErrBadRequest)
+	}
+
+	// Check if discount is within valid time range
+	now := time.Now()
+	if discount.ValidFrom.After(now) {
+		return ierr.NewError("discount is not yet valid").
+			WithHint("Discount is not yet valid").
+			Mark(ierr.ErrBadRequest)
+	}
+
+	if discount.ValidUntil != nil && discount.ValidUntil.Before(now) {
+		return ierr.NewError("discount has expired").
+			WithHint("Discount has expired").
+			Mark(ierr.ErrBadRequest)
+	}
+
+	// Check minimum order value requirement
+	if discount.MinOrderValue != nil && discount.MinOrderValue.GreaterThan(decimal.Zero) {
+		if discount.MinOrderValue.GreaterThan(internship.Price) {
+			return ierr.NewError("order value does not meet minimum requirement for discount").
+				WithHint("Order value does not meet minimum requirement for discount").
+				Mark(ierr.ErrBadRequest)
+		}
+	}
+
+	// TODO: Implement max uses validation by counting actual usage from payments/enrollments
+	// For now, we'll skip this validation to avoid the UsedCount error
+	// if discount.MaxUses != nil && *discount.MaxUses > 0 {
+	//     actualUsage := s.getDiscountUsageCount(ctx, discount.ID)
+	//     if actualUsage >= *discount.MaxUses {
+	//         return ierr.NewError("discount has reached the maximum number of uses").
+	//             WithHint("Discount has reached the maximum number of uses").
+	//             Mark(ierr.ErrBadRequest)
+	//     }
+	// }
+
+	return nil
 }

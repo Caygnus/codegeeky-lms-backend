@@ -88,6 +88,7 @@ var (
 		{Name: "refunded_at", Type: field.TypeTime, Nullable: true},
 		{Name: "cancellation_reason", Type: field.TypeString, Nullable: true},
 		{Name: "refund_reason", Type: field.TypeString, Nullable: true},
+		{Name: "idempotency_key", Type: field.TypeString, Nullable: true, SchemaType: map[string]string{"postgres": "varchar(255)"}},
 	}
 	// EnrollmentsTable holds the schema information for the "enrollments" table.
 	EnrollmentsTable = &schema.Table{
