@@ -16,12 +16,14 @@ type Tx struct {
 	Category *CategoryClient
 	// Discount is the client for interacting with the Discount builders.
 	Discount *DiscountClient
-	// Enrollment is the client for interacting with the Enrollment builders.
-	Enrollment *EnrollmentClient
 	// FileUpload is the client for interacting with the FileUpload builders.
 	FileUpload *FileUploadClient
 	// Internship is the client for interacting with the Internship builders.
 	Internship *InternshipClient
+	// InternshipBatch is the client for interacting with the InternshipBatch builders.
+	InternshipBatch *InternshipBatchClient
+	// InternshipEnrollment is the client for interacting with the InternshipEnrollment builders.
+	InternshipEnrollment *InternshipEnrollmentClient
 	// Payment is the client for interacting with the Payment builders.
 	Payment *PaymentClient
 	// PaymentAttempt is the client for interacting with the PaymentAttempt builders.
@@ -161,9 +163,10 @@ func (tx *Tx) Client() *Client {
 func (tx *Tx) init() {
 	tx.Category = NewCategoryClient(tx.config)
 	tx.Discount = NewDiscountClient(tx.config)
-	tx.Enrollment = NewEnrollmentClient(tx.config)
 	tx.FileUpload = NewFileUploadClient(tx.config)
 	tx.Internship = NewInternshipClient(tx.config)
+	tx.InternshipBatch = NewInternshipBatchClient(tx.config)
+	tx.InternshipEnrollment = NewInternshipEnrollmentClient(tx.config)
 	tx.Payment = NewPaymentClient(tx.config)
 	tx.PaymentAttempt = NewPaymentAttemptClient(tx.config)
 	tx.User = NewUserClient(tx.config)

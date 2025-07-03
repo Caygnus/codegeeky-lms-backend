@@ -12,14 +12,17 @@ type Category func(*sql.Selector)
 // Discount is the predicate function for discount builders.
 type Discount func(*sql.Selector)
 
-// Enrollment is the predicate function for enrollment builders.
-type Enrollment func(*sql.Selector)
-
 // FileUpload is the predicate function for fileupload builders.
 type FileUpload func(*sql.Selector)
 
 // Internship is the predicate function for internship builders.
 type Internship func(*sql.Selector)
+
+// InternshipBatch is the predicate function for internshipbatch builders.
+type InternshipBatch func(*sql.Selector)
+
+// InternshipEnrollment is the predicate function for internshipenrollment builders.
+type InternshipEnrollment func(*sql.Selector)
 
 // Payment is the predicate function for payment builders.
 type Payment func(*sql.Selector)

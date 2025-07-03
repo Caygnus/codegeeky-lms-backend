@@ -37,12 +37,14 @@ func ValidateUUIDWithPrefix(uuid string, prefix string) bool {
 
 const (
 	// Prefixes for all domains and entities
-	UUID_PREFIX_USER            = "user"
-	UUID_PREFIX_INTERNSHIP      = "internship"
-	UUID_PREFIX_CATEGORY        = "category"
-	UUID_PREFIX_FILE_UPLOAD     = "file"
-	UUID_PREFIX_PAYMENT         = "payment"
-	UUID_PREFIX_DISCOUNT        = "discount"
-	UUID_PREFIX_ENROLLMENT      = "enrollment"
-	UUID_PREFIX_PAYMENT_ATTEMPT = "pa"
+	UUID_PREFIX_USER                        = "user"
+	UUID_PREFIX_INTERNSHIP                  = "internship"
+	UUID_PREFIX_CATEGORY                    = "category"
+	UUID_PREFIX_FILE_UPLOAD                 = "file"
+	UUID_PREFIX_PAYMENT                     = "payment"
+	UUID_PREFIX_DISCOUNT                    = "discount"
+	UUID_PREFIX_INTERNSHIP_ENROLLMENT       = "ie"
+	UUID_PREFIX_PAYMENT_ATTEMPT             = "pa"
+	UUID_PREFIX_INTERNSHIP_BATCH            = "ib"
+	UUID_PREFIX_INTERNSHIP_BATCH_ENROLLMENT = "ibe"
 )

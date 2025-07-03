@@ -41,7 +41,7 @@ func (r *internshipRepository) Create(ctx context.Context, internshipData *domai
 	// Convert domain categories to ent categories
 	entCats := lo.Map(internshipData.Categories, func(c *domainInternship.Category, _ int) *ent.Category {
 		return &ent.Category{ID: c.ID}
-	}) 
+	})
 
 	// Create internship
 	_, err := client.Internship.Create().
@@ -117,7 +117,8 @@ func (r *internshipRepository) Get(ctx context.Context, id string) (*domainInter
 			Mark(ierr.ErrDatabase)
 	}
 
-	return domainInternship.InternshipFromEnt(entInternship), nil
+	internship := &domainInternship.Internship{}
+	return internship.FromEnt(entInternship), nil
 }
 
 func (r *internshipRepository) GetByLookupKey(ctx context.Context, lookupKey string) (*domainInternship.Internship, error) {
@@ -150,7 +151,8 @@ func (r *internshipRepository) GetByLookupKey(ctx context.Context, lookupKey str
 			Mark(ierr.ErrDatabase)
 	}
 
-	return domainInternship.InternshipFromEnt(entInternship), nil
+	internship := &domainInternship.Internship{}
+	return internship.FromEnt(entInternship), nil
 }
 
 func (r *internshipRepository) List(ctx context.Context, filter *types.InternshipFilter) ([]*domainInternship.Internship, error) {
@@ -165,18 +167,17 @@ func (r *internshipRepository) List(ctx context.Context, filter *types.Internshi
 	query = r.queryOpts.ApplyBaseFilters(ctx, query, filter)
 	query = r.queryOpts.ApplyEntityQueryOptions(ctx, filter, query)
 
-	// Add eager loading for categories
-	// TODO: Rethink this
-	// query = query.WithCategories()
-
-	internships, err := query.All(ctx)
+	internships, err := query.
+		WithCategories().
+		All(ctx)
 	if err != nil {
 		return nil, ierr.WithError(err).
 			WithHint("Failed to list internships").
 			Mark(ierr.ErrDatabase)
 	}
 
-	return domainInternship.InternshipFromEntList(internships), nil
+	internship := &domainInternship.Internship{}
+	return internship.FromEntList(internships), nil
 }
 
 func (r *internshipRepository) ListAll(ctx context.Context, filter *types.InternshipFilter) ([]*domainInternship.Internship, error) {

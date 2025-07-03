@@ -7,26 +7,26 @@ import (
 	"github.com/omkar273/codegeeky/internal/types"
 )
 
-// Enrollment holds the schema definition for the Enrollment entity.
-type Enrollment struct {
+// InternshipEnrollment holds the schema definition for the InternshipEnrollment entity.
+type InternshipEnrollment struct {
 	ent.Schema
 }
 
-// Mixin of the Enrollment.
-func (Enrollment) Mixin() []ent.Mixin {
+// Mixin of the InternshipEnrollment.
+func (InternshipEnrollment) Mixin() []ent.Mixin {
 	return []ent.Mixin{
 		baseMixin.BaseMixin{}, // includes created_at, updated_at
 		baseMixin.MetadataMixin{},
 	}
 }
 
-// Fields of the Enrollment.
-func (Enrollment) Fields() []ent.Field {
+// Fields of the InternshipEnrollment.
+func (InternshipEnrollment) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("id").
 			SchemaType(map[string]string{"postgres": "varchar(255)"}).
 			DefaultFunc(func() string {
-				return types.GenerateUUIDWithPrefix(types.UUID_PREFIX_ENROLLMENT)
+				return types.GenerateUUIDWithPrefix(types.UUID_PREFIX_INTERNSHIP_ENROLLMENT)
 			}).
 			Immutable(),
 
@@ -39,7 +39,11 @@ func (Enrollment) Fields() []ent.Field {
 			SchemaType(map[string]string{"postgres": "varchar(255)"}).
 			NotEmpty(),
 
-		// Enrollment status
+		field.String("internship_batch_id").
+			SchemaType(map[string]string{"postgres": "varchar(255)"}).
+			NotEmpty(),
+
+		// InternshipEnrollment status
 		field.String("enrollment_status").
 			SchemaType(map[string]string{
 				"postgres": "varchar(255)",
@@ -48,7 +52,7 @@ func (Enrollment) Fields() []ent.Field {
 			Default(types.EnrollmentStatusPending).
 			NotEmpty(),
 
-		// Enrollment payment status
+		// InternshipEnrollment payment status
 		field.String("payment_status").
 			SchemaType(map[string]string{
 				"postgres": "varchar(255)",
@@ -57,13 +61,13 @@ func (Enrollment) Fields() []ent.Field {
 			Default(string(types.PaymentStatusPending)).
 			NotEmpty(),
 
-		// When enrollment was confirmed
+		// When InternshipEnrollment was confirmed
 		field.Time("enrolled_at").
 			Optional().
 			Nillable(),
 
 		// Payment & refund linkage
-		// This is the internal payment id of caygnus not the actuall provider id i.e. razorpay , stripe
+		// This is the internal payment id of caygnus not the actual provider id i.e. razorpay , stripe
 		field.String("payment_id").
 			SchemaType(map[string]string{"postgres": "varchar(255)"}).
 			Optional().

@@ -70,32 +70,6 @@ var (
 		Columns:    DiscountsColumns,
 		PrimaryKey: []*schema.Column{DiscountsColumns[0]},
 	}
-	// EnrollmentsColumns holds the columns for the "enrollments" table.
-	EnrollmentsColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeString, SchemaType: map[string]string{"postgres": "varchar(255)"}},
-		{Name: "status", Type: field.TypeString, Default: "published", SchemaType: map[string]string{"postgres": "varchar(20)"}},
-		{Name: "created_at", Type: field.TypeTime},
-		{Name: "updated_at", Type: field.TypeTime},
-		{Name: "created_by", Type: field.TypeString, Nullable: true},
-		{Name: "updated_by", Type: field.TypeString, Nullable: true},
-		{Name: "metadata", Type: field.TypeJSON, Nullable: true},
-		{Name: "user_id", Type: field.TypeString, SchemaType: map[string]string{"postgres": "varchar(255)"}},
-		{Name: "internship_id", Type: field.TypeString, SchemaType: map[string]string{"postgres": "varchar(255)"}},
-		{Name: "enrollment_status", Type: field.TypeString, Default: "pending", SchemaType: map[string]string{"postgres": "varchar(255)"}},
-		{Name: "payment_status", Type: field.TypeString, Default: "pending", SchemaType: map[string]string{"postgres": "varchar(255)"}},
-		{Name: "enrolled_at", Type: field.TypeTime, Nullable: true},
-		{Name: "payment_id", Type: field.TypeString, Nullable: true, SchemaType: map[string]string{"postgres": "varchar(255)"}},
-		{Name: "refunded_at", Type: field.TypeTime, Nullable: true},
-		{Name: "cancellation_reason", Type: field.TypeString, Nullable: true},
-		{Name: "refund_reason", Type: field.TypeString, Nullable: true},
-		{Name: "idempotency_key", Type: field.TypeString, Nullable: true, SchemaType: map[string]string{"postgres": "varchar(255)"}},
-	}
-	// EnrollmentsTable holds the schema information for the "enrollments" table.
-	EnrollmentsTable = &schema.Table{
-		Name:       "enrollments",
-		Columns:    EnrollmentsColumns,
-		PrimaryKey: []*schema.Column{EnrollmentsColumns[0]},
-	}
 	// FileUploadsColumns holds the columns for the "file_uploads" table.
 	FileUploadsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeString, SchemaType: map[string]string{"postgres": "varchar(255)"}},
@@ -158,6 +132,55 @@ var (
 				OnDelete:   schema.SetNull,
 			},
 		},
+	}
+	// InternshipBatchesColumns holds the columns for the "internship_batches" table.
+	InternshipBatchesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeString, Unique: true, SchemaType: map[string]string{"postgres": "varchar(255)"}},
+		{Name: "status", Type: field.TypeString, Default: "published", SchemaType: map[string]string{"postgres": "varchar(20)"}},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "created_by", Type: field.TypeString, Nullable: true},
+		{Name: "updated_by", Type: field.TypeString, Nullable: true},
+		{Name: "metadata", Type: field.TypeJSON, Nullable: true},
+		{Name: "internship_id", Type: field.TypeString, SchemaType: map[string]string{"postgres": "varchar(255)"}},
+		{Name: "name", Type: field.TypeString, SchemaType: map[string]string{"postgres": "varchar(255)"}},
+		{Name: "description", Type: field.TypeString, Nullable: true, SchemaType: map[string]string{"postgres": "varchar(255)"}},
+		{Name: "start_date", Type: field.TypeTime, Nullable: true, SchemaType: map[string]string{"postgres": "timestamp"}},
+		{Name: "end_date", Type: field.TypeTime, Nullable: true, SchemaType: map[string]string{"postgres": "timestamp"}},
+		{Name: "batch_status", Type: field.TypeString, Default: "upcoming", SchemaType: map[string]string{"postgres": "varchar(255)"}},
+	}
+	// InternshipBatchesTable holds the schema information for the "internship_batches" table.
+	InternshipBatchesTable = &schema.Table{
+		Name:       "internship_batches",
+		Columns:    InternshipBatchesColumns,
+		PrimaryKey: []*schema.Column{InternshipBatchesColumns[0]},
+	}
+	// InternshipEnrollmentsColumns holds the columns for the "internship_enrollments" table.
+	InternshipEnrollmentsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeString, SchemaType: map[string]string{"postgres": "varchar(255)"}},
+		{Name: "status", Type: field.TypeString, Default: "published", SchemaType: map[string]string{"postgres": "varchar(20)"}},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "created_by", Type: field.TypeString, Nullable: true},
+		{Name: "updated_by", Type: field.TypeString, Nullable: true},
+		{Name: "metadata", Type: field.TypeJSON, Nullable: true},
+		{Name: "user_id", Type: field.TypeString, SchemaType: map[string]string{"postgres": "varchar(255)"}},
+		{Name: "internship_id", Type: field.TypeString, SchemaType: map[string]string{"postgres": "varchar(255)"}},
+		{Name: "internship_batch_id", Type: field.TypeString, SchemaType: map[string]string{"postgres": "varchar(255)"}},
+		{Name: "enrollment_status", Type: field.TypeString, Default: "pending", SchemaType: map[string]string{"postgres": "varchar(255)"}},
+		{Name: "payment_status", Type: field.TypeString, Default: "pending", SchemaType: map[string]string{"postgres": "varchar(255)"}},
+		{Name: "enrolled_at", Type: field.TypeTime, Nullable: true},
+		{Name: "payment_id", Type: field.TypeString, Nullable: true, SchemaType: map[string]string{"postgres": "varchar(255)"}},
+		{Name: "refunded_at", Type: field.TypeTime, Nullable: true},
+		{Name: "cancellation_reason", Type: field.TypeString, Nullable: true},
+		{Name: "refund_reason", Type: field.TypeString, Nullable: true},
+		{Name: "idempotency_key", Type: field.TypeString, Nullable: true, SchemaType: map[string]string{"postgres": "varchar(255)"}},
+	}
+	// InternshipEnrollmentsTable holds the schema information for the "internship_enrollments" table.
+	InternshipEnrollmentsTable = &schema.Table{
+		Name:       "internship_enrollments",
+		Columns:    InternshipEnrollmentsColumns,
+		PrimaryKey: []*schema.Column{InternshipEnrollmentsColumns[0]},
 	}
 	// PaymentsColumns holds the columns for the "payments" table.
 	PaymentsColumns = []*schema.Column{
@@ -299,9 +322,10 @@ var (
 	Tables = []*schema.Table{
 		CategoriesTable,
 		DiscountsTable,
-		EnrollmentsTable,
 		FileUploadsTable,
 		InternshipsTable,
+		InternshipBatchesTable,
+		InternshipEnrollmentsTable,
 		PaymentsTable,
 		PaymentAttemptsTable,
 		UsersTable,

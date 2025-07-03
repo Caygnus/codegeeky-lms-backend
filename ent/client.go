@@ -17,9 +17,10 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/omkar273/codegeeky/ent/category"
 	"github.com/omkar273/codegeeky/ent/discount"
-	"github.com/omkar273/codegeeky/ent/enrollment"
 	"github.com/omkar273/codegeeky/ent/fileupload"
 	"github.com/omkar273/codegeeky/ent/internship"
+	"github.com/omkar273/codegeeky/ent/internshipbatch"
+	"github.com/omkar273/codegeeky/ent/internshipenrollment"
 	"github.com/omkar273/codegeeky/ent/payment"
 	"github.com/omkar273/codegeeky/ent/paymentattempt"
 	"github.com/omkar273/codegeeky/ent/user"
@@ -34,12 +35,14 @@ type Client struct {
 	Category *CategoryClient
 	// Discount is the client for interacting with the Discount builders.
 	Discount *DiscountClient
-	// Enrollment is the client for interacting with the Enrollment builders.
-	Enrollment *EnrollmentClient
 	// FileUpload is the client for interacting with the FileUpload builders.
 	FileUpload *FileUploadClient
 	// Internship is the client for interacting with the Internship builders.
 	Internship *InternshipClient
+	// InternshipBatch is the client for interacting with the InternshipBatch builders.
+	InternshipBatch *InternshipBatchClient
+	// InternshipEnrollment is the client for interacting with the InternshipEnrollment builders.
+	InternshipEnrollment *InternshipEnrollmentClient
 	// Payment is the client for interacting with the Payment builders.
 	Payment *PaymentClient
 	// PaymentAttempt is the client for interacting with the PaymentAttempt builders.
@@ -59,9 +62,10 @@ func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
 	c.Category = NewCategoryClient(c.config)
 	c.Discount = NewDiscountClient(c.config)
-	c.Enrollment = NewEnrollmentClient(c.config)
 	c.FileUpload = NewFileUploadClient(c.config)
 	c.Internship = NewInternshipClient(c.config)
+	c.InternshipBatch = NewInternshipBatchClient(c.config)
+	c.InternshipEnrollment = NewInternshipEnrollmentClient(c.config)
 	c.Payment = NewPaymentClient(c.config)
 	c.PaymentAttempt = NewPaymentAttemptClient(c.config)
 	c.User = NewUserClient(c.config)
@@ -155,16 +159,17 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	cfg := c.config
 	cfg.driver = tx
 	return &Tx{
-		ctx:            ctx,
-		config:         cfg,
-		Category:       NewCategoryClient(cfg),
-		Discount:       NewDiscountClient(cfg),
-		Enrollment:     NewEnrollmentClient(cfg),
-		FileUpload:     NewFileUploadClient(cfg),
-		Internship:     NewInternshipClient(cfg),
-		Payment:        NewPaymentClient(cfg),
-		PaymentAttempt: NewPaymentAttemptClient(cfg),
-		User:           NewUserClient(cfg),
+		ctx:                  ctx,
+		config:               cfg,
+		Category:             NewCategoryClient(cfg),
+		Discount:             NewDiscountClient(cfg),
+		FileUpload:           NewFileUploadClient(cfg),
+		Internship:           NewInternshipClient(cfg),
+		InternshipBatch:      NewInternshipBatchClient(cfg),
+		InternshipEnrollment: NewInternshipEnrollmentClient(cfg),
+		Payment:              NewPaymentClient(cfg),
+		PaymentAttempt:       NewPaymentAttemptClient(cfg),
+		User:                 NewUserClient(cfg),
 	}, nil
 }
 
@@ -182,16 +187,17 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 	cfg := c.config
 	cfg.driver = &txDriver{tx: tx, drv: c.driver}
 	return &Tx{
-		ctx:            ctx,
-		config:         cfg,
-		Category:       NewCategoryClient(cfg),
-		Discount:       NewDiscountClient(cfg),
-		Enrollment:     NewEnrollmentClient(cfg),
-		FileUpload:     NewFileUploadClient(cfg),
-		Internship:     NewInternshipClient(cfg),
-		Payment:        NewPaymentClient(cfg),
-		PaymentAttempt: NewPaymentAttemptClient(cfg),
-		User:           NewUserClient(cfg),
+		ctx:                  ctx,
+		config:               cfg,
+		Category:             NewCategoryClient(cfg),
+		Discount:             NewDiscountClient(cfg),
+		FileUpload:           NewFileUploadClient(cfg),
+		Internship:           NewInternshipClient(cfg),
+		InternshipBatch:      NewInternshipBatchClient(cfg),
+		InternshipEnrollment: NewInternshipEnrollmentClient(cfg),
+		Payment:              NewPaymentClient(cfg),
+		PaymentAttempt:       NewPaymentAttemptClient(cfg),
+		User:                 NewUserClient(cfg),
 	}, nil
 }
 
@@ -221,8 +227,8 @@ func (c *Client) Close() error {
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
 	for _, n := range []interface{ Use(...Hook) }{
-		c.Category, c.Discount, c.Enrollment, c.FileUpload, c.Internship, c.Payment,
-		c.PaymentAttempt, c.User,
+		c.Category, c.Discount, c.FileUpload, c.Internship, c.InternshipBatch,
+		c.InternshipEnrollment, c.Payment, c.PaymentAttempt, c.User,
 	} {
 		n.Use(hooks...)
 	}
@@ -232,8 +238,8 @@ func (c *Client) Use(hooks ...Hook) {
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
 	for _, n := range []interface{ Intercept(...Interceptor) }{
-		c.Category, c.Discount, c.Enrollment, c.FileUpload, c.Internship, c.Payment,
-		c.PaymentAttempt, c.User,
+		c.Category, c.Discount, c.FileUpload, c.Internship, c.InternshipBatch,
+		c.InternshipEnrollment, c.Payment, c.PaymentAttempt, c.User,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -246,12 +252,14 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.Category.mutate(ctx, m)
 	case *DiscountMutation:
 		return c.Discount.mutate(ctx, m)
-	case *EnrollmentMutation:
-		return c.Enrollment.mutate(ctx, m)
 	case *FileUploadMutation:
 		return c.FileUpload.mutate(ctx, m)
 	case *InternshipMutation:
 		return c.Internship.mutate(ctx, m)
+	case *InternshipBatchMutation:
+		return c.InternshipBatch.mutate(ctx, m)
+	case *InternshipEnrollmentMutation:
+		return c.InternshipEnrollment.mutate(ctx, m)
 	case *PaymentMutation:
 		return c.Payment.mutate(ctx, m)
 	case *PaymentAttemptMutation:
@@ -545,139 +553,6 @@ func (c *DiscountClient) mutate(ctx context.Context, m *DiscountMutation) (Value
 	}
 }
 
-// EnrollmentClient is a client for the Enrollment schema.
-type EnrollmentClient struct {
-	config
-}
-
-// NewEnrollmentClient returns a client for the Enrollment from the given config.
-func NewEnrollmentClient(c config) *EnrollmentClient {
-	return &EnrollmentClient{config: c}
-}
-
-// Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `enrollment.Hooks(f(g(h())))`.
-func (c *EnrollmentClient) Use(hooks ...Hook) {
-	c.hooks.Enrollment = append(c.hooks.Enrollment, hooks...)
-}
-
-// Intercept adds a list of query interceptors to the interceptors stack.
-// A call to `Intercept(f, g, h)` equals to `enrollment.Intercept(f(g(h())))`.
-func (c *EnrollmentClient) Intercept(interceptors ...Interceptor) {
-	c.inters.Enrollment = append(c.inters.Enrollment, interceptors...)
-}
-
-// Create returns a builder for creating a Enrollment entity.
-func (c *EnrollmentClient) Create() *EnrollmentCreate {
-	mutation := newEnrollmentMutation(c.config, OpCreate)
-	return &EnrollmentCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// CreateBulk returns a builder for creating a bulk of Enrollment entities.
-func (c *EnrollmentClient) CreateBulk(builders ...*EnrollmentCreate) *EnrollmentCreateBulk {
-	return &EnrollmentCreateBulk{config: c.config, builders: builders}
-}
-
-// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
-// a builder and applies setFunc on it.
-func (c *EnrollmentClient) MapCreateBulk(slice any, setFunc func(*EnrollmentCreate, int)) *EnrollmentCreateBulk {
-	rv := reflect.ValueOf(slice)
-	if rv.Kind() != reflect.Slice {
-		return &EnrollmentCreateBulk{err: fmt.Errorf("calling to EnrollmentClient.MapCreateBulk with wrong type %T, need slice", slice)}
-	}
-	builders := make([]*EnrollmentCreate, rv.Len())
-	for i := 0; i < rv.Len(); i++ {
-		builders[i] = c.Create()
-		setFunc(builders[i], i)
-	}
-	return &EnrollmentCreateBulk{config: c.config, builders: builders}
-}
-
-// Update returns an update builder for Enrollment.
-func (c *EnrollmentClient) Update() *EnrollmentUpdate {
-	mutation := newEnrollmentMutation(c.config, OpUpdate)
-	return &EnrollmentUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOne returns an update builder for the given entity.
-func (c *EnrollmentClient) UpdateOne(e *Enrollment) *EnrollmentUpdateOne {
-	mutation := newEnrollmentMutation(c.config, OpUpdateOne, withEnrollment(e))
-	return &EnrollmentUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOneID returns an update builder for the given id.
-func (c *EnrollmentClient) UpdateOneID(id string) *EnrollmentUpdateOne {
-	mutation := newEnrollmentMutation(c.config, OpUpdateOne, withEnrollmentID(id))
-	return &EnrollmentUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// Delete returns a delete builder for Enrollment.
-func (c *EnrollmentClient) Delete() *EnrollmentDelete {
-	mutation := newEnrollmentMutation(c.config, OpDelete)
-	return &EnrollmentDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// DeleteOne returns a builder for deleting the given entity.
-func (c *EnrollmentClient) DeleteOne(e *Enrollment) *EnrollmentDeleteOne {
-	return c.DeleteOneID(e.ID)
-}
-
-// DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *EnrollmentClient) DeleteOneID(id string) *EnrollmentDeleteOne {
-	builder := c.Delete().Where(enrollment.ID(id))
-	builder.mutation.id = &id
-	builder.mutation.op = OpDeleteOne
-	return &EnrollmentDeleteOne{builder}
-}
-
-// Query returns a query builder for Enrollment.
-func (c *EnrollmentClient) Query() *EnrollmentQuery {
-	return &EnrollmentQuery{
-		config: c.config,
-		ctx:    &QueryContext{Type: TypeEnrollment},
-		inters: c.Interceptors(),
-	}
-}
-
-// Get returns a Enrollment entity by its id.
-func (c *EnrollmentClient) Get(ctx context.Context, id string) (*Enrollment, error) {
-	return c.Query().Where(enrollment.ID(id)).Only(ctx)
-}
-
-// GetX is like Get, but panics if an error occurs.
-func (c *EnrollmentClient) GetX(ctx context.Context, id string) *Enrollment {
-	obj, err := c.Get(ctx, id)
-	if err != nil {
-		panic(err)
-	}
-	return obj
-}
-
-// Hooks returns the client hooks.
-func (c *EnrollmentClient) Hooks() []Hook {
-	return c.hooks.Enrollment
-}
-
-// Interceptors returns the client interceptors.
-func (c *EnrollmentClient) Interceptors() []Interceptor {
-	return c.inters.Enrollment
-}
-
-func (c *EnrollmentClient) mutate(ctx context.Context, m *EnrollmentMutation) (Value, error) {
-	switch m.Op() {
-	case OpCreate:
-		return (&EnrollmentCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdate:
-		return (&EnrollmentUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdateOne:
-		return (&EnrollmentUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpDelete, OpDeleteOne:
-		return (&EnrollmentDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
-	default:
-		return nil, fmt.Errorf("ent: unknown Enrollment mutation op: %q", m.Op())
-	}
-}
-
 // FileUploadClient is a client for the FileUpload schema.
 type FileUploadClient struct {
 	config
@@ -957,6 +832,272 @@ func (c *InternshipClient) mutate(ctx context.Context, m *InternshipMutation) (V
 		return (&InternshipDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("ent: unknown Internship mutation op: %q", m.Op())
+	}
+}
+
+// InternshipBatchClient is a client for the InternshipBatch schema.
+type InternshipBatchClient struct {
+	config
+}
+
+// NewInternshipBatchClient returns a client for the InternshipBatch from the given config.
+func NewInternshipBatchClient(c config) *InternshipBatchClient {
+	return &InternshipBatchClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `internshipbatch.Hooks(f(g(h())))`.
+func (c *InternshipBatchClient) Use(hooks ...Hook) {
+	c.hooks.InternshipBatch = append(c.hooks.InternshipBatch, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `internshipbatch.Intercept(f(g(h())))`.
+func (c *InternshipBatchClient) Intercept(interceptors ...Interceptor) {
+	c.inters.InternshipBatch = append(c.inters.InternshipBatch, interceptors...)
+}
+
+// Create returns a builder for creating a InternshipBatch entity.
+func (c *InternshipBatchClient) Create() *InternshipBatchCreate {
+	mutation := newInternshipBatchMutation(c.config, OpCreate)
+	return &InternshipBatchCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of InternshipBatch entities.
+func (c *InternshipBatchClient) CreateBulk(builders ...*InternshipBatchCreate) *InternshipBatchCreateBulk {
+	return &InternshipBatchCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *InternshipBatchClient) MapCreateBulk(slice any, setFunc func(*InternshipBatchCreate, int)) *InternshipBatchCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &InternshipBatchCreateBulk{err: fmt.Errorf("calling to InternshipBatchClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*InternshipBatchCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &InternshipBatchCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for InternshipBatch.
+func (c *InternshipBatchClient) Update() *InternshipBatchUpdate {
+	mutation := newInternshipBatchMutation(c.config, OpUpdate)
+	return &InternshipBatchUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *InternshipBatchClient) UpdateOne(ib *InternshipBatch) *InternshipBatchUpdateOne {
+	mutation := newInternshipBatchMutation(c.config, OpUpdateOne, withInternshipBatch(ib))
+	return &InternshipBatchUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *InternshipBatchClient) UpdateOneID(id string) *InternshipBatchUpdateOne {
+	mutation := newInternshipBatchMutation(c.config, OpUpdateOne, withInternshipBatchID(id))
+	return &InternshipBatchUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for InternshipBatch.
+func (c *InternshipBatchClient) Delete() *InternshipBatchDelete {
+	mutation := newInternshipBatchMutation(c.config, OpDelete)
+	return &InternshipBatchDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *InternshipBatchClient) DeleteOne(ib *InternshipBatch) *InternshipBatchDeleteOne {
+	return c.DeleteOneID(ib.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *InternshipBatchClient) DeleteOneID(id string) *InternshipBatchDeleteOne {
+	builder := c.Delete().Where(internshipbatch.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &InternshipBatchDeleteOne{builder}
+}
+
+// Query returns a query builder for InternshipBatch.
+func (c *InternshipBatchClient) Query() *InternshipBatchQuery {
+	return &InternshipBatchQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeInternshipBatch},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a InternshipBatch entity by its id.
+func (c *InternshipBatchClient) Get(ctx context.Context, id string) (*InternshipBatch, error) {
+	return c.Query().Where(internshipbatch.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *InternshipBatchClient) GetX(ctx context.Context, id string) *InternshipBatch {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *InternshipBatchClient) Hooks() []Hook {
+	return c.hooks.InternshipBatch
+}
+
+// Interceptors returns the client interceptors.
+func (c *InternshipBatchClient) Interceptors() []Interceptor {
+	return c.inters.InternshipBatch
+}
+
+func (c *InternshipBatchClient) mutate(ctx context.Context, m *InternshipBatchMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&InternshipBatchCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&InternshipBatchUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&InternshipBatchUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&InternshipBatchDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown InternshipBatch mutation op: %q", m.Op())
+	}
+}
+
+// InternshipEnrollmentClient is a client for the InternshipEnrollment schema.
+type InternshipEnrollmentClient struct {
+	config
+}
+
+// NewInternshipEnrollmentClient returns a client for the InternshipEnrollment from the given config.
+func NewInternshipEnrollmentClient(c config) *InternshipEnrollmentClient {
+	return &InternshipEnrollmentClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `internshipenrollment.Hooks(f(g(h())))`.
+func (c *InternshipEnrollmentClient) Use(hooks ...Hook) {
+	c.hooks.InternshipEnrollment = append(c.hooks.InternshipEnrollment, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `internshipenrollment.Intercept(f(g(h())))`.
+func (c *InternshipEnrollmentClient) Intercept(interceptors ...Interceptor) {
+	c.inters.InternshipEnrollment = append(c.inters.InternshipEnrollment, interceptors...)
+}
+
+// Create returns a builder for creating a InternshipEnrollment entity.
+func (c *InternshipEnrollmentClient) Create() *InternshipEnrollmentCreate {
+	mutation := newInternshipEnrollmentMutation(c.config, OpCreate)
+	return &InternshipEnrollmentCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of InternshipEnrollment entities.
+func (c *InternshipEnrollmentClient) CreateBulk(builders ...*InternshipEnrollmentCreate) *InternshipEnrollmentCreateBulk {
+	return &InternshipEnrollmentCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *InternshipEnrollmentClient) MapCreateBulk(slice any, setFunc func(*InternshipEnrollmentCreate, int)) *InternshipEnrollmentCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &InternshipEnrollmentCreateBulk{err: fmt.Errorf("calling to InternshipEnrollmentClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*InternshipEnrollmentCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &InternshipEnrollmentCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for InternshipEnrollment.
+func (c *InternshipEnrollmentClient) Update() *InternshipEnrollmentUpdate {
+	mutation := newInternshipEnrollmentMutation(c.config, OpUpdate)
+	return &InternshipEnrollmentUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *InternshipEnrollmentClient) UpdateOne(ie *InternshipEnrollment) *InternshipEnrollmentUpdateOne {
+	mutation := newInternshipEnrollmentMutation(c.config, OpUpdateOne, withInternshipEnrollment(ie))
+	return &InternshipEnrollmentUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *InternshipEnrollmentClient) UpdateOneID(id string) *InternshipEnrollmentUpdateOne {
+	mutation := newInternshipEnrollmentMutation(c.config, OpUpdateOne, withInternshipEnrollmentID(id))
+	return &InternshipEnrollmentUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for InternshipEnrollment.
+func (c *InternshipEnrollmentClient) Delete() *InternshipEnrollmentDelete {
+	mutation := newInternshipEnrollmentMutation(c.config, OpDelete)
+	return &InternshipEnrollmentDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *InternshipEnrollmentClient) DeleteOne(ie *InternshipEnrollment) *InternshipEnrollmentDeleteOne {
+	return c.DeleteOneID(ie.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *InternshipEnrollmentClient) DeleteOneID(id string) *InternshipEnrollmentDeleteOne {
+	builder := c.Delete().Where(internshipenrollment.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &InternshipEnrollmentDeleteOne{builder}
+}
+
+// Query returns a query builder for InternshipEnrollment.
+func (c *InternshipEnrollmentClient) Query() *InternshipEnrollmentQuery {
+	return &InternshipEnrollmentQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeInternshipEnrollment},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a InternshipEnrollment entity by its id.
+func (c *InternshipEnrollmentClient) Get(ctx context.Context, id string) (*InternshipEnrollment, error) {
+	return c.Query().Where(internshipenrollment.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *InternshipEnrollmentClient) GetX(ctx context.Context, id string) *InternshipEnrollment {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *InternshipEnrollmentClient) Hooks() []Hook {
+	return c.hooks.InternshipEnrollment
+}
+
+// Interceptors returns the client interceptors.
+func (c *InternshipEnrollmentClient) Interceptors() []Interceptor {
+	return c.inters.InternshipEnrollment
+}
+
+func (c *InternshipEnrollmentClient) mutate(ctx context.Context, m *InternshipEnrollmentMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&InternshipEnrollmentCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&InternshipEnrollmentUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&InternshipEnrollmentUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&InternshipEnrollmentDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown InternshipEnrollment mutation op: %q", m.Op())
 	}
 }
 
@@ -1394,11 +1535,11 @@ func (c *UserClient) mutate(ctx context.Context, m *UserMutation) (Value, error)
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		Category, Discount, Enrollment, FileUpload, Internship, Payment, PaymentAttempt,
-		User []ent.Hook
+		Category, Discount, FileUpload, Internship, InternshipBatch,
+		InternshipEnrollment, Payment, PaymentAttempt, User []ent.Hook
 	}
 	inters struct {
-		Category, Discount, Enrollment, FileUpload, Internship, Payment, PaymentAttempt,
-		User []ent.Interceptor
+		Category, Discount, FileUpload, Internship, InternshipBatch,
+		InternshipEnrollment, Payment, PaymentAttempt, User []ent.Interceptor
 	}
 )

@@ -33,18 +33,6 @@ func (f DiscountFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, er
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.DiscountMutation", m)
 }
 
-// The EnrollmentFunc type is an adapter to allow the use of ordinary
-// function as Enrollment mutator.
-type EnrollmentFunc func(context.Context, *ent.EnrollmentMutation) (ent.Value, error)
-
-// Mutate calls f(ctx, m).
-func (f EnrollmentFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
-	if mv, ok := m.(*ent.EnrollmentMutation); ok {
-		return f(ctx, mv)
-	}
-	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.EnrollmentMutation", m)
-}
-
 // The FileUploadFunc type is an adapter to allow the use of ordinary
 // function as FileUpload mutator.
 type FileUploadFunc func(context.Context, *ent.FileUploadMutation) (ent.Value, error)
@@ -67,6 +55,30 @@ func (f InternshipFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, 
 		return f(ctx, mv)
 	}
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.InternshipMutation", m)
+}
+
+// The InternshipBatchFunc type is an adapter to allow the use of ordinary
+// function as InternshipBatch mutator.
+type InternshipBatchFunc func(context.Context, *ent.InternshipBatchMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f InternshipBatchFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.InternshipBatchMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.InternshipBatchMutation", m)
+}
+
+// The InternshipEnrollmentFunc type is an adapter to allow the use of ordinary
+// function as InternshipEnrollment mutator.
+type InternshipEnrollmentFunc func(context.Context, *ent.InternshipEnrollmentMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f InternshipEnrollmentFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.InternshipEnrollmentMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.InternshipEnrollmentMutation", m)
 }
 
 // The PaymentFunc type is an adapter to allow the use of ordinary

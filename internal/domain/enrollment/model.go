@@ -24,7 +24,7 @@ type Enrollment struct {
 	types.BaseModel
 }
 
-func FromEnt(ent *ent.Enrollment) *Enrollment {
+func FromEnt(ent *ent.InternshipEnrollment) *Enrollment {
 	return &Enrollment{
 		ID:                 ent.ID,
 		UserID:             ent.UserID,
@@ -46,7 +46,7 @@ func FromEnt(ent *ent.Enrollment) *Enrollment {
 	}
 }
 
-func FromEntList(ents []*ent.Enrollment) []*Enrollment {
+func FromEntList(ents []*ent.InternshipEnrollment) []*Enrollment {
 	enrollments := make([]*Enrollment, len(ents))
 	for i, ent := range ents {
 		enrollments[i] = FromEnt(ent)

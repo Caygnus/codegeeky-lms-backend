@@ -10,12 +10,12 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/omkar273/codegeeky/ent/enrollment"
+	"github.com/omkar273/codegeeky/ent/internshipenrollment"
 	"github.com/omkar273/codegeeky/internal/types"
 )
 
-// Enrollment is the model entity for the Enrollment schema.
-type Enrollment struct {
+// InternshipEnrollment is the model entity for the InternshipEnrollment schema.
+type InternshipEnrollment struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID string `json:"id,omitempty"`
@@ -35,6 +35,8 @@ type Enrollment struct {
 	UserID string `json:"user_id,omitempty"`
 	// InternshipID holds the value of the "internship_id" field.
 	InternshipID string `json:"internship_id,omitempty"`
+	// InternshipBatchID holds the value of the "internship_batch_id" field.
+	InternshipBatchID string `json:"internship_batch_id,omitempty"`
 	// EnrollmentStatus holds the value of the "enrollment_status" field.
 	EnrollmentStatus types.EnrollmentStatus `json:"enrollment_status,omitempty"`
 	// PaymentStatus holds the value of the "payment_status" field.
@@ -55,15 +57,15 @@ type Enrollment struct {
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
-func (*Enrollment) scanValues(columns []string) ([]any, error) {
+func (*InternshipEnrollment) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case enrollment.FieldMetadata:
+		case internshipenrollment.FieldMetadata:
 			values[i] = new([]byte)
-		case enrollment.FieldID, enrollment.FieldStatus, enrollment.FieldCreatedBy, enrollment.FieldUpdatedBy, enrollment.FieldUserID, enrollment.FieldInternshipID, enrollment.FieldEnrollmentStatus, enrollment.FieldPaymentStatus, enrollment.FieldPaymentID, enrollment.FieldCancellationReason, enrollment.FieldRefundReason, enrollment.FieldIdempotencyKey:
+		case internshipenrollment.FieldID, internshipenrollment.FieldStatus, internshipenrollment.FieldCreatedBy, internshipenrollment.FieldUpdatedBy, internshipenrollment.FieldUserID, internshipenrollment.FieldInternshipID, internshipenrollment.FieldInternshipBatchID, internshipenrollment.FieldEnrollmentStatus, internshipenrollment.FieldPaymentStatus, internshipenrollment.FieldPaymentID, internshipenrollment.FieldCancellationReason, internshipenrollment.FieldRefundReason, internshipenrollment.FieldIdempotencyKey:
 			values[i] = new(sql.NullString)
-		case enrollment.FieldCreatedAt, enrollment.FieldUpdatedAt, enrollment.FieldEnrolledAt, enrollment.FieldRefundedAt:
+		case internshipenrollment.FieldCreatedAt, internshipenrollment.FieldUpdatedAt, internshipenrollment.FieldEnrolledAt, internshipenrollment.FieldRefundedAt:
 			values[i] = new(sql.NullTime)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -73,215 +75,224 @@ func (*Enrollment) scanValues(columns []string) ([]any, error) {
 }
 
 // assignValues assigns the values that were returned from sql.Rows (after scanning)
-// to the Enrollment fields.
-func (e *Enrollment) assignValues(columns []string, values []any) error {
+// to the InternshipEnrollment fields.
+func (ie *InternshipEnrollment) assignValues(columns []string, values []any) error {
 	if m, n := len(values), len(columns); m < n {
 		return fmt.Errorf("mismatch number of scan values: %d != %d", m, n)
 	}
 	for i := range columns {
 		switch columns[i] {
-		case enrollment.FieldID:
+		case internshipenrollment.FieldID:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value.Valid {
-				e.ID = value.String
+				ie.ID = value.String
 			}
-		case enrollment.FieldStatus:
+		case internshipenrollment.FieldStatus:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field status", values[i])
 			} else if value.Valid {
-				e.Status = value.String
+				ie.Status = value.String
 			}
-		case enrollment.FieldCreatedAt:
+		case internshipenrollment.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
 			} else if value.Valid {
-				e.CreatedAt = value.Time
+				ie.CreatedAt = value.Time
 			}
-		case enrollment.FieldUpdatedAt:
+		case internshipenrollment.FieldUpdatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
 			} else if value.Valid {
-				e.UpdatedAt = value.Time
+				ie.UpdatedAt = value.Time
 			}
-		case enrollment.FieldCreatedBy:
+		case internshipenrollment.FieldCreatedBy:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field created_by", values[i])
 			} else if value.Valid {
-				e.CreatedBy = value.String
+				ie.CreatedBy = value.String
 			}
-		case enrollment.FieldUpdatedBy:
+		case internshipenrollment.FieldUpdatedBy:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field updated_by", values[i])
 			} else if value.Valid {
-				e.UpdatedBy = value.String
+				ie.UpdatedBy = value.String
 			}
-		case enrollment.FieldMetadata:
+		case internshipenrollment.FieldMetadata:
 			if value, ok := values[i].(*[]byte); !ok {
 				return fmt.Errorf("unexpected type %T for field metadata", values[i])
 			} else if value != nil && len(*value) > 0 {
-				if err := json.Unmarshal(*value, &e.Metadata); err != nil {
+				if err := json.Unmarshal(*value, &ie.Metadata); err != nil {
 					return fmt.Errorf("unmarshal field metadata: %w", err)
 				}
 			}
-		case enrollment.FieldUserID:
+		case internshipenrollment.FieldUserID:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field user_id", values[i])
 			} else if value.Valid {
-				e.UserID = value.String
+				ie.UserID = value.String
 			}
-		case enrollment.FieldInternshipID:
+		case internshipenrollment.FieldInternshipID:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field internship_id", values[i])
 			} else if value.Valid {
-				e.InternshipID = value.String
+				ie.InternshipID = value.String
 			}
-		case enrollment.FieldEnrollmentStatus:
+		case internshipenrollment.FieldInternshipBatchID:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field internship_batch_id", values[i])
+			} else if value.Valid {
+				ie.InternshipBatchID = value.String
+			}
+		case internshipenrollment.FieldEnrollmentStatus:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field enrollment_status", values[i])
 			} else if value.Valid {
-				e.EnrollmentStatus = types.EnrollmentStatus(value.String)
+				ie.EnrollmentStatus = types.EnrollmentStatus(value.String)
 			}
-		case enrollment.FieldPaymentStatus:
+		case internshipenrollment.FieldPaymentStatus:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field payment_status", values[i])
 			} else if value.Valid {
-				e.PaymentStatus = types.PaymentStatus(value.String)
+				ie.PaymentStatus = types.PaymentStatus(value.String)
 			}
-		case enrollment.FieldEnrolledAt:
+		case internshipenrollment.FieldEnrolledAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field enrolled_at", values[i])
 			} else if value.Valid {
-				e.EnrolledAt = new(time.Time)
-				*e.EnrolledAt = value.Time
+				ie.EnrolledAt = new(time.Time)
+				*ie.EnrolledAt = value.Time
 			}
-		case enrollment.FieldPaymentID:
+		case internshipenrollment.FieldPaymentID:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field payment_id", values[i])
 			} else if value.Valid {
-				e.PaymentID = new(string)
-				*e.PaymentID = value.String
+				ie.PaymentID = new(string)
+				*ie.PaymentID = value.String
 			}
-		case enrollment.FieldRefundedAt:
+		case internshipenrollment.FieldRefundedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field refunded_at", values[i])
 			} else if value.Valid {
-				e.RefundedAt = new(time.Time)
-				*e.RefundedAt = value.Time
+				ie.RefundedAt = new(time.Time)
+				*ie.RefundedAt = value.Time
 			}
-		case enrollment.FieldCancellationReason:
+		case internshipenrollment.FieldCancellationReason:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field cancellation_reason", values[i])
 			} else if value.Valid {
-				e.CancellationReason = new(string)
-				*e.CancellationReason = value.String
+				ie.CancellationReason = new(string)
+				*ie.CancellationReason = value.String
 			}
-		case enrollment.FieldRefundReason:
+		case internshipenrollment.FieldRefundReason:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field refund_reason", values[i])
 			} else if value.Valid {
-				e.RefundReason = new(string)
-				*e.RefundReason = value.String
+				ie.RefundReason = new(string)
+				*ie.RefundReason = value.String
 			}
-		case enrollment.FieldIdempotencyKey:
+		case internshipenrollment.FieldIdempotencyKey:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field idempotency_key", values[i])
 			} else if value.Valid {
-				e.IdempotencyKey = new(string)
-				*e.IdempotencyKey = value.String
+				ie.IdempotencyKey = new(string)
+				*ie.IdempotencyKey = value.String
 			}
 		default:
-			e.selectValues.Set(columns[i], values[i])
+			ie.selectValues.Set(columns[i], values[i])
 		}
 	}
 	return nil
 }
 
-// Value returns the ent.Value that was dynamically selected and assigned to the Enrollment.
+// Value returns the ent.Value that was dynamically selected and assigned to the InternshipEnrollment.
 // This includes values selected through modifiers, order, etc.
-func (e *Enrollment) Value(name string) (ent.Value, error) {
-	return e.selectValues.Get(name)
+func (ie *InternshipEnrollment) Value(name string) (ent.Value, error) {
+	return ie.selectValues.Get(name)
 }
 
-// Update returns a builder for updating this Enrollment.
-// Note that you need to call Enrollment.Unwrap() before calling this method if this Enrollment
+// Update returns a builder for updating this InternshipEnrollment.
+// Note that you need to call InternshipEnrollment.Unwrap() before calling this method if this InternshipEnrollment
 // was returned from a transaction, and the transaction was committed or rolled back.
-func (e *Enrollment) Update() *EnrollmentUpdateOne {
-	return NewEnrollmentClient(e.config).UpdateOne(e)
+func (ie *InternshipEnrollment) Update() *InternshipEnrollmentUpdateOne {
+	return NewInternshipEnrollmentClient(ie.config).UpdateOne(ie)
 }
 
-// Unwrap unwraps the Enrollment entity that was returned from a transaction after it was closed,
+// Unwrap unwraps the InternshipEnrollment entity that was returned from a transaction after it was closed,
 // so that all future queries will be executed through the driver which created the transaction.
-func (e *Enrollment) Unwrap() *Enrollment {
-	_tx, ok := e.config.driver.(*txDriver)
+func (ie *InternshipEnrollment) Unwrap() *InternshipEnrollment {
+	_tx, ok := ie.config.driver.(*txDriver)
 	if !ok {
-		panic("ent: Enrollment is not a transactional entity")
+		panic("ent: InternshipEnrollment is not a transactional entity")
 	}
-	e.config.driver = _tx.drv
-	return e
+	ie.config.driver = _tx.drv
+	return ie
 }
 
 // String implements the fmt.Stringer.
-func (e *Enrollment) String() string {
+func (ie *InternshipEnrollment) String() string {
 	var builder strings.Builder
-	builder.WriteString("Enrollment(")
-	builder.WriteString(fmt.Sprintf("id=%v, ", e.ID))
+	builder.WriteString("InternshipEnrollment(")
+	builder.WriteString(fmt.Sprintf("id=%v, ", ie.ID))
 	builder.WriteString("status=")
-	builder.WriteString(e.Status)
+	builder.WriteString(ie.Status)
 	builder.WriteString(", ")
 	builder.WriteString("created_at=")
-	builder.WriteString(e.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(ie.CreatedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("updated_at=")
-	builder.WriteString(e.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(ie.UpdatedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("created_by=")
-	builder.WriteString(e.CreatedBy)
+	builder.WriteString(ie.CreatedBy)
 	builder.WriteString(", ")
 	builder.WriteString("updated_by=")
-	builder.WriteString(e.UpdatedBy)
+	builder.WriteString(ie.UpdatedBy)
 	builder.WriteString(", ")
 	builder.WriteString("metadata=")
-	builder.WriteString(fmt.Sprintf("%v", e.Metadata))
+	builder.WriteString(fmt.Sprintf("%v", ie.Metadata))
 	builder.WriteString(", ")
 	builder.WriteString("user_id=")
-	builder.WriteString(e.UserID)
+	builder.WriteString(ie.UserID)
 	builder.WriteString(", ")
 	builder.WriteString("internship_id=")
-	builder.WriteString(e.InternshipID)
+	builder.WriteString(ie.InternshipID)
+	builder.WriteString(", ")
+	builder.WriteString("internship_batch_id=")
+	builder.WriteString(ie.InternshipBatchID)
 	builder.WriteString(", ")
 	builder.WriteString("enrollment_status=")
-	builder.WriteString(fmt.Sprintf("%v", e.EnrollmentStatus))
+	builder.WriteString(fmt.Sprintf("%v", ie.EnrollmentStatus))
 	builder.WriteString(", ")
 	builder.WriteString("payment_status=")
-	builder.WriteString(fmt.Sprintf("%v", e.PaymentStatus))
+	builder.WriteString(fmt.Sprintf("%v", ie.PaymentStatus))
 	builder.WriteString(", ")
-	if v := e.EnrolledAt; v != nil {
+	if v := ie.EnrolledAt; v != nil {
 		builder.WriteString("enrolled_at=")
 		builder.WriteString(v.Format(time.ANSIC))
 	}
 	builder.WriteString(", ")
-	if v := e.PaymentID; v != nil {
+	if v := ie.PaymentID; v != nil {
 		builder.WriteString("payment_id=")
 		builder.WriteString(*v)
 	}
 	builder.WriteString(", ")
-	if v := e.RefundedAt; v != nil {
+	if v := ie.RefundedAt; v != nil {
 		builder.WriteString("refunded_at=")
 		builder.WriteString(v.Format(time.ANSIC))
 	}
 	builder.WriteString(", ")
-	if v := e.CancellationReason; v != nil {
+	if v := ie.CancellationReason; v != nil {
 		builder.WriteString("cancellation_reason=")
 		builder.WriteString(*v)
 	}
 	builder.WriteString(", ")
-	if v := e.RefundReason; v != nil {
+	if v := ie.RefundReason; v != nil {
 		builder.WriteString("refund_reason=")
 		builder.WriteString(*v)
 	}
 	builder.WriteString(", ")
-	if v := e.IdempotencyKey; v != nil {
+	if v := ie.IdempotencyKey; v != nil {
 		builder.WriteString("idempotency_key=")
 		builder.WriteString(*v)
 	}
@@ -289,5 +300,5 @@ func (e *Enrollment) String() string {
 	return builder.String()
 }
 
-// Enrollments is a parsable slice of Enrollment.
-type Enrollments []*Enrollment
+// InternshipEnrollments is a parsable slice of InternshipEnrollment.
+type InternshipEnrollments []*InternshipEnrollment

@@ -4,7 +4,6 @@ import (
 	"github.com/omkar273/codegeeky/ent"
 	"github.com/omkar273/codegeeky/internal/types"
 	"github.com/samber/lo"
-	"github.com/shopspring/decimal"
 )
 
 type Category struct {
@@ -26,13 +25,15 @@ type Category struct {
 	types.BaseModel
 }
 
-func CategoryFromEnt(category *ent.Category) *Category {
+func (c *Category) FromEnt(category *ent.Category) *Category {
+	internship := &Internship{}
+
 	return &Category{
 		ID:          category.ID,
 		Name:        category.Name,
 		LookupKey:   category.LookupKey,
 		Description: category.Description,
-		Internships: InternshipFromEntList(category.Edges.Internships),
+		Internships: internship.FromEntList(category.Edges.Internships),
 		BaseModel: types.BaseModel{
 			Status:    types.Status(category.Status),
 			CreatedAt: category.CreatedAt,
@@ -43,20 +44,8 @@ func CategoryFromEnt(category *ent.Category) *Category {
 	}
 }
 
-func CategoryFromEntList(categories []*ent.Category) []*Category {
+func (c *Category) FromEntList(categories []*ent.Category) []*Category {
 	return lo.Map(categories, func(category *ent.Category, _ int) *Category {
-		return CategoryFromEnt(category)
+		return c.FromEnt(category)
 	})
-}
-
-func (i *Internship) FinalPrice() decimal.Decimal {
-	price := i.Price
-	if !i.FlatDiscount.IsZero() && !i.FlatDiscount.IsNegative() {
-		price = price.Sub(i.FlatDiscount)
-	}
-	if !i.PercentageDiscount.IsZero() && !i.PercentageDiscount.IsNegative() {
-		discount := price.Mul(i.PercentageDiscount.Div(decimal.NewFromInt(100)))
-		price = price.Sub(discount)
-	}
-	return price
 }

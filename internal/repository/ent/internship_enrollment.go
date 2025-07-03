@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/omkar273/codegeeky/ent"
-	"github.com/omkar273/codegeeky/ent/enrollment"
+	"github.com/omkar273/codegeeky/ent/internshipenrollment"
 	domainEnrollment "github.com/omkar273/codegeeky/internal/domain/enrollment"
 	ierr "github.com/omkar273/codegeeky/internal/errors"
 	"github.com/omkar273/codegeeky/internal/logger"
@@ -14,21 +14,21 @@ import (
 	"github.com/samber/lo"
 )
 
-type enrollmentRepository struct {
+type internshipEnrollmentRepository struct {
 	client    postgres.IClient
 	log       logger.Logger
 	queryOpts EnrollmentQueryOptions
 }
 
-func NewEnrollmentRepository(client postgres.IClient, logger *logger.Logger) domainEnrollment.Repository {
-	return &enrollmentRepository{
+func NewInternshipEnrollmentRepository(client postgres.IClient, logger *logger.Logger) domainEnrollment.Repository {
+	return &internshipEnrollmentRepository{
 		client:    client,
 		log:       *logger,
 		queryOpts: EnrollmentQueryOptions{},
 	}
 }
 
-func (r *enrollmentRepository) Create(ctx context.Context, enrollmentData *domainEnrollment.Enrollment) error {
+func (r *internshipEnrollmentRepository) Create(ctx context.Context, enrollmentData *domainEnrollment.Enrollment) error {
 	client := r.client.Querier(ctx)
 
 	r.log.Debugw("creating enrollment",
@@ -37,7 +37,7 @@ func (r *enrollmentRepository) Create(ctx context.Context, enrollmentData *domai
 		"internship_id", enrollmentData.InternshipID,
 	)
 
-	_, err := client.Enrollment.Create().
+	_, err := client.InternshipEnrollment.Create().
 		SetID(enrollmentData.ID).
 		SetUserID(enrollmentData.UserID).
 		SetInternshipID(enrollmentData.InternshipID).
@@ -80,13 +80,13 @@ func (r *enrollmentRepository) Create(ctx context.Context, enrollmentData *domai
 	return nil
 }
 
-func (r *enrollmentRepository) Get(ctx context.Context, id string) (*domainEnrollment.Enrollment, error) {
+func (r *internshipEnrollmentRepository) Get(ctx context.Context, id string) (*domainEnrollment.Enrollment, error) {
 	client := r.client.Querier(ctx)
 
 	r.log.Debugw("getting enrollment", "enrollment_id", id)
 
-	entEnrollment, err := client.Enrollment.Query().
-		Where(enrollment.ID(id)).
+	entEnrollment, err := client.InternshipEnrollment.Query().
+		Where(internshipenrollment.ID(id)).
 		Only(ctx)
 
 	if err != nil {
@@ -109,7 +109,7 @@ func (r *enrollmentRepository) Get(ctx context.Context, id string) (*domainEnrol
 	return domainEnrollment.FromEnt(entEnrollment), nil
 }
 
-func (r *enrollmentRepository) Update(ctx context.Context, enrollmentData *domainEnrollment.Enrollment) error {
+func (r *internshipEnrollmentRepository) Update(ctx context.Context, enrollmentData *domainEnrollment.Enrollment) error {
 	client := r.client.Querier(ctx)
 
 	r.log.Debugw("updating enrollment",
@@ -118,7 +118,7 @@ func (r *enrollmentRepository) Update(ctx context.Context, enrollmentData *domai
 		"internship_id", enrollmentData.InternshipID,
 	)
 
-	_, err := client.Enrollment.UpdateOneID(enrollmentData.ID).
+	_, err := client.InternshipEnrollment.UpdateOneID(enrollmentData.ID).
 		SetUserID(enrollmentData.UserID).
 		SetInternshipID(enrollmentData.InternshipID).
 		SetEnrollmentStatus(enrollmentData.EnrollmentStatus).
@@ -164,14 +164,14 @@ func (r *enrollmentRepository) Update(ctx context.Context, enrollmentData *domai
 	return nil
 }
 
-func (r *enrollmentRepository) Delete(ctx context.Context, id string) error {
+func (r *internshipEnrollmentRepository) Delete(ctx context.Context, id string) error {
 	client := r.client.Querier(ctx)
 
 	r.log.Debugw("deleting enrollment",
 		"enrollment_id", id,
 	)
 
-	_, err := client.Enrollment.UpdateOneID(id).
+	_, err := client.InternshipEnrollment.UpdateOneID(id).
 		SetStatus(string(types.StatusDeleted)).
 		SetUpdatedAt(time.Now().UTC()).
 		SetUpdatedBy(types.GetUserID(ctx)).
@@ -197,12 +197,12 @@ func (r *enrollmentRepository) Delete(ctx context.Context, id string) error {
 	return nil
 }
 
-func (r *enrollmentRepository) Count(ctx context.Context, filter *types.EnrollmentFilter) (int, error) {
+func (r *internshipEnrollmentRepository) Count(ctx context.Context, filter *types.EnrollmentFilter) (int, error) {
 	client := r.client.Querier(ctx)
 
 	r.log.Debugw("counting enrollments")
 
-	query := client.Enrollment.Query()
+	query := client.InternshipEnrollment.Query()
 	query = r.queryOpts.ApplyBaseFilters(ctx, query, filter)
 	query = r.queryOpts.ApplyEntityQueryOptions(ctx, filter, query)
 
@@ -216,7 +216,7 @@ func (r *enrollmentRepository) Count(ctx context.Context, filter *types.Enrollme
 	return count, nil
 }
 
-func (r *enrollmentRepository) List(ctx context.Context, filter *types.EnrollmentFilter) ([]*domainEnrollment.Enrollment, error) {
+func (r *internshipEnrollmentRepository) List(ctx context.Context, filter *types.EnrollmentFilter) ([]*domainEnrollment.Enrollment, error) {
 	client := r.client.Querier(ctx)
 
 	r.log.Debugw("listing enrollments",
@@ -224,7 +224,7 @@ func (r *enrollmentRepository) List(ctx context.Context, filter *types.Enrollmen
 		"offset", filter.GetOffset(),
 	)
 
-	query := client.Enrollment.Query()
+	query := client.InternshipEnrollment.Query()
 	query = r.queryOpts.ApplyBaseFilters(ctx, query, filter)
 	query = r.queryOpts.ApplyEntityQueryOptions(ctx, filter, query)
 
@@ -238,7 +238,7 @@ func (r *enrollmentRepository) List(ctx context.Context, filter *types.Enrollmen
 	return domainEnrollment.FromEntList(enrollments), nil
 }
 
-func (r *enrollmentRepository) ListAll(ctx context.Context, filter *types.EnrollmentFilter) ([]*domainEnrollment.Enrollment, error) {
+func (r *internshipEnrollmentRepository) ListAll(ctx context.Context, filter *types.EnrollmentFilter) ([]*domainEnrollment.Enrollment, error) {
 	if filter == nil {
 		filter = types.NewNoLimitEnrollmentFilter()
 	}
@@ -254,13 +254,13 @@ func (r *enrollmentRepository) ListAll(ctx context.Context, filter *types.Enroll
 	return enrollments, nil
 }
 
-func (r *enrollmentRepository) GetByIdempotencyKey(ctx context.Context, idempotencyKey string) (*domainEnrollment.Enrollment, error) {
+func (r *internshipEnrollmentRepository) GetByIdempotencyKey(ctx context.Context, idempotencyKey string) (*domainEnrollment.Enrollment, error) {
 	client := r.client.Querier(ctx)
 
 	r.log.Debugw("getting enrollment by idempotency key", "idempotency_key", idempotencyKey)
 
-	enrollment, err := client.Enrollment.Query().
-		Where(enrollment.IdempotencyKeyEQ(idempotencyKey)).
+	enrollment, err := client.InternshipEnrollment.Query().
+		Where(internshipenrollment.IdempotencyKeyEQ(idempotencyKey)).
 		First(ctx)
 
 	if err != nil {
@@ -279,7 +279,7 @@ func (r *enrollmentRepository) GetByIdempotencyKey(ctx context.Context, idempote
 }
 
 // EnrollmentQuery type alias for better readability
-type EnrollmentQuery = *ent.EnrollmentQuery
+type EnrollmentQuery = *ent.InternshipEnrollmentQuery
 
 // EnrollmentQueryOptions implements query options for enrollment queries
 type EnrollmentQueryOptions struct {
@@ -291,9 +291,9 @@ var _ EntityQueryOptions[EnrollmentQuery, *types.EnrollmentFilter] = (*Enrollmen
 
 func (o EnrollmentQueryOptions) ApplyStatusFilter(query EnrollmentQuery, status string) EnrollmentQuery {
 	if status == "" {
-		return query.Where(enrollment.StatusNotIn(string(types.StatusDeleted)))
+		return query.Where(internshipenrollment.StatusNotIn(string(types.StatusDeleted)))
 	}
-	return query.Where(enrollment.Status(status))
+	return query.Where(internshipenrollment.Status(status))
 }
 
 func (o EnrollmentQueryOptions) ApplySortFilter(query EnrollmentQuery, field string, order string) EnrollmentQuery {
@@ -313,31 +313,31 @@ func (o EnrollmentQueryOptions) ApplyPaginationFilter(query EnrollmentQuery, lim
 func (o EnrollmentQueryOptions) GetFieldName(field string) string {
 	switch field {
 	case "created_at":
-		return enrollment.FieldCreatedAt
+		return internshipenrollment.FieldCreatedAt
 	case "updated_at":
-		return enrollment.FieldUpdatedAt
+		return internshipenrollment.FieldUpdatedAt
 	case "user_id":
-		return enrollment.FieldUserID
+		return internshipenrollment.FieldUserID
 	case "internship_id":
-		return enrollment.FieldInternshipID
+		return internshipenrollment.FieldInternshipID
 	case "enrollment_status":
-		return enrollment.FieldEnrollmentStatus
+		return internshipenrollment.FieldEnrollmentStatus
 	case "payment_status":
-		return enrollment.FieldPaymentStatus
+		return internshipenrollment.FieldPaymentStatus
 	case "enrolled_at":
-		return enrollment.FieldEnrolledAt
+		return internshipenrollment.FieldEnrolledAt
 	case "payment_id":
-		return enrollment.FieldPaymentID
+		return internshipenrollment.FieldPaymentID
 	case "refunded_at":
-		return enrollment.FieldRefundedAt
+		return internshipenrollment.FieldRefundedAt
 	case "cancellation_reason":
-		return enrollment.FieldCancellationReason
+		return internshipenrollment.FieldCancellationReason
 	case "refund_reason":
-		return enrollment.FieldRefundReason
+		return internshipenrollment.FieldRefundReason
 	case "created_by":
-		return enrollment.FieldCreatedBy
+		return internshipenrollment.FieldCreatedBy
 	case "updated_by":
-		return enrollment.FieldUpdatedBy
+		return internshipenrollment.FieldUpdatedBy
 	default:
 		return field
 	}
@@ -349,7 +349,7 @@ func (o EnrollmentQueryOptions) ApplyBaseFilters(
 	filter *types.EnrollmentFilter,
 ) EnrollmentQuery {
 	if filter == nil {
-		return query.Where(enrollment.StatusNotIn(string(types.StatusDeleted)))
+		return query.Where(internshipenrollment.StatusNotIn(string(types.StatusDeleted)))
 	}
 
 	// Apply status filter
@@ -377,41 +377,41 @@ func (o EnrollmentQueryOptions) ApplyEntityQueryOptions(
 
 	// Apply internship IDs filter if specified
 	if len(f.InternshipIDs) > 0 {
-		query = query.Where(enrollment.InternshipIDIn(f.InternshipIDs...))
+		query = query.Where(internshipenrollment.InternshipIDIn(f.InternshipIDs...))
 	}
 
 	// Apply user ID filter if specified
 	if f.UserID != "" {
-		query = query.Where(enrollment.UserID(f.UserID))
+		query = query.Where(internshipenrollment.UserID(f.UserID))
 	}
 
 	// Apply enrollment status filter if specified
 	if f.EnrollmentStatus != "" {
-		query = query.Where(enrollment.EnrollmentStatus(f.EnrollmentStatus))
+		query = query.Where(internshipenrollment.EnrollmentStatus(f.EnrollmentStatus))
 	}
 
 	// Apply payment status filter if specified
 	if f.PaymentStatus != "" {
-		query = query.Where(enrollment.PaymentStatus(f.PaymentStatus))
+		query = query.Where(internshipenrollment.PaymentStatus(f.PaymentStatus))
 	}
 
 	// Apply enrollment IDs filter if specified
 	if len(f.EnrollmentIDs) > 0 {
-		query = query.Where(enrollment.IDIn(f.EnrollmentIDs...))
+		query = query.Where(internshipenrollment.IDIn(f.EnrollmentIDs...))
 	}
 
 	// Apply payment ID filter if specified
 	if f.PaymentID != nil && *f.PaymentID != "" {
-		query = query.Where(enrollment.PaymentID(lo.FromPtr(f.PaymentID)))
+		query = query.Where(internshipenrollment.PaymentID(lo.FromPtr(f.PaymentID)))
 	}
 
 	// Apply time range filters if specified
 	if f.TimeRangeFilter != nil {
 		if f.StartTime != nil {
-			query = query.Where(enrollment.CreatedAtGTE(*f.StartTime))
+			query = query.Where(internshipenrollment.CreatedAtGTE(*f.StartTime))
 		}
 		if f.EndTime != nil {
-			query = query.Where(enrollment.CreatedAtLTE(*f.EndTime))
+			query = query.Where(internshipenrollment.CreatedAtLTE(*f.EndTime))
 		}
 	}
 

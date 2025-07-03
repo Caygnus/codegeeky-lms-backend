@@ -60,7 +60,9 @@ type Internship struct {
 	types.BaseModel
 }
 
-func InternshipFromEnt(internship *ent.Internship) *Internship {
+func (i *Internship) FromEnt(internship *ent.Internship) *Internship {
+	c := &Category{}
+
 	return &Internship{
 		ID:                 internship.ID,
 		Title:              internship.Title,
@@ -77,7 +79,7 @@ func InternshipFromEnt(internship *ent.Internship) *Internship {
 		Price:              internship.Price,
 		FlatDiscount:       internship.FlatDiscount,
 		PercentageDiscount: internship.PercentageDiscount,
-		Categories:         CategoryFromEntList(internship.Edges.Categories),
+		Categories:         c.FromEntList(internship.Edges.Categories),
 		BaseModel: types.BaseModel{
 			Status:    types.Status(internship.Status),
 			CreatedAt: internship.CreatedAt,
@@ -88,8 +90,8 @@ func InternshipFromEnt(internship *ent.Internship) *Internship {
 	}
 }
 
-func InternshipFromEntList(internships []*ent.Internship) []*Internship {
+func (i *Internship) FromEntList(internships []*ent.Internship) []*Internship {
 	return lo.Map(internships, func(internship *ent.Internship, _ int) *Internship {
-		return InternshipFromEnt(internship)
+		return i.FromEnt(internship)
 	})
 }

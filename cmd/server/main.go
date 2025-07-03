@@ -90,6 +90,9 @@ func main() {
 			// payment repository
 			repository.NewPaymentRepository,
 
+			// internship enrollment repository
+			repository.NewInternshipEnrollmentRepository,
+
 			// pubsub router
 			pubsubRouter.NewRouter,
 		),

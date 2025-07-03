@@ -7,9 +7,10 @@ import (
 
 	"github.com/omkar273/codegeeky/ent/category"
 	"github.com/omkar273/codegeeky/ent/discount"
-	"github.com/omkar273/codegeeky/ent/enrollment"
 	"github.com/omkar273/codegeeky/ent/fileupload"
 	"github.com/omkar273/codegeeky/ent/internship"
+	"github.com/omkar273/codegeeky/ent/internshipbatch"
+	"github.com/omkar273/codegeeky/ent/internshipenrollment"
 	"github.com/omkar273/codegeeky/ent/payment"
 	"github.com/omkar273/codegeeky/ent/paymentattempt"
 	"github.com/omkar273/codegeeky/ent/schema"
@@ -110,55 +111,6 @@ func init() {
 	discountDescID := discountFields[0].Descriptor()
 	// discount.DefaultID holds the default value on creation for the id field.
 	discount.DefaultID = discountDescID.Default.(func() string)
-	enrollmentMixin := schema.Enrollment{}.Mixin()
-	enrollmentMixinFields0 := enrollmentMixin[0].Fields()
-	_ = enrollmentMixinFields0
-	enrollmentMixinFields1 := enrollmentMixin[1].Fields()
-	_ = enrollmentMixinFields1
-	enrollmentFields := schema.Enrollment{}.Fields()
-	_ = enrollmentFields
-	// enrollmentDescStatus is the schema descriptor for status field.
-	enrollmentDescStatus := enrollmentMixinFields0[0].Descriptor()
-	// enrollment.DefaultStatus holds the default value on creation for the status field.
-	enrollment.DefaultStatus = enrollmentDescStatus.Default.(string)
-	// enrollmentDescCreatedAt is the schema descriptor for created_at field.
-	enrollmentDescCreatedAt := enrollmentMixinFields0[1].Descriptor()
-	// enrollment.DefaultCreatedAt holds the default value on creation for the created_at field.
-	enrollment.DefaultCreatedAt = enrollmentDescCreatedAt.Default.(func() time.Time)
-	// enrollmentDescUpdatedAt is the schema descriptor for updated_at field.
-	enrollmentDescUpdatedAt := enrollmentMixinFields0[2].Descriptor()
-	// enrollment.DefaultUpdatedAt holds the default value on creation for the updated_at field.
-	enrollment.DefaultUpdatedAt = enrollmentDescUpdatedAt.Default.(func() time.Time)
-	// enrollment.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
-	enrollment.UpdateDefaultUpdatedAt = enrollmentDescUpdatedAt.UpdateDefault.(func() time.Time)
-	// enrollmentDescMetadata is the schema descriptor for metadata field.
-	enrollmentDescMetadata := enrollmentMixinFields1[0].Descriptor()
-	// enrollment.DefaultMetadata holds the default value on creation for the metadata field.
-	enrollment.DefaultMetadata = enrollmentDescMetadata.Default.(map[string]string)
-	// enrollmentDescUserID is the schema descriptor for user_id field.
-	enrollmentDescUserID := enrollmentFields[1].Descriptor()
-	// enrollment.UserIDValidator is a validator for the "user_id" field. It is called by the builders before save.
-	enrollment.UserIDValidator = enrollmentDescUserID.Validators[0].(func(string) error)
-	// enrollmentDescInternshipID is the schema descriptor for internship_id field.
-	enrollmentDescInternshipID := enrollmentFields[2].Descriptor()
-	// enrollment.InternshipIDValidator is a validator for the "internship_id" field. It is called by the builders before save.
-	enrollment.InternshipIDValidator = enrollmentDescInternshipID.Validators[0].(func(string) error)
-	// enrollmentDescEnrollmentStatus is the schema descriptor for enrollment_status field.
-	enrollmentDescEnrollmentStatus := enrollmentFields[3].Descriptor()
-	// enrollment.DefaultEnrollmentStatus holds the default value on creation for the enrollment_status field.
-	enrollment.DefaultEnrollmentStatus = types.EnrollmentStatus(enrollmentDescEnrollmentStatus.Default.(string))
-	// enrollment.EnrollmentStatusValidator is a validator for the "enrollment_status" field. It is called by the builders before save.
-	enrollment.EnrollmentStatusValidator = enrollmentDescEnrollmentStatus.Validators[0].(func(string) error)
-	// enrollmentDescPaymentStatus is the schema descriptor for payment_status field.
-	enrollmentDescPaymentStatus := enrollmentFields[4].Descriptor()
-	// enrollment.DefaultPaymentStatus holds the default value on creation for the payment_status field.
-	enrollment.DefaultPaymentStatus = types.PaymentStatus(enrollmentDescPaymentStatus.Default.(string))
-	// enrollment.PaymentStatusValidator is a validator for the "payment_status" field. It is called by the builders before save.
-	enrollment.PaymentStatusValidator = enrollmentDescPaymentStatus.Validators[0].(func(string) error)
-	// enrollmentDescID is the schema descriptor for id field.
-	enrollmentDescID := enrollmentFields[0].Descriptor()
-	// enrollment.DefaultID holds the default value on creation for the id field.
-	enrollment.DefaultID = enrollmentDescID.Default.(func() string)
 	fileuploadMixin := schema.FileUpload{}.Mixin()
 	fileuploadMixinFields0 := fileuploadMixin[0].Fields()
 	_ = fileuploadMixinFields0
@@ -257,6 +209,102 @@ func init() {
 	internshipDescID := internshipFields[0].Descriptor()
 	// internship.DefaultID holds the default value on creation for the id field.
 	internship.DefaultID = internshipDescID.Default.(func() string)
+	internshipbatchMixin := schema.InternshipBatch{}.Mixin()
+	internshipbatchMixinFields0 := internshipbatchMixin[0].Fields()
+	_ = internshipbatchMixinFields0
+	internshipbatchMixinFields1 := internshipbatchMixin[1].Fields()
+	_ = internshipbatchMixinFields1
+	internshipbatchFields := schema.InternshipBatch{}.Fields()
+	_ = internshipbatchFields
+	// internshipbatchDescStatus is the schema descriptor for status field.
+	internshipbatchDescStatus := internshipbatchMixinFields0[0].Descriptor()
+	// internshipbatch.DefaultStatus holds the default value on creation for the status field.
+	internshipbatch.DefaultStatus = internshipbatchDescStatus.Default.(string)
+	// internshipbatchDescCreatedAt is the schema descriptor for created_at field.
+	internshipbatchDescCreatedAt := internshipbatchMixinFields0[1].Descriptor()
+	// internshipbatch.DefaultCreatedAt holds the default value on creation for the created_at field.
+	internshipbatch.DefaultCreatedAt = internshipbatchDescCreatedAt.Default.(func() time.Time)
+	// internshipbatchDescUpdatedAt is the schema descriptor for updated_at field.
+	internshipbatchDescUpdatedAt := internshipbatchMixinFields0[2].Descriptor()
+	// internshipbatch.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	internshipbatch.DefaultUpdatedAt = internshipbatchDescUpdatedAt.Default.(func() time.Time)
+	// internshipbatch.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	internshipbatch.UpdateDefaultUpdatedAt = internshipbatchDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// internshipbatchDescMetadata is the schema descriptor for metadata field.
+	internshipbatchDescMetadata := internshipbatchMixinFields1[0].Descriptor()
+	// internshipbatch.DefaultMetadata holds the default value on creation for the metadata field.
+	internshipbatch.DefaultMetadata = internshipbatchDescMetadata.Default.(map[string]string)
+	// internshipbatchDescInternshipID is the schema descriptor for internship_id field.
+	internshipbatchDescInternshipID := internshipbatchFields[1].Descriptor()
+	// internshipbatch.InternshipIDValidator is a validator for the "internship_id" field. It is called by the builders before save.
+	internshipbatch.InternshipIDValidator = internshipbatchDescInternshipID.Validators[0].(func(string) error)
+	// internshipbatchDescName is the schema descriptor for name field.
+	internshipbatchDescName := internshipbatchFields[2].Descriptor()
+	// internshipbatch.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	internshipbatch.NameValidator = internshipbatchDescName.Validators[0].(func(string) error)
+	// internshipbatchDescBatchStatus is the schema descriptor for batch_status field.
+	internshipbatchDescBatchStatus := internshipbatchFields[6].Descriptor()
+	// internshipbatch.DefaultBatchStatus holds the default value on creation for the batch_status field.
+	internshipbatch.DefaultBatchStatus = internshipbatchDescBatchStatus.Default.(string)
+	// internshipbatch.BatchStatusValidator is a validator for the "batch_status" field. It is called by the builders before save.
+	internshipbatch.BatchStatusValidator = internshipbatchDescBatchStatus.Validators[0].(func(string) error)
+	// internshipbatchDescID is the schema descriptor for id field.
+	internshipbatchDescID := internshipbatchFields[0].Descriptor()
+	// internshipbatch.DefaultID holds the default value on creation for the id field.
+	internshipbatch.DefaultID = internshipbatchDescID.Default.(func() string)
+	internshipenrollmentMixin := schema.InternshipEnrollment{}.Mixin()
+	internshipenrollmentMixinFields0 := internshipenrollmentMixin[0].Fields()
+	_ = internshipenrollmentMixinFields0
+	internshipenrollmentMixinFields1 := internshipenrollmentMixin[1].Fields()
+	_ = internshipenrollmentMixinFields1
+	internshipenrollmentFields := schema.InternshipEnrollment{}.Fields()
+	_ = internshipenrollmentFields
+	// internshipenrollmentDescStatus is the schema descriptor for status field.
+	internshipenrollmentDescStatus := internshipenrollmentMixinFields0[0].Descriptor()
+	// internshipenrollment.DefaultStatus holds the default value on creation for the status field.
+	internshipenrollment.DefaultStatus = internshipenrollmentDescStatus.Default.(string)
+	// internshipenrollmentDescCreatedAt is the schema descriptor for created_at field.
+	internshipenrollmentDescCreatedAt := internshipenrollmentMixinFields0[1].Descriptor()
+	// internshipenrollment.DefaultCreatedAt holds the default value on creation for the created_at field.
+	internshipenrollment.DefaultCreatedAt = internshipenrollmentDescCreatedAt.Default.(func() time.Time)
+	// internshipenrollmentDescUpdatedAt is the schema descriptor for updated_at field.
+	internshipenrollmentDescUpdatedAt := internshipenrollmentMixinFields0[2].Descriptor()
+	// internshipenrollment.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	internshipenrollment.DefaultUpdatedAt = internshipenrollmentDescUpdatedAt.Default.(func() time.Time)
+	// internshipenrollment.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	internshipenrollment.UpdateDefaultUpdatedAt = internshipenrollmentDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// internshipenrollmentDescMetadata is the schema descriptor for metadata field.
+	internshipenrollmentDescMetadata := internshipenrollmentMixinFields1[0].Descriptor()
+	// internshipenrollment.DefaultMetadata holds the default value on creation for the metadata field.
+	internshipenrollment.DefaultMetadata = internshipenrollmentDescMetadata.Default.(map[string]string)
+	// internshipenrollmentDescUserID is the schema descriptor for user_id field.
+	internshipenrollmentDescUserID := internshipenrollmentFields[1].Descriptor()
+	// internshipenrollment.UserIDValidator is a validator for the "user_id" field. It is called by the builders before save.
+	internshipenrollment.UserIDValidator = internshipenrollmentDescUserID.Validators[0].(func(string) error)
+	// internshipenrollmentDescInternshipID is the schema descriptor for internship_id field.
+	internshipenrollmentDescInternshipID := internshipenrollmentFields[2].Descriptor()
+	// internshipenrollment.InternshipIDValidator is a validator for the "internship_id" field. It is called by the builders before save.
+	internshipenrollment.InternshipIDValidator = internshipenrollmentDescInternshipID.Validators[0].(func(string) error)
+	// internshipenrollmentDescInternshipBatchID is the schema descriptor for internship_batch_id field.
+	internshipenrollmentDescInternshipBatchID := internshipenrollmentFields[3].Descriptor()
+	// internshipenrollment.InternshipBatchIDValidator is a validator for the "internship_batch_id" field. It is called by the builders before save.
+	internshipenrollment.InternshipBatchIDValidator = internshipenrollmentDescInternshipBatchID.Validators[0].(func(string) error)
+	// internshipenrollmentDescEnrollmentStatus is the schema descriptor for enrollment_status field.
+	internshipenrollmentDescEnrollmentStatus := internshipenrollmentFields[4].Descriptor()
+	// internshipenrollment.DefaultEnrollmentStatus holds the default value on creation for the enrollment_status field.
+	internshipenrollment.DefaultEnrollmentStatus = types.EnrollmentStatus(internshipenrollmentDescEnrollmentStatus.Default.(string))
+	// internshipenrollment.EnrollmentStatusValidator is a validator for the "enrollment_status" field. It is called by the builders before save.
+	internshipenrollment.EnrollmentStatusValidator = internshipenrollmentDescEnrollmentStatus.Validators[0].(func(string) error)
+	// internshipenrollmentDescPaymentStatus is the schema descriptor for payment_status field.
+	internshipenrollmentDescPaymentStatus := internshipenrollmentFields[5].Descriptor()
+	// internshipenrollment.DefaultPaymentStatus holds the default value on creation for the payment_status field.
+	internshipenrollment.DefaultPaymentStatus = types.PaymentStatus(internshipenrollmentDescPaymentStatus.Default.(string))
+	// internshipenrollment.PaymentStatusValidator is a validator for the "payment_status" field. It is called by the builders before save.
+	internshipenrollment.PaymentStatusValidator = internshipenrollmentDescPaymentStatus.Validators[0].(func(string) error)
+	// internshipenrollmentDescID is the schema descriptor for id field.
+	internshipenrollmentDescID := internshipenrollmentFields[0].Descriptor()
+	// internshipenrollment.DefaultID holds the default value on creation for the id field.
+	internshipenrollment.DefaultID = internshipenrollmentDescID.Default.(func() string)
 	paymentMixin := schema.Payment{}.Mixin()
 	paymentMixinFields0 := paymentMixin[0].Fields()
 	_ = paymentMixinFields0
