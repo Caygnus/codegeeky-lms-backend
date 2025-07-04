@@ -3,7 +3,6 @@ package service
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"github.com/omkar273/codegeeky/internal/api/dto"
 	"github.com/omkar273/codegeeky/internal/domain/discount"
@@ -13,279 +12,131 @@ import (
 	"github.com/shopspring/decimal"
 )
 
-// PricingConfig holds configuration for pricing calculations
-type PricingConfig struct {
-	// Allow zero or negative final prices (for full discounts)
-	AllowZeroPrice bool
-	// Maximum discount percentage allowed (e.g., 100 for 100%)
-	MaxDiscountPercent decimal.Decimal
-	// Minimum final price (e.g., 0 for free internships)
-	MinFinalPrice decimal.Decimal
-	// Currency formatting options
-	DefaultCurrency string
-}
-
-// DefaultPricingConfig returns a sensible default configuration
-func DefaultPricingConfig() *PricingConfig {
-	return &PricingConfig{
-		AllowZeroPrice:     true,
-		MaxDiscountPercent: decimal.NewFromInt(100), // Allow up to 100% discount
-		MinFinalPrice:      decimal.Zero,
-		DefaultCurrency:    "INR",
-	}
-}
-
+// PricingService is the service for calculating pricing for an internship
 type PricingService interface {
-	// Calculate pricing with optional discount code validation
-	CalculateInternshipPricing(ctx context.Context, req *dto.PricingRequest) (*dto.PricingResponse, error)
-
-	// Validate discount code without calculating final pricing (for UI feedback)
-	ValidateCouponCode(ctx context.Context, internshipID, discountCode string) (*dto.DiscountInfo, error)
-
-	// Calculate pricing breakdown for enrollment service
-	CalculateEnrollmentPricing(ctx context.Context, internshipID, discountCode, userID string) (*PricingBreakdown, error)
+	CalculateEnrollmentPricing(ctx context.Context, internshipID string, discountCodes []string) (*dto.PricingResponse, error)
 }
 
-// PricingBreakdown provides detailed pricing information for internal use
-type PricingBreakdown struct {
-	InternshipID       string
-	UserID             string
-	OriginalPrice      decimal.Decimal
-	InternshipDiscount decimal.Decimal
-	CouponDiscount     decimal.Decimal
-	TotalDiscount      decimal.Decimal
-	FinalPrice         decimal.Decimal
-	Currency           string
-	AppliedDiscount    *discount.Discount
-	IsPaymentRequired  bool
-	CalculatedAt       time.Time
-}
-
+// pricingService is the implementation of the PricingService interface
 type pricingService struct {
 	ServiceParams
-	config *PricingConfig
 }
 
+// NewPricingService creates a new PricingService
 func NewPricingService(params ServiceParams) PricingService {
 	return &pricingService{
 		ServiceParams: params,
-		config:        DefaultPricingConfig(),
 	}
 }
 
-func NewPricingServiceWithConfig(params ServiceParams, config *PricingConfig) PricingService {
-	if config == nil {
-		config = DefaultPricingConfig()
-	}
-	return &pricingService{
-		ServiceParams: params,
-		config:        config,
-	}
-}
-
-func (s *pricingService) CalculateInternshipPricing(ctx context.Context, req *dto.PricingRequest) (*dto.PricingResponse, error) {
-	// Calculate detailed pricing breakdown
-	breakdown, err := s.CalculateEnrollmentPricing(ctx, req.InternshipID, req.DiscountCode, req.UserID)
-	if err != nil {
-		return nil, err
-	}
-
-	// Convert to response format
-	response := &dto.PricingResponse{
-		InternshipID:    breakdown.InternshipID,
-		UserID:          breakdown.UserID,
-		OriginalPrice:   breakdown.OriginalPrice,
-		DiscountAmount:  breakdown.TotalDiscount,
-		FinalPrice:      breakdown.FinalPrice,
-		Currency:        breakdown.Currency,
-		PaymentRequired: breakdown.IsPaymentRequired,
-	}
-
-	// Add discount information if applicable
-	if breakdown.AppliedDiscount != nil {
-		response.AppliedDiscount = &dto.DiscountInfo{
-			Type:        "coupon",
-			Code:        breakdown.AppliedDiscount.Code,
-			Amount:      breakdown.CouponDiscount,
-			Description: breakdown.AppliedDiscount.Description,
-			IsValid:     true,
-		}
-		response.CouponMessage = fmt.Sprintf("%s applied successfully", breakdown.AppliedDiscount.Code)
-	}
-
-	// Calculate savings percentage
-	if breakdown.TotalDiscount.GreaterThan(decimal.Zero) && breakdown.OriginalPrice.GreaterThan(decimal.Zero) {
-		savings := breakdown.TotalDiscount.Div(breakdown.OriginalPrice).Mul(decimal.NewFromInt(100))
-		response.SavingsPercent = savings.InexactFloat64()
-	}
-
-	// Generate user-friendly messages
-	response.PricingMessage = s.generatePricingMessage(breakdown)
-
-	return response, nil
-}
-
-func (s *pricingService) ValidateCouponCode(ctx context.Context, internshipID, discountCode string) (*dto.DiscountInfo, error) {
-	if discountCode == "" {
-		return nil, ierr.NewError("discount code is required").
-			WithHint("Please provide a discount code").
+// CalculateEnrollmentPricing calculates the pricing for an internship enrollment
+func (s *pricingService) CalculateEnrollmentPricing(ctx context.Context, internshipID string, discountCodes []string) (*dto.PricingResponse, error) {
+	// Validate input parameters
+	if internshipID == "" {
+		return nil, ierr.NewError("internship ID is required").
+			WithHint("Please provide a valid internship ID").
 			Mark(ierr.ErrValidation)
 	}
 
-	// Get internship details
-	internship, err := s.InternshipRepo.Get(ctx, internshipID)
+	// Get the internship
+	internship, err := s.ServiceParams.InternshipRepo.Get(ctx, internshipID)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to get internship: %w", err)
 	}
 
-	// Validate discount code
-	discountService := NewDiscountService(s.ServiceParams)
-	err = discountService.ValidateDiscountCode(ctx, discountCode, internship)
-	if err != nil {
-		return &dto.DiscountInfo{
-			Type:        "coupon",
-			Code:        discountCode,
-			Amount:      decimal.Zero,
-			Description: "Invalid or expired coupon code",
-			IsValid:     false,
-		}, nil // Return success with invalid flag instead of error for better UX
-	}
-
-	// Get discount details
-	discountResp, err := discountService.GetByCode(ctx, discountCode)
-	if err != nil {
-		return nil, err
-	}
-
-	// Calculate discount amount
-	discountAmount := s.calculateCouponDiscount(internship, &discountResp.Discount)
-
-	return &dto.DiscountInfo{
-		Type:        "coupon",
-		Code:        discountResp.Discount.Code,
-		Amount:      discountAmount,
-		Description: discountResp.Discount.Description,
-		IsValid:     true,
-	}, nil
-}
-
-func (s *pricingService) CalculateEnrollmentPricing(ctx context.Context, internshipID, discountCode, userID string) (*PricingBreakdown, error) {
-	// 1. Get internship details
-	internship, err := s.InternshipRepo.Get(ctx, internshipID)
-	if err != nil {
-		return nil, err
-	}
-
-	// 2. Initialize pricing breakdown
-	breakdown := &PricingBreakdown{
-		InternshipID:       internshipID,
-		UserID:             userID,
-		OriginalPrice:      internship.Price,
-		InternshipDiscount: decimal.Zero,
-		CouponDiscount:     decimal.Zero,
-		TotalDiscount:      decimal.Zero,
-		Currency:           internship.Currency,
-		CalculatedAt:       time.Now().UTC(),
-	}
-
-	// 3. Apply internship-level discounts (flat and percentage)
-	breakdown.InternshipDiscount = s.calculateInternshipDiscount(internship)
-
-	// 4. Apply coupon discount if provided
-	if discountCode != "" {
-		couponDiscount, appliedDiscount, err := s.applyCouponDiscount(ctx, internship, discountCode)
+	// Validate and get discounts
+	var discounts []*discount.Discount
+	if len(discountCodes) > 0 {
+		discounts, err = s.getValidDiscounts(ctx, discountCodes, internship)
 		if err != nil {
 			return nil, err
 		}
-		breakdown.CouponDiscount = couponDiscount
-		breakdown.AppliedDiscount = appliedDiscount
 	}
 
-	// 5. Calculate totals
-	breakdown.TotalDiscount = breakdown.InternshipDiscount.Add(breakdown.CouponDiscount)
-	breakdown.FinalPrice = breakdown.OriginalPrice.Sub(breakdown.TotalDiscount)
+	// Calculate pricing with discounts
+	pricing := s.calculatePricingWithDiscounts(internship, discounts)
 
-	// 6. Apply pricing constraints
-	if breakdown.FinalPrice.LessThan(s.config.MinFinalPrice) {
-		breakdown.FinalPrice = s.config.MinFinalPrice
-	}
-
-	// 7. Determine if payment is required
-	breakdown.IsPaymentRequired = breakdown.FinalPrice.GreaterThan(decimal.Zero)
-
-	return breakdown, nil
+	return pricing, nil
 }
 
-func (s *pricingService) calculateInternshipDiscount(internship *internship.Internship) decimal.Decimal {
-	totalDiscount := decimal.Zero
-
-	// Apply flat discount
-	if !internship.FlatDiscount.IsZero() {
-		totalDiscount = totalDiscount.Add(internship.FlatDiscount)
-	}
-
-	// Apply percentage discount
-	if internship.PercentageDiscount.GreaterThan(decimal.Zero) {
-		percentageDiscount := internship.Price.Mul(internship.PercentageDiscount).Div(decimal.NewFromInt(100))
-		totalDiscount = totalDiscount.Add(percentageDiscount)
-	}
-
-	return totalDiscount
-}
-
-func (s *pricingService) applyCouponDiscount(ctx context.Context, internship *internship.Internship, discountCode string) (decimal.Decimal, *discount.Discount, error) {
+// getValidDiscounts validates discount codes and retrieves discount details
+func (s *pricingService) getValidDiscounts(ctx context.Context, discountCodes []string, internship *internship.Internship) ([]*discount.Discount, error) {
+	// Validate each discount code
 	discountService := NewDiscountService(s.ServiceParams)
-
-	// Validate discount code
-	err := discountService.ValidateDiscountCode(ctx, discountCode, internship)
-	if err != nil {
-		return decimal.Zero, nil, err
-	}
-
-	// Get discount details
-	discountResp, err := discountService.GetByCode(ctx, discountCode)
-	if err != nil {
-		return decimal.Zero, nil, err
-	}
-
-	// Calculate discount amount
-	discountAmount := s.calculateCouponDiscount(internship, &discountResp.Discount)
-
-	return discountAmount, &discountResp.Discount, nil
-}
-
-func (s *pricingService) calculateCouponDiscount(internship *internship.Internship, discount *discount.Discount) decimal.Decimal {
-	basePrice := internship.Price
-
-	// Apply internship-level discounts first to get the discounted base price
-	internshipDiscount := s.calculateInternshipDiscount(internship)
-	basePrice = basePrice.Sub(internshipDiscount)
-
-	// Ensure base price is not negative
-	if basePrice.LessThan(decimal.Zero) {
-		basePrice = decimal.Zero
-	}
-
-	switch discount.DiscountType {
-	case types.DiscountTypeFlat:
-		return discount.DiscountValue
-	case types.DiscountTypePercentage:
-		return basePrice.Mul(discount.DiscountValue).Div(decimal.NewFromInt(100))
-	default:
-		return decimal.Zero
-	}
-}
-
-func (s *pricingService) generatePricingMessage(breakdown *PricingBreakdown) string {
-	if breakdown.TotalDiscount.GreaterThan(decimal.Zero) {
-		if breakdown.FinalPrice.IsZero() {
-			return "This internship is completely free!"
+	for _, code := range discountCodes {
+		if err := discountService.ValidateDiscountCode(ctx, code, internship); err != nil {
+			return nil, fmt.Errorf("invalid discount code '%s': %w", code, err)
 		}
-		return fmt.Sprintf("Final price: %s %s (You're saving %s %s)",
-			breakdown.Currency,
-			breakdown.FinalPrice.String(),
-			breakdown.Currency,
-			breakdown.TotalDiscount.String())
 	}
-	return fmt.Sprintf("Final price: %s %s", breakdown.Currency, breakdown.FinalPrice.String())
+
+	// Get all valid discounts in a single query
+	discountsResponse, err := discountService.List(ctx, &types.DiscountFilter{
+		Codes: discountCodes,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to retrieve discounts: %w", err)
+	}
+
+	// Convert DTO responses to domain discount objects
+	discounts := make([]*discount.Discount, len(discountsResponse.Items))
+	for i, discountResponse := range discountsResponse.Items {
+		discounts[i] = &discountResponse.Discount
+	}
+
+	return discounts, nil
+}
+
+// calculatePricingWithDiscounts computes the final pricing with applied discounts
+func (s *pricingService) calculatePricingWithDiscounts(internship *internship.Internship, discounts []*discount.Discount) *dto.PricingResponse {
+	// Initialize pricing calculation
+	total := internship.Total
+	discountAmount := decimal.Zero
+	discountsApplied := []*dto.DiscountInfo{}
+
+	// Apply each discount
+	for _, discount := range discounts {
+		var discountValue decimal.Decimal
+
+		switch discount.DiscountType {
+		case types.DiscountTypeFlat:
+			// Ensure flat discount doesn't exceed the current total
+			discountValue = decimal.Min(discount.DiscountValue, total)
+
+		case types.DiscountTypePercentage:
+			// Calculate percentage discount on current total
+			percentageDiscount := total.Mul(discount.DiscountValue).Div(decimal.NewFromInt(100))
+			discountValue = decimal.Min(percentageDiscount, total)
+		}
+		discountAmount = discountAmount.Add(discountValue)
+		total = total.Sub(discountValue)
+
+		// Ensure total never goes below zero
+		if total.LessThan(decimal.Zero) {
+			total = decimal.Zero
+		}
+
+		// Add discount info to applied discounts list
+		discountsApplied = append(discountsApplied, &dto.DiscountInfo{
+			Code:        discount.Code,
+			Amount:      discountValue,
+			Description: discount.Description,
+		})
+
+	}
+
+	// Calculate savings percentage
+	savingsPercent := decimal.Zero
+	if internship.Subtotal.GreaterThan(decimal.Zero) {
+		savingsPercent = discountAmount.Div(internship.Subtotal).Mul(decimal.NewFromInt(100))
+	}
+
+	return &dto.PricingResponse{
+		InternshipID:     internship.ID,
+		Subtotal:         internship.Subtotal,
+		Total:            total,
+		DiscountAmount:   discountAmount,
+		AppliedDiscounts: discountsApplied,
+		PaymentRequired:  total.GreaterThan(decimal.Zero),
+		SavingsPercent:   savingsPercent.InexactFloat64(),
+	}
 }

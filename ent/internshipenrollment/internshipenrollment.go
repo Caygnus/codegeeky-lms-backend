@@ -102,7 +102,7 @@ var (
 	// InternshipBatchIDValidator is a validator for the "internship_batch_id" field. It is called by the builders before save.
 	InternshipBatchIDValidator func(string) error
 	// DefaultEnrollmentStatus holds the default value on creation for the "enrollment_status" field.
-	DefaultEnrollmentStatus types.EnrollmentStatus
+	DefaultEnrollmentStatus types.InternshipEnrollmentStatus
 	// EnrollmentStatusValidator is a validator for the "enrollment_status" field. It is called by the builders before save.
 	EnrollmentStatusValidator func(string) error
 	// DefaultPaymentStatus holds the default value on creation for the "payment_status" field.

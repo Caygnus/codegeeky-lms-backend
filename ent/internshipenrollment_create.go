@@ -116,15 +116,15 @@ func (iec *InternshipEnrollmentCreate) SetInternshipBatchID(s string) *Internshi
 }
 
 // SetEnrollmentStatus sets the "enrollment_status" field.
-func (iec *InternshipEnrollmentCreate) SetEnrollmentStatus(ts types.EnrollmentStatus) *InternshipEnrollmentCreate {
-	iec.mutation.SetEnrollmentStatus(ts)
+func (iec *InternshipEnrollmentCreate) SetEnrollmentStatus(tes types.InternshipEnrollmentStatus) *InternshipEnrollmentCreate {
+	iec.mutation.SetEnrollmentStatus(tes)
 	return iec
 }
 
 // SetNillableEnrollmentStatus sets the "enrollment_status" field if the given value is not nil.
-func (iec *InternshipEnrollmentCreate) SetNillableEnrollmentStatus(ts *types.EnrollmentStatus) *InternshipEnrollmentCreate {
-	if ts != nil {
-		iec.SetEnrollmentStatus(*ts)
+func (iec *InternshipEnrollmentCreate) SetNillableEnrollmentStatus(tes *types.InternshipEnrollmentStatus) *InternshipEnrollmentCreate {
+	if tes != nil {
+		iec.SetEnrollmentStatus(*tes)
 	}
 	return iec
 }

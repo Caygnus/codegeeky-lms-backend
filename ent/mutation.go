@@ -3529,6 +3529,8 @@ type InternshipMutation struct {
 	price                   *decimal.Decimal
 	flat_discount           *decimal.Decimal
 	percentage_discount     *decimal.Decimal
+	subtotal                *decimal.Decimal
+	total                   *decimal.Decimal
 	clearedFields           map[string]struct{}
 	categories              map[string]struct{}
 	removedcategories       map[string]struct{}
@@ -4451,22 +4453,9 @@ func (m *InternshipMutation) OldPrice(ctx context.Context) (v decimal.Decimal, e
 	return oldValue.Price, nil
 }
 
-// ClearPrice clears the value of the "price" field.
-func (m *InternshipMutation) ClearPrice() {
-	m.price = nil
-	m.clearedFields[internship.FieldPrice] = struct{}{}
-}
-
-// PriceCleared returns if the "price" field was cleared in this mutation.
-func (m *InternshipMutation) PriceCleared() bool {
-	_, ok := m.clearedFields[internship.FieldPrice]
-	return ok
-}
-
 // ResetPrice resets all changes to the "price" field.
 func (m *InternshipMutation) ResetPrice() {
 	m.price = nil
-	delete(m.clearedFields, internship.FieldPrice)
 }
 
 // SetFlatDiscount sets the "flat_discount" field.
@@ -4486,7 +4475,7 @@ func (m *InternshipMutation) FlatDiscount() (r decimal.Decimal, exists bool) {
 // OldFlatDiscount returns the old "flat_discount" field's value of the Internship entity.
 // If the Internship object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *InternshipMutation) OldFlatDiscount(ctx context.Context) (v decimal.Decimal, err error) {
+func (m *InternshipMutation) OldFlatDiscount(ctx context.Context) (v *decimal.Decimal, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldFlatDiscount is only allowed on UpdateOne operations")
 	}
@@ -4535,7 +4524,7 @@ func (m *InternshipMutation) PercentageDiscount() (r decimal.Decimal, exists boo
 // OldPercentageDiscount returns the old "percentage_discount" field's value of the Internship entity.
 // If the Internship object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *InternshipMutation) OldPercentageDiscount(ctx context.Context) (v decimal.Decimal, err error) {
+func (m *InternshipMutation) OldPercentageDiscount(ctx context.Context) (v *decimal.Decimal, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldPercentageDiscount is only allowed on UpdateOne operations")
 	}
@@ -4565,6 +4554,78 @@ func (m *InternshipMutation) PercentageDiscountCleared() bool {
 func (m *InternshipMutation) ResetPercentageDiscount() {
 	m.percentage_discount = nil
 	delete(m.clearedFields, internship.FieldPercentageDiscount)
+}
+
+// SetSubtotal sets the "subtotal" field.
+func (m *InternshipMutation) SetSubtotal(d decimal.Decimal) {
+	m.subtotal = &d
+}
+
+// Subtotal returns the value of the "subtotal" field in the mutation.
+func (m *InternshipMutation) Subtotal() (r decimal.Decimal, exists bool) {
+	v := m.subtotal
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSubtotal returns the old "subtotal" field's value of the Internship entity.
+// If the Internship object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *InternshipMutation) OldSubtotal(ctx context.Context) (v decimal.Decimal, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldSubtotal is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldSubtotal requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSubtotal: %w", err)
+	}
+	return oldValue.Subtotal, nil
+}
+
+// ResetSubtotal resets all changes to the "subtotal" field.
+func (m *InternshipMutation) ResetSubtotal() {
+	m.subtotal = nil
+}
+
+// SetTotal sets the "total" field.
+func (m *InternshipMutation) SetTotal(d decimal.Decimal) {
+	m.total = &d
+}
+
+// Total returns the value of the "total" field in the mutation.
+func (m *InternshipMutation) Total() (r decimal.Decimal, exists bool) {
+	v := m.total
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldTotal returns the old "total" field's value of the Internship entity.
+// If the Internship object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *InternshipMutation) OldTotal(ctx context.Context) (v decimal.Decimal, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldTotal is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldTotal requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldTotal: %w", err)
+	}
+	return oldValue.Total, nil
+}
+
+// ResetTotal resets all changes to the "total" field.
+func (m *InternshipMutation) ResetTotal() {
+	m.total = nil
 }
 
 // AddCategoryIDs adds the "categories" edge to the Category entity by ids.
@@ -4655,7 +4716,7 @@ func (m *InternshipMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *InternshipMutation) Fields() []string {
-	fields := make([]string, 0, 19)
+	fields := make([]string, 0, 21)
 	if m.status != nil {
 		fields = append(fields, internship.FieldStatus)
 	}
@@ -4713,6 +4774,12 @@ func (m *InternshipMutation) Fields() []string {
 	if m.percentage_discount != nil {
 		fields = append(fields, internship.FieldPercentageDiscount)
 	}
+	if m.subtotal != nil {
+		fields = append(fields, internship.FieldSubtotal)
+	}
+	if m.total != nil {
+		fields = append(fields, internship.FieldTotal)
+	}
 	return fields
 }
 
@@ -4759,6 +4826,10 @@ func (m *InternshipMutation) Field(name string) (ent.Value, bool) {
 		return m.FlatDiscount()
 	case internship.FieldPercentageDiscount:
 		return m.PercentageDiscount()
+	case internship.FieldSubtotal:
+		return m.Subtotal()
+	case internship.FieldTotal:
+		return m.Total()
 	}
 	return nil, false
 }
@@ -4806,6 +4877,10 @@ func (m *InternshipMutation) OldField(ctx context.Context, name string) (ent.Val
 		return m.OldFlatDiscount(ctx)
 	case internship.FieldPercentageDiscount:
 		return m.OldPercentageDiscount(ctx)
+	case internship.FieldSubtotal:
+		return m.OldSubtotal(ctx)
+	case internship.FieldTotal:
+		return m.OldTotal(ctx)
 	}
 	return nil, fmt.Errorf("unknown Internship field %s", name)
 }
@@ -4948,6 +5023,20 @@ func (m *InternshipMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetPercentageDiscount(v)
 		return nil
+	case internship.FieldSubtotal:
+		v, ok := value.(decimal.Decimal)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSubtotal(v)
+		return nil
+	case internship.FieldTotal:
+		v, ok := value.(decimal.Decimal)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetTotal(v)
+		return nil
 	}
 	return fmt.Errorf("unknown Internship field %s", name)
 }
@@ -5020,9 +5109,6 @@ func (m *InternshipMutation) ClearedFields() []string {
 	if m.FieldCleared(internship.FieldCurrency) {
 		fields = append(fields, internship.FieldCurrency)
 	}
-	if m.FieldCleared(internship.FieldPrice) {
-		fields = append(fields, internship.FieldPrice)
-	}
 	if m.FieldCleared(internship.FieldFlatDiscount) {
 		fields = append(fields, internship.FieldFlatDiscount)
 	}
@@ -5069,9 +5155,6 @@ func (m *InternshipMutation) ClearField(name string) error {
 		return nil
 	case internship.FieldCurrency:
 		m.ClearCurrency()
-		return nil
-	case internship.FieldPrice:
-		m.ClearPrice()
 		return nil
 	case internship.FieldFlatDiscount:
 		m.ClearFlatDiscount()
@@ -5143,6 +5226,12 @@ func (m *InternshipMutation) ResetField(name string) error {
 		return nil
 	case internship.FieldPercentageDiscount:
 		m.ResetPercentageDiscount()
+		return nil
+	case internship.FieldSubtotal:
+		m.ResetSubtotal()
+		return nil
+	case internship.FieldTotal:
+		m.ResetTotal()
 		return nil
 	}
 	return fmt.Errorf("unknown Internship field %s", name)
@@ -6290,7 +6379,7 @@ type InternshipEnrollmentMutation struct {
 	user_id             *string
 	internship_id       *string
 	internship_batch_id *string
-	enrollment_status   *types.EnrollmentStatus
+	enrollment_status   *types.InternshipEnrollmentStatus
 	payment_status      *types.PaymentStatus
 	enrolled_at         *time.Time
 	payment_id          *string
@@ -6772,12 +6861,12 @@ func (m *InternshipEnrollmentMutation) ResetInternshipBatchID() {
 }
 
 // SetEnrollmentStatus sets the "enrollment_status" field.
-func (m *InternshipEnrollmentMutation) SetEnrollmentStatus(ts types.EnrollmentStatus) {
-	m.enrollment_status = &ts
+func (m *InternshipEnrollmentMutation) SetEnrollmentStatus(tes types.InternshipEnrollmentStatus) {
+	m.enrollment_status = &tes
 }
 
 // EnrollmentStatus returns the value of the "enrollment_status" field in the mutation.
-func (m *InternshipEnrollmentMutation) EnrollmentStatus() (r types.EnrollmentStatus, exists bool) {
+func (m *InternshipEnrollmentMutation) EnrollmentStatus() (r types.InternshipEnrollmentStatus, exists bool) {
 	v := m.enrollment_status
 	if v == nil {
 		return
@@ -6788,7 +6877,7 @@ func (m *InternshipEnrollmentMutation) EnrollmentStatus() (r types.EnrollmentSta
 // OldEnrollmentStatus returns the old "enrollment_status" field's value of the InternshipEnrollment entity.
 // If the InternshipEnrollment object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *InternshipEnrollmentMutation) OldEnrollmentStatus(ctx context.Context) (v types.EnrollmentStatus, err error) {
+func (m *InternshipEnrollmentMutation) OldEnrollmentStatus(ctx context.Context) (v types.InternshipEnrollmentStatus, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldEnrollmentStatus is only allowed on UpdateOne operations")
 	}
@@ -7381,7 +7470,7 @@ func (m *InternshipEnrollmentMutation) SetField(name string, value ent.Value) er
 		m.SetInternshipBatchID(v)
 		return nil
 	case internshipenrollment.FieldEnrollmentStatus:
-		v, ok := value.(types.EnrollmentStatus)
+		v, ok := value.(types.InternshipEnrollmentStatus)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}

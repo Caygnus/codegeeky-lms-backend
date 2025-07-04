@@ -48,8 +48,8 @@ func (InternshipEnrollment) Fields() []ent.Field {
 			SchemaType(map[string]string{
 				"postgres": "varchar(255)",
 			}).
-			GoType(types.EnrollmentStatus("")).
-			Default(types.EnrollmentStatusPending).
+			GoType(types.InternshipEnrollmentStatus("")).
+			Default(string(types.InternshipEnrollmentStatusPending)).
 			NotEmpty(),
 
 		// InternshipEnrollment payment status

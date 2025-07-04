@@ -102,7 +102,6 @@ func (Internship) Fields() []ent.Field {
 			SchemaType(map[string]string{
 				"postgres": "decimal(10,2)",
 			}).
-			Optional().
 			Comment("Price of the internship"),
 
 		field.Other("flat_discount", decimal.Decimal{}).
@@ -110,6 +109,7 @@ func (Internship) Fields() []ent.Field {
 				"postgres": "decimal(10,2)",
 			}).
 			Optional().
+			Nillable().
 			Comment("Flat discount on the internship"),
 
 		field.Other("percentage_discount", decimal.Decimal{}).
@@ -117,7 +117,22 @@ func (Internship) Fields() []ent.Field {
 				"postgres": "decimal(10,2)",
 			}).
 			Optional().
+			Nillable().
 			Comment("Percentage discount on the internship"),
+
+		field.Other("subtotal", decimal.Decimal{}).
+			SchemaType(map[string]string{
+				"postgres": "decimal(10,2)",
+			}).
+			Default(decimal.Zero).
+			Comment("Subtotal of the internship"),
+
+		field.Other("total", decimal.Decimal{}).
+			SchemaType(map[string]string{
+				"postgres": "decimal(10,2)",
+			}).
+			Default(decimal.Zero).
+			Comment("Price of the internship"),
 	}
 }
 func (Internship) Edges() []ent.Edge {

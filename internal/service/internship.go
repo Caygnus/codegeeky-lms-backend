@@ -96,10 +96,10 @@ func (s *internshipService) Update(ctx context.Context, id string, req *dto.Upda
 		existingInternship.Price = lo.FromPtr(req.Price)
 	}
 	if req.FlatDiscount != nil {
-		existingInternship.FlatDiscount = lo.FromPtr(req.FlatDiscount)
+		existingInternship.FlatDiscount = req.FlatDiscount
 	}
 	if req.PercentageDiscount != nil {
-		existingInternship.PercentageDiscount = lo.FromPtr(req.PercentageDiscount)
+		existingInternship.PercentageDiscount = req.PercentageDiscount
 	}
 	if req.Skills != nil {
 		existingInternship.Skills = req.Skills

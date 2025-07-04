@@ -114,9 +114,11 @@ var (
 		{Name: "prerequisites", Type: field.TypeJSON, Nullable: true},
 		{Name: "benefits", Type: field.TypeJSON, Nullable: true},
 		{Name: "currency", Type: field.TypeString, Nullable: true, SchemaType: map[string]string{"postgres": "varchar(255)"}},
-		{Name: "price", Type: field.TypeOther, Nullable: true, SchemaType: map[string]string{"postgres": "decimal(10,2)"}},
+		{Name: "price", Type: field.TypeOther, SchemaType: map[string]string{"postgres": "decimal(10,2)"}},
 		{Name: "flat_discount", Type: field.TypeOther, Nullable: true, SchemaType: map[string]string{"postgres": "decimal(10,2)"}},
 		{Name: "percentage_discount", Type: field.TypeOther, Nullable: true, SchemaType: map[string]string{"postgres": "decimal(10,2)"}},
+		{Name: "subtotal", Type: field.TypeOther, SchemaType: map[string]string{"postgres": "decimal(10,2)"}},
+		{Name: "total", Type: field.TypeOther, SchemaType: map[string]string{"postgres": "decimal(10,2)"}},
 		{Name: "category_id", Type: field.TypeString, Nullable: true, SchemaType: map[string]string{"postgres": "varchar(255)"}},
 	}
 	// InternshipsTable holds the schema information for the "internships" table.
@@ -127,7 +129,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "internships_categories_internships",
-				Columns:    []*schema.Column{InternshipsColumns[20]},
+				Columns:    []*schema.Column{InternshipsColumns[22]},
 				RefColumns: []*schema.Column{CategoriesColumns[0]},
 				OnDelete:   schema.SetNull,
 			},

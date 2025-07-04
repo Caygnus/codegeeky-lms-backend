@@ -8,54 +8,24 @@ import (
 )
 
 type Internship struct {
-
-	// ID of the ent.
-	ID string `json:"id,omitempty" db:"id"`
-
-	// Title holds the value of the "title" field.
-	Title string `json:"title,omitempty" db:"title"`
-
-	// Description holds the value of the "description" field.
-	Description string `json:"description,omitempty" db:"description"`
-
-	// LookupKey holds the value of the "lookup_key" field.
-	LookupKey string `json:"lookup_key,omitempty" db:"lookup_key"`
-
-	// List of required skills
-	Skills []string `json:"skills,omitempty" db:"skills"`
-
-	// Level of the internship: beginner, intermediate, advanced
-	Level types.InternshipLevel `json:"level,omitempty" db:"level"`
-
-	// Internship mode: remote, hybrid, onsite
-	Mode types.InternshipMode `json:"mode,omitempty" db:"mode"`
-
-	// Alternative to months for shorter internships
-	DurationInWeeks int `json:"duration_in_weeks,omitempty" db:"duration_in_weeks"`
-
-	// What students will learn in the internship
-	LearningOutcomes []string `json:"learning_outcomes,omitempty" db:"learning_outcomes"`
-
-	// Prerequisites or recommended knowledge
-	Prerequisites []string `json:"prerequisites,omitempty" db:"prerequisites"`
-
-	// Benefits of the internship
-	Benefits []string `json:"benefits,omitempty" db:"benefits"`
-
-	// Currency of the internship
-	Currency string `json:"currency,omitempty" db:"currency"`
-
-	// Price of the internship
-	Price decimal.Decimal `json:"price,omitempty" db:"price"`
-
-	// Flat discount on the internship
-	FlatDiscount decimal.Decimal `json:"flat_discount,omitempty" db:"flat_discount"`
-
-	// Percentage discount on the internship
-	PercentageDiscount decimal.Decimal `json:"percentage_discount,omitempty" db:"percentage_discount"`
-
-	// Categories holds the value of the categories edge.
-	Categories []*Category `json:"categories,omitempty" db:"categories"`
+	ID                 string                `json:"id,omitempty"`
+	Title              string                `json:"title,omitempty"`
+	LookupKey          string                `json:"lookup_key,omitempty"`
+	Description        string                `json:"description,omitempty"`
+	Skills             []string              `json:"skills,omitempty"`
+	Level              types.InternshipLevel `json:"level,omitempty"`
+	Mode               types.InternshipMode  `json:"mode,omitempty"`
+	DurationInWeeks    int                   `json:"duration_in_weeks,omitempty"`
+	LearningOutcomes   []string              `json:"learning_outcomes,omitempty"`
+	Prerequisites      []string              `json:"prerequisites,omitempty"`
+	Benefits           []string              `json:"benefits,omitempty"`
+	Currency           string                `json:"currency,omitempty"`
+	Price              decimal.Decimal       `json:"price,omitempty"`
+	FlatDiscount       *decimal.Decimal      `json:"flat_discount,omitempty"`
+	PercentageDiscount *decimal.Decimal      `json:"percentage_discount,omitempty"`
+	Subtotal           decimal.Decimal       `json:"subtotal,omitempty"`
+	Total              decimal.Decimal       `json:"total,omitempty"`
+	Categories         []*Category           `json:"categories,omitempty" db:"categories"`
 
 	types.BaseModel
 }
@@ -69,6 +39,8 @@ func (i *Internship) FromEnt(internship *ent.Internship) *Internship {
 		Description:        internship.Description,
 		LookupKey:          internship.LookupKey,
 		Skills:             internship.Skills,
+		Subtotal:           internship.Subtotal,
+		Total:              internship.Total,
 		Level:              types.InternshipLevel(internship.Level),
 		Mode:               types.InternshipMode(internship.Mode),
 		DurationInWeeks:    internship.DurationInWeeks,

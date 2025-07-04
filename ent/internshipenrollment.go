@@ -38,7 +38,7 @@ type InternshipEnrollment struct {
 	// InternshipBatchID holds the value of the "internship_batch_id" field.
 	InternshipBatchID string `json:"internship_batch_id,omitempty"`
 	// EnrollmentStatus holds the value of the "enrollment_status" field.
-	EnrollmentStatus types.EnrollmentStatus `json:"enrollment_status,omitempty"`
+	EnrollmentStatus types.InternshipEnrollmentStatus `json:"enrollment_status,omitempty"`
 	// PaymentStatus holds the value of the "payment_status" field.
 	PaymentStatus types.PaymentStatus `json:"payment_status,omitempty"`
 	// EnrolledAt holds the value of the "enrolled_at" field.
@@ -148,7 +148,7 @@ func (ie *InternshipEnrollment) assignValues(columns []string, values []any) err
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field enrollment_status", values[i])
 			} else if value.Valid {
-				ie.EnrollmentStatus = types.EnrollmentStatus(value.String)
+				ie.EnrollmentStatus = types.InternshipEnrollmentStatus(value.String)
 			}
 		case internshipenrollment.FieldPaymentStatus:
 			if value, ok := values[i].(*sql.NullString); !ok {

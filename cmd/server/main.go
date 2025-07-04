@@ -115,6 +115,9 @@ func main() {
 		service.NewInternshipBatchService,
 		service.NewCategoryService,
 		service.NewDiscountService,
+		service.NewPricingService,
+		service.NewPaymentService,
+		service.NewInternshipEnrollmentService,
 	))
 
 	// factory layer

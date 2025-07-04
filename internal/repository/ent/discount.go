@@ -343,5 +343,12 @@ func (o DiscountQueryOptions) ApplyEntityQueryOptions(
 		query = query.Where(discount.IsCombinable(f.IsCombinable))
 	}
 
+	if len(f.Codes) > 0 {
+		query = query.Where(discount.CodeIn(f.Codes...))
+	}
+
+	if len(f.DiscountIDs) > 0 {
+		query = query.Where(discount.IDIn(f.DiscountIDs...))
+	}
 	return query
 }

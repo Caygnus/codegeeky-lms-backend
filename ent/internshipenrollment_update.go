@@ -124,15 +124,15 @@ func (ieu *InternshipEnrollmentUpdate) SetNillableInternshipBatchID(s *string) *
 }
 
 // SetEnrollmentStatus sets the "enrollment_status" field.
-func (ieu *InternshipEnrollmentUpdate) SetEnrollmentStatus(ts types.EnrollmentStatus) *InternshipEnrollmentUpdate {
-	ieu.mutation.SetEnrollmentStatus(ts)
+func (ieu *InternshipEnrollmentUpdate) SetEnrollmentStatus(tes types.InternshipEnrollmentStatus) *InternshipEnrollmentUpdate {
+	ieu.mutation.SetEnrollmentStatus(tes)
 	return ieu
 }
 
 // SetNillableEnrollmentStatus sets the "enrollment_status" field if the given value is not nil.
-func (ieu *InternshipEnrollmentUpdate) SetNillableEnrollmentStatus(ts *types.EnrollmentStatus) *InternshipEnrollmentUpdate {
-	if ts != nil {
-		ieu.SetEnrollmentStatus(*ts)
+func (ieu *InternshipEnrollmentUpdate) SetNillableEnrollmentStatus(tes *types.InternshipEnrollmentStatus) *InternshipEnrollmentUpdate {
+	if tes != nil {
+		ieu.SetEnrollmentStatus(*tes)
 	}
 	return ieu
 }
@@ -541,15 +541,15 @@ func (ieuo *InternshipEnrollmentUpdateOne) SetNillableInternshipBatchID(s *strin
 }
 
 // SetEnrollmentStatus sets the "enrollment_status" field.
-func (ieuo *InternshipEnrollmentUpdateOne) SetEnrollmentStatus(ts types.EnrollmentStatus) *InternshipEnrollmentUpdateOne {
-	ieuo.mutation.SetEnrollmentStatus(ts)
+func (ieuo *InternshipEnrollmentUpdateOne) SetEnrollmentStatus(tes types.InternshipEnrollmentStatus) *InternshipEnrollmentUpdateOne {
+	ieuo.mutation.SetEnrollmentStatus(tes)
 	return ieuo
 }
 
 // SetNillableEnrollmentStatus sets the "enrollment_status" field if the given value is not nil.
-func (ieuo *InternshipEnrollmentUpdateOne) SetNillableEnrollmentStatus(ts *types.EnrollmentStatus) *InternshipEnrollmentUpdateOne {
-	if ts != nil {
-		ieuo.SetEnrollmentStatus(*ts)
+func (ieuo *InternshipEnrollmentUpdateOne) SetNillableEnrollmentStatus(tes *types.InternshipEnrollmentStatus) *InternshipEnrollmentUpdateOne {
+	if tes != nil {
+		ieuo.SetEnrollmentStatus(*tes)
 	}
 	return ieuo
 }

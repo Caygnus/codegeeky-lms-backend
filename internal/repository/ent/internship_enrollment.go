@@ -6,7 +6,7 @@ import (
 
 	"github.com/omkar273/codegeeky/ent"
 	"github.com/omkar273/codegeeky/ent/internshipenrollment"
-	domainEnrollment "github.com/omkar273/codegeeky/internal/domain/enrollment"
+	domainInternshipEnrollment "github.com/omkar273/codegeeky/internal/domain/internshipenrollment"
 	ierr "github.com/omkar273/codegeeky/internal/errors"
 	"github.com/omkar273/codegeeky/internal/logger"
 	"github.com/omkar273/codegeeky/internal/postgres"
@@ -20,7 +20,7 @@ type internshipEnrollmentRepository struct {
 	queryOpts EnrollmentQueryOptions
 }
 
-func NewInternshipEnrollmentRepository(client postgres.IClient, logger *logger.Logger) domainEnrollment.Repository {
+func NewInternshipEnrollmentRepository(client postgres.IClient, logger *logger.Logger) domainInternshipEnrollment.Repository {
 	return &internshipEnrollmentRepository{
 		client:    client,
 		log:       *logger,
@@ -28,7 +28,7 @@ func NewInternshipEnrollmentRepository(client postgres.IClient, logger *logger.L
 	}
 }
 
-func (r *internshipEnrollmentRepository) Create(ctx context.Context, enrollmentData *domainEnrollment.Enrollment) error {
+func (r *internshipEnrollmentRepository) Create(ctx context.Context, enrollmentData *domainInternshipEnrollment.InternshipEnrollment) error {
 	client := r.client.Querier(ctx)
 
 	r.log.Debugw("creating enrollment",
@@ -80,7 +80,7 @@ func (r *internshipEnrollmentRepository) Create(ctx context.Context, enrollmentD
 	return nil
 }
 
-func (r *internshipEnrollmentRepository) Get(ctx context.Context, id string) (*domainEnrollment.Enrollment, error) {
+func (r *internshipEnrollmentRepository) Get(ctx context.Context, id string) (*domainInternshipEnrollment.InternshipEnrollment, error) {
 	client := r.client.Querier(ctx)
 
 	r.log.Debugw("getting enrollment", "enrollment_id", id)
@@ -106,10 +106,10 @@ func (r *internshipEnrollmentRepository) Get(ctx context.Context, id string) (*d
 			Mark(ierr.ErrDatabase)
 	}
 
-	return domainEnrollment.FromEnt(entEnrollment), nil
+	return domainInternshipEnrollment.FromEnt(entEnrollment), nil
 }
 
-func (r *internshipEnrollmentRepository) Update(ctx context.Context, enrollmentData *domainEnrollment.Enrollment) error {
+func (r *internshipEnrollmentRepository) Update(ctx context.Context, enrollmentData *domainInternshipEnrollment.InternshipEnrollment) error {
 	client := r.client.Querier(ctx)
 
 	r.log.Debugw("updating enrollment",
@@ -197,7 +197,7 @@ func (r *internshipEnrollmentRepository) Delete(ctx context.Context, id string) 
 	return nil
 }
 
-func (r *internshipEnrollmentRepository) Count(ctx context.Context, filter *types.EnrollmentFilter) (int, error) {
+func (r *internshipEnrollmentRepository) Count(ctx context.Context, filter *types.InternshipEnrollmentFilter) (int, error) {
 	client := r.client.Querier(ctx)
 
 	r.log.Debugw("counting enrollments")
@@ -216,7 +216,7 @@ func (r *internshipEnrollmentRepository) Count(ctx context.Context, filter *type
 	return count, nil
 }
 
-func (r *internshipEnrollmentRepository) List(ctx context.Context, filter *types.EnrollmentFilter) ([]*domainEnrollment.Enrollment, error) {
+func (r *internshipEnrollmentRepository) List(ctx context.Context, filter *types.InternshipEnrollmentFilter) ([]*domainInternshipEnrollment.InternshipEnrollment, error) {
 	client := r.client.Querier(ctx)
 
 	r.log.Debugw("listing enrollments",
@@ -235,12 +235,12 @@ func (r *internshipEnrollmentRepository) List(ctx context.Context, filter *types
 			Mark(ierr.ErrDatabase)
 	}
 
-	return domainEnrollment.FromEntList(enrollments), nil
+	return domainInternshipEnrollment.FromEntList(enrollments), nil
 }
 
-func (r *internshipEnrollmentRepository) ListAll(ctx context.Context, filter *types.EnrollmentFilter) ([]*domainEnrollment.Enrollment, error) {
+func (r *internshipEnrollmentRepository) ListAll(ctx context.Context, filter *types.InternshipEnrollmentFilter) ([]*domainInternshipEnrollment.InternshipEnrollment, error) {
 	if filter == nil {
-		filter = types.NewNoLimitEnrollmentFilter()
+		filter = types.NewNoLimitInternshipEnrollmentFilter()
 	}
 
 	if filter.QueryFilter == nil {
@@ -254,7 +254,7 @@ func (r *internshipEnrollmentRepository) ListAll(ctx context.Context, filter *ty
 	return enrollments, nil
 }
 
-func (r *internshipEnrollmentRepository) GetByIdempotencyKey(ctx context.Context, idempotencyKey string) (*domainEnrollment.Enrollment, error) {
+func (r *internshipEnrollmentRepository) GetByIdempotencyKey(ctx context.Context, idempotencyKey string) (*domainInternshipEnrollment.InternshipEnrollment, error) {
 	client := r.client.Querier(ctx)
 
 	r.log.Debugw("getting enrollment by idempotency key", "idempotency_key", idempotencyKey)
@@ -275,7 +275,7 @@ func (r *internshipEnrollmentRepository) GetByIdempotencyKey(ctx context.Context
 		return nil, err
 	}
 
-	return domainEnrollment.FromEnt(enrollment), nil
+	return domainInternshipEnrollment.FromEnt(enrollment), nil
 }
 
 // EnrollmentQuery type alias for better readability
@@ -287,7 +287,7 @@ type EnrollmentQueryOptions struct {
 }
 
 // Ensure EnrollmentQueryOptions implements EntityQueryOptions interface
-var _ EntityQueryOptions[EnrollmentQuery, *types.EnrollmentFilter] = (*EnrollmentQueryOptions)(nil)
+var _ EntityQueryOptions[EnrollmentQuery, *types.InternshipEnrollmentFilter] = (*EnrollmentQueryOptions)(nil)
 
 func (o EnrollmentQueryOptions) ApplyStatusFilter(query EnrollmentQuery, status string) EnrollmentQuery {
 	if status == "" {
@@ -346,7 +346,7 @@ func (o EnrollmentQueryOptions) GetFieldName(field string) string {
 func (o EnrollmentQueryOptions) ApplyBaseFilters(
 	_ context.Context,
 	query EnrollmentQuery,
-	filter *types.EnrollmentFilter,
+	filter *types.InternshipEnrollmentFilter,
 ) EnrollmentQuery {
 	if filter == nil {
 		return query.Where(internshipenrollment.StatusNotIn(string(types.StatusDeleted)))
@@ -368,7 +368,7 @@ func (o EnrollmentQueryOptions) ApplyBaseFilters(
 
 func (o EnrollmentQueryOptions) ApplyEntityQueryOptions(
 	_ context.Context,
-	f *types.EnrollmentFilter,
+	f *types.InternshipEnrollmentFilter,
 	query EnrollmentQuery,
 ) EnrollmentQuery {
 	if f == nil {

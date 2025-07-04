@@ -3,8 +3,8 @@ package service
 import (
 	"github.com/omkar273/codegeeky/internal/config"
 	"github.com/omkar273/codegeeky/internal/domain/discount"
-	"github.com/omkar273/codegeeky/internal/domain/enrollment"
 	"github.com/omkar273/codegeeky/internal/domain/internship"
+	"github.com/omkar273/codegeeky/internal/domain/internshipenrollment"
 	"github.com/omkar273/codegeeky/internal/domain/payment"
 	"github.com/omkar273/codegeeky/internal/domain/user"
 	"github.com/omkar273/codegeeky/internal/httpclient"
@@ -23,13 +23,13 @@ type ServiceParams struct {
 	DB     postgres.IClient
 
 	// Repository dependencies
-	UserRepo             user.Repository
-	DiscountRepo         discount.Repository
-	PaymentRepo          payment.Repository
-	InternshipRepo       internship.InternshipRepository
-	InternshipBatchRepo  internship.InternshipBatchRepository
-	CategoryRepo         internship.CategoryRepository
-	EnrollmentRepo       enrollment.Repository
+	UserRepo                 user.Repository
+	DiscountRepo             discount.Repository
+	PaymentRepo              payment.Repository
+	InternshipRepo           internship.InternshipRepository
+	InternshipBatchRepo      internship.InternshipBatchRepository
+	CategoryRepo             internship.CategoryRepository
+	InternshipEnrollmentRepo internshipenrollment.Repository
 
 	// Service dependencies
 	WebhookPublisher publisher.WebhookPublisher

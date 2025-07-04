@@ -280,12 +280,6 @@ func (iu *InternshipUpdate) SetNillablePrice(d *decimal.Decimal) *InternshipUpda
 	return iu
 }
 
-// ClearPrice clears the value of the "price" field.
-func (iu *InternshipUpdate) ClearPrice() *InternshipUpdate {
-	iu.mutation.ClearPrice()
-	return iu
-}
-
 // SetFlatDiscount sets the "flat_discount" field.
 func (iu *InternshipUpdate) SetFlatDiscount(d decimal.Decimal) *InternshipUpdate {
 	iu.mutation.SetFlatDiscount(d)
@@ -323,6 +317,34 @@ func (iu *InternshipUpdate) SetNillablePercentageDiscount(d *decimal.Decimal) *I
 // ClearPercentageDiscount clears the value of the "percentage_discount" field.
 func (iu *InternshipUpdate) ClearPercentageDiscount() *InternshipUpdate {
 	iu.mutation.ClearPercentageDiscount()
+	return iu
+}
+
+// SetSubtotal sets the "subtotal" field.
+func (iu *InternshipUpdate) SetSubtotal(d decimal.Decimal) *InternshipUpdate {
+	iu.mutation.SetSubtotal(d)
+	return iu
+}
+
+// SetNillableSubtotal sets the "subtotal" field if the given value is not nil.
+func (iu *InternshipUpdate) SetNillableSubtotal(d *decimal.Decimal) *InternshipUpdate {
+	if d != nil {
+		iu.SetSubtotal(*d)
+	}
+	return iu
+}
+
+// SetTotal sets the "total" field.
+func (iu *InternshipUpdate) SetTotal(d decimal.Decimal) *InternshipUpdate {
+	iu.mutation.SetTotal(d)
+	return iu
+}
+
+// SetNillableTotal sets the "total" field if the given value is not nil.
+func (iu *InternshipUpdate) SetNillableTotal(d *decimal.Decimal) *InternshipUpdate {
+	if d != nil {
+		iu.SetTotal(*d)
+	}
 	return iu
 }
 
@@ -535,9 +557,6 @@ func (iu *InternshipUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := iu.mutation.Price(); ok {
 		_spec.SetField(internship.FieldPrice, field.TypeOther, value)
 	}
-	if iu.mutation.PriceCleared() {
-		_spec.ClearField(internship.FieldPrice, field.TypeOther)
-	}
 	if value, ok := iu.mutation.FlatDiscount(); ok {
 		_spec.SetField(internship.FieldFlatDiscount, field.TypeOther, value)
 	}
@@ -549,6 +568,12 @@ func (iu *InternshipUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if iu.mutation.PercentageDiscountCleared() {
 		_spec.ClearField(internship.FieldPercentageDiscount, field.TypeOther)
+	}
+	if value, ok := iu.mutation.Subtotal(); ok {
+		_spec.SetField(internship.FieldSubtotal, field.TypeOther, value)
+	}
+	if value, ok := iu.mutation.Total(); ok {
+		_spec.SetField(internship.FieldTotal, field.TypeOther, value)
 	}
 	if iu.mutation.CategoriesCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -864,12 +889,6 @@ func (iuo *InternshipUpdateOne) SetNillablePrice(d *decimal.Decimal) *Internship
 	return iuo
 }
 
-// ClearPrice clears the value of the "price" field.
-func (iuo *InternshipUpdateOne) ClearPrice() *InternshipUpdateOne {
-	iuo.mutation.ClearPrice()
-	return iuo
-}
-
 // SetFlatDiscount sets the "flat_discount" field.
 func (iuo *InternshipUpdateOne) SetFlatDiscount(d decimal.Decimal) *InternshipUpdateOne {
 	iuo.mutation.SetFlatDiscount(d)
@@ -907,6 +926,34 @@ func (iuo *InternshipUpdateOne) SetNillablePercentageDiscount(d *decimal.Decimal
 // ClearPercentageDiscount clears the value of the "percentage_discount" field.
 func (iuo *InternshipUpdateOne) ClearPercentageDiscount() *InternshipUpdateOne {
 	iuo.mutation.ClearPercentageDiscount()
+	return iuo
+}
+
+// SetSubtotal sets the "subtotal" field.
+func (iuo *InternshipUpdateOne) SetSubtotal(d decimal.Decimal) *InternshipUpdateOne {
+	iuo.mutation.SetSubtotal(d)
+	return iuo
+}
+
+// SetNillableSubtotal sets the "subtotal" field if the given value is not nil.
+func (iuo *InternshipUpdateOne) SetNillableSubtotal(d *decimal.Decimal) *InternshipUpdateOne {
+	if d != nil {
+		iuo.SetSubtotal(*d)
+	}
+	return iuo
+}
+
+// SetTotal sets the "total" field.
+func (iuo *InternshipUpdateOne) SetTotal(d decimal.Decimal) *InternshipUpdateOne {
+	iuo.mutation.SetTotal(d)
+	return iuo
+}
+
+// SetNillableTotal sets the "total" field if the given value is not nil.
+func (iuo *InternshipUpdateOne) SetNillableTotal(d *decimal.Decimal) *InternshipUpdateOne {
+	if d != nil {
+		iuo.SetTotal(*d)
+	}
 	return iuo
 }
 
@@ -1149,9 +1196,6 @@ func (iuo *InternshipUpdateOne) sqlSave(ctx context.Context) (_node *Internship,
 	if value, ok := iuo.mutation.Price(); ok {
 		_spec.SetField(internship.FieldPrice, field.TypeOther, value)
 	}
-	if iuo.mutation.PriceCleared() {
-		_spec.ClearField(internship.FieldPrice, field.TypeOther)
-	}
 	if value, ok := iuo.mutation.FlatDiscount(); ok {
 		_spec.SetField(internship.FieldFlatDiscount, field.TypeOther, value)
 	}
@@ -1163,6 +1207,12 @@ func (iuo *InternshipUpdateOne) sqlSave(ctx context.Context) (_node *Internship,
 	}
 	if iuo.mutation.PercentageDiscountCleared() {
 		_spec.ClearField(internship.FieldPercentageDiscount, field.TypeOther)
+	}
+	if value, ok := iuo.mutation.Subtotal(); ok {
+		_spec.SetField(internship.FieldSubtotal, field.TypeOther, value)
+	}
+	if value, ok := iuo.mutation.Total(); ok {
+		_spec.SetField(internship.FieldTotal, field.TypeOther, value)
 	}
 	if iuo.mutation.CategoriesCleared() {
 		edge := &sqlgraph.EdgeSpec{

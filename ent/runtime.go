@@ -205,6 +205,14 @@ func init() {
 	internshipDescMode := internshipFields[6].Descriptor()
 	// internship.ModeValidator is a validator for the "mode" field. It is called by the builders before save.
 	internship.ModeValidator = internshipDescMode.Validators[0].(func(string) error)
+	// internshipDescSubtotal is the schema descriptor for subtotal field.
+	internshipDescSubtotal := internshipFields[15].Descriptor()
+	// internship.DefaultSubtotal holds the default value on creation for the subtotal field.
+	internship.DefaultSubtotal = internshipDescSubtotal.Default.(decimal.Decimal)
+	// internshipDescTotal is the schema descriptor for total field.
+	internshipDescTotal := internshipFields[16].Descriptor()
+	// internship.DefaultTotal holds the default value on creation for the total field.
+	internship.DefaultTotal = internshipDescTotal.Default.(decimal.Decimal)
 	// internshipDescID is the schema descriptor for id field.
 	internshipDescID := internshipFields[0].Descriptor()
 	// internship.DefaultID holds the default value on creation for the id field.
@@ -292,7 +300,7 @@ func init() {
 	// internshipenrollmentDescEnrollmentStatus is the schema descriptor for enrollment_status field.
 	internshipenrollmentDescEnrollmentStatus := internshipenrollmentFields[4].Descriptor()
 	// internshipenrollment.DefaultEnrollmentStatus holds the default value on creation for the enrollment_status field.
-	internshipenrollment.DefaultEnrollmentStatus = types.EnrollmentStatus(internshipenrollmentDescEnrollmentStatus.Default.(string))
+	internshipenrollment.DefaultEnrollmentStatus = types.InternshipEnrollmentStatus(internshipenrollmentDescEnrollmentStatus.Default.(string))
 	// internshipenrollment.EnrollmentStatusValidator is a validator for the "enrollment_status" field. It is called by the builders before save.
 	internshipenrollment.EnrollmentStatusValidator = internshipenrollmentDescEnrollmentStatus.Validators[0].(func(string) error)
 	// internshipenrollmentDescPaymentStatus is the schema descriptor for payment_status field.

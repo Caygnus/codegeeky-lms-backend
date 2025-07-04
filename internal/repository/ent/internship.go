@@ -58,8 +58,8 @@ func (r *internshipRepository) Create(ctx context.Context, internshipData *domai
 		SetBenefits(internshipData.Benefits).
 		SetCurrency(internshipData.Currency).
 		SetPrice(internshipData.Price).
-		SetFlatDiscount(internshipData.FlatDiscount).
-		SetPercentageDiscount(internshipData.PercentageDiscount).
+		SetFlatDiscount(lo.FromPtr(internshipData.FlatDiscount)).
+		SetPercentageDiscount(lo.FromPtr(internshipData.PercentageDiscount)).
 		SetStatus(string(internshipData.Status)).
 		SetCreatedAt(internshipData.CreatedAt).
 		SetUpdatedAt(internshipData.UpdatedAt).
@@ -236,8 +236,8 @@ func (r *internshipRepository) Update(ctx context.Context, internshipData *domai
 		SetBenefits(internshipData.Benefits).
 		SetCurrency(internshipData.Currency).
 		SetPrice(internshipData.Price).
-		SetFlatDiscount(internshipData.FlatDiscount).
-		SetPercentageDiscount(internshipData.PercentageDiscount).
+		SetFlatDiscount(lo.FromPtr(internshipData.FlatDiscount)).
+		SetPercentageDiscount(lo.FromPtr(internshipData.PercentageDiscount)).
 		SetStatus(string(internshipData.Status)).
 		SetUpdatedAt(time.Now().UTC()).
 		SetUpdatedBy(types.GetUserID(ctx)).

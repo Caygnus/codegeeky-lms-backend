@@ -188,14 +188,6 @@ func (ic *InternshipCreate) SetPrice(d decimal.Decimal) *InternshipCreate {
 	return ic
 }
 
-// SetNillablePrice sets the "price" field if the given value is not nil.
-func (ic *InternshipCreate) SetNillablePrice(d *decimal.Decimal) *InternshipCreate {
-	if d != nil {
-		ic.SetPrice(*d)
-	}
-	return ic
-}
-
 // SetFlatDiscount sets the "flat_discount" field.
 func (ic *InternshipCreate) SetFlatDiscount(d decimal.Decimal) *InternshipCreate {
 	ic.mutation.SetFlatDiscount(d)
@@ -220,6 +212,34 @@ func (ic *InternshipCreate) SetPercentageDiscount(d decimal.Decimal) *Internship
 func (ic *InternshipCreate) SetNillablePercentageDiscount(d *decimal.Decimal) *InternshipCreate {
 	if d != nil {
 		ic.SetPercentageDiscount(*d)
+	}
+	return ic
+}
+
+// SetSubtotal sets the "subtotal" field.
+func (ic *InternshipCreate) SetSubtotal(d decimal.Decimal) *InternshipCreate {
+	ic.mutation.SetSubtotal(d)
+	return ic
+}
+
+// SetNillableSubtotal sets the "subtotal" field if the given value is not nil.
+func (ic *InternshipCreate) SetNillableSubtotal(d *decimal.Decimal) *InternshipCreate {
+	if d != nil {
+		ic.SetSubtotal(*d)
+	}
+	return ic
+}
+
+// SetTotal sets the "total" field.
+func (ic *InternshipCreate) SetTotal(d decimal.Decimal) *InternshipCreate {
+	ic.mutation.SetTotal(d)
+	return ic
+}
+
+// SetNillableTotal sets the "total" field if the given value is not nil.
+func (ic *InternshipCreate) SetNillableTotal(d *decimal.Decimal) *InternshipCreate {
+	if d != nil {
+		ic.SetTotal(*d)
 	}
 	return ic
 }
@@ -304,6 +324,14 @@ func (ic *InternshipCreate) defaults() {
 		v := internship.DefaultSkills
 		ic.mutation.SetSkills(v)
 	}
+	if _, ok := ic.mutation.Subtotal(); !ok {
+		v := internship.DefaultSubtotal
+		ic.mutation.SetSubtotal(v)
+	}
+	if _, ok := ic.mutation.Total(); !ok {
+		v := internship.DefaultTotal
+		ic.mutation.SetTotal(v)
+	}
 	if _, ok := ic.mutation.ID(); !ok {
 		v := internship.DefaultID()
 		ic.mutation.SetID(v)
@@ -352,6 +380,15 @@ func (ic *InternshipCreate) check() error {
 		if err := internship.ModeValidator(v); err != nil {
 			return &ValidationError{Name: "mode", err: fmt.Errorf(`ent: validator failed for field "Internship.mode": %w`, err)}
 		}
+	}
+	if _, ok := ic.mutation.Price(); !ok {
+		return &ValidationError{Name: "price", err: errors.New(`ent: missing required field "Internship.price"`)}
+	}
+	if _, ok := ic.mutation.Subtotal(); !ok {
+		return &ValidationError{Name: "subtotal", err: errors.New(`ent: missing required field "Internship.subtotal"`)}
+	}
+	if _, ok := ic.mutation.Total(); !ok {
+		return &ValidationError{Name: "total", err: errors.New(`ent: missing required field "Internship.total"`)}
 	}
 	return nil
 }
@@ -458,11 +495,19 @@ func (ic *InternshipCreate) createSpec() (*Internship, *sqlgraph.CreateSpec) {
 	}
 	if value, ok := ic.mutation.FlatDiscount(); ok {
 		_spec.SetField(internship.FieldFlatDiscount, field.TypeOther, value)
-		_node.FlatDiscount = value
+		_node.FlatDiscount = &value
 	}
 	if value, ok := ic.mutation.PercentageDiscount(); ok {
 		_spec.SetField(internship.FieldPercentageDiscount, field.TypeOther, value)
-		_node.PercentageDiscount = value
+		_node.PercentageDiscount = &value
+	}
+	if value, ok := ic.mutation.Subtotal(); ok {
+		_spec.SetField(internship.FieldSubtotal, field.TypeOther, value)
+		_node.Subtotal = value
+	}
+	if value, ok := ic.mutation.Total(); ok {
+		_spec.SetField(internship.FieldTotal, field.TypeOther, value)
+		_node.Total = value
 	}
 	if nodes := ic.mutation.CategoriesIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

@@ -7,12 +7,13 @@ import (
 	"github.com/omkar273/codegeeky/internal/api/dto"
 	domainPayment "github.com/omkar273/codegeeky/internal/domain/payment"
 	ierr "github.com/omkar273/codegeeky/internal/errors"
-	gateway "github.com/omkar273/codegeeky/internal/payment"
 	"github.com/omkar273/codegeeky/internal/types"
 	"github.com/samber/lo"
 )
 
+// PaymentService defines the interface for payment operations
 type PaymentService interface {
+	// Core payment CRUD operations
 	Create(ctx context.Context, req *dto.CreatePaymentRequest) (*dto.PaymentResponse, error)
 	GetByID(ctx context.Context, id string) (*dto.PaymentResponse, error)
 	GetByIdempotencyKey(ctx context.Context, key string) (*dto.PaymentResponse, error)
@@ -26,22 +27,25 @@ type PaymentService interface {
 	ListAttempts(ctx context.Context, paymentID string) ([]*dto.PaymentAttemptResponse, error)
 	GetLatestAttempt(ctx context.Context, paymentID string) (*dto.PaymentAttemptResponse, error)
 
-	// Payment processing
-	ProcessPayment(ctx context.Context, paymentID string) (*dto.PaymentResponse, error)
+	// Status management
+	UpdateStatus(ctx context.Context, paymentID string, status types.PaymentStatus, metadata map[string]string) (*dto.PaymentResponse, error)
+	MarkAsSuccess(ctx context.Context, paymentID string, gatewayPaymentID *string, metadata map[string]string) (*dto.PaymentResponse, error)
+	MarkAsFailed(ctx context.Context, paymentID string, errorMessage string, metadata map[string]string) (*dto.PaymentResponse, error)
+	MarkAsRefunded(ctx context.Context, paymentID string, metadata map[string]string) (*dto.PaymentResponse, error)
 }
 
 type paymentService struct {
-	ServiceParams   ServiceParams
-	GatewayRegistry gateway.GatewayRegistryService
+	ServiceParams ServiceParams
 }
 
-func NewPaymentService(params ServiceParams, gatewayRegistry gateway.GatewayRegistryService) PaymentService {
+// NewPaymentService creates a new payment service instance
+func NewPaymentService(params ServiceParams) PaymentService {
 	return &paymentService{
-		ServiceParams:   params,
-		GatewayRegistry: gatewayRegistry,
+		ServiceParams: params,
 	}
 }
 
+// Create creates a new payment record
 func (s *paymentService) Create(ctx context.Context, req *dto.CreatePaymentRequest) (*dto.PaymentResponse, error) {
 	if err := req.Validate(); err != nil {
 		return nil, err
@@ -61,7 +65,6 @@ func (s *paymentService) Create(ctx context.Context, req *dto.CreatePaymentReque
 	}
 
 	var createdPayment *domainPayment.Payment
-	var gatewayResponse *dto.PaymentGatewayResponse
 
 	// Create payment in transaction
 	err := s.ServiceParams.DB.WithTx(ctx, func(ctx context.Context) error {
@@ -89,68 +92,6 @@ func (s *paymentService) Create(ctx context.Context, req *dto.CreatePaymentReque
 			}
 		}
 
-		// Process payment with gateway if available
-		if s.GatewayRegistry != nil {
-			provider, err := s.GatewayRegistry.GetProviderByName(ctx, payment.PaymentGatewayProvider)
-
-			if err != nil {
-				s.ServiceParams.Logger.Errorw("failed to get payment gateway provider",
-					"provider", payment.PaymentGatewayProvider, "error", err)
-				return err
-			}
-
-			gwReq := &dto.PaymentRequest{
-				ReferenceID:            payment.ID,
-				ReferenceType:          payment.DestinationType,
-				DestinationID:          payment.DestinationID,
-				DestinationType:        payment.DestinationType,
-				Amount:                 payment.Amount.IntPart(),
-				Currency:               string(payment.Currency),
-				PaymentGatewayProvider: payment.PaymentGatewayProvider,
-				PaymentMethodType:      payment.PaymentMethodType,
-				PaymentMethodID:        &payment.PaymentMethodID,
-				SuccessURL:             req.SuccessURL,
-				CancelURL:              req.CancelURL,
-				IdempotencyKey:         payment.IdempotencyKey,
-				Metadata:               payment.Metadata,
-				TrackAttempts:          payment.TrackAttempts,
-			}
-
-			gwResp, err := provider.CreatePaymentOrder(ctx, gwReq)
-			if err != nil {
-				s.ServiceParams.Logger.Errorw("failed to create payment with gateway",
-					"payment_id", payment.ID, "error", err)
-
-				// Update payment status to failed
-				payment.PaymentStatus = types.PaymentStatusFailed
-				payment.ErrorMessage = lo.ToPtr(err.Error())
-				payment.FailedAt = lo.ToPtr(time.Now())
-
-				if updateErr := s.ServiceParams.PaymentRepo.Update(ctx, payment); updateErr != nil {
-					s.ServiceParams.Logger.Errorw("failed to update payment status to failed",
-						"payment_id", payment.ID, "error", updateErr)
-				}
-
-				return err
-			}
-
-			// Update payment with gateway response
-			if gwResp != nil {
-				payment.GatewayPaymentID = lo.ToPtr(gwResp.GatewayResponse.ProviderPaymentID)
-				if err := s.ServiceParams.PaymentRepo.Update(ctx, payment); err != nil {
-					s.ServiceParams.Logger.Errorw("failed to update payment with gateway ID",
-						"payment_id", payment.ID, "error", err)
-				}
-
-				gatewayResponse = &dto.PaymentGatewayResponse{
-					ProviderPaymentID: gwResp.GatewayResponse.ProviderPaymentID,
-					RedirectURL:       gwResp.GatewayResponse.RedirectURL,
-					Status:            gwResp.GatewayResponse.Status,
-					Raw:               gwResp.GatewayResponse.Raw,
-				}
-			}
-		}
-
 		createdPayment = payment
 		return nil
 	})
@@ -159,30 +100,12 @@ func (s *paymentService) Create(ctx context.Context, req *dto.CreatePaymentReque
 		return nil, err
 	}
 
-	// Publish webhook event
-	// if s.ServiceParams.WebhookPublisher != nil {
-	// 	go func() {
-	// 		ctx := context.Background()
-	// 		webhookEvent := &types.WebhookEvent{
-	// 			ID:        types.GenerateUUID(),
-	// 			EventName: "payment.created",
-	// 			UserID:    lo.ToPtr(createdPayment.CreatedBy),
-	// 			Payload:   lo.ToPtr(createdPayment),
-	// 		}
-
-	// 		if err := s.ServiceParams.WebhookPublisher.PublishWebhook(ctx, webhookEvent); err != nil {
-	// 			s.ServiceParams.Logger.Errorw("failed to publish payment created webhook",
-	// 				"payment_id", createdPayment.ID, "error", err)
-	// 		}
-	// 	}()
-	// }
-
 	return &dto.PaymentResponse{
-		Payment:         *createdPayment,
-		GatewayResponse: gatewayResponse,
+		Payment: *createdPayment,
 	}, nil
 }
 
+// GetByID retrieves a payment by its ID
 func (s *paymentService) GetByID(ctx context.Context, id string) (*dto.PaymentResponse, error) {
 	payment, err := s.ServiceParams.PaymentRepo.Get(ctx, id)
 	if err != nil {
@@ -194,6 +117,7 @@ func (s *paymentService) GetByID(ctx context.Context, id string) (*dto.PaymentRe
 	}, nil
 }
 
+// GetByIdempotencyKey retrieves a payment by its idempotency key
 func (s *paymentService) GetByIdempotencyKey(ctx context.Context, key string) (*dto.PaymentResponse, error) {
 	payment, err := s.ServiceParams.PaymentRepo.GetByIdempotencyKey(ctx, key)
 	if err != nil {
@@ -205,6 +129,7 @@ func (s *paymentService) GetByIdempotencyKey(ctx context.Context, key string) (*
 	}, nil
 }
 
+// Update updates an existing payment
 func (s *paymentService) Update(ctx context.Context, id string, req *dto.UpdatePaymentRequest) (*dto.PaymentResponse, error) {
 	if err := req.Validate(); err != nil {
 		return nil, err
@@ -260,29 +185,12 @@ func (s *paymentService) Update(ctx context.Context, id string, req *dto.UpdateP
 		return nil, err
 	}
 
-	// Publish webhook event for status changes
-	// if req.PaymentStatus != nil && s.ServiceParams.WebhookPublisher != nil {
-	// 	go func() {
-	// 		ctx := context.Background()
-	// 		webhookEvent := &types.WebhookEvent{
-	// 			ID:        types.GenerateUUID(),
-	// 			EventName: "payment.status_updated",
-	// 			UserID:    lo.ToPtr(updatedPayment.UpdatedBy),
-	// 			Payload:   lo.ToPtr(updatedPayment),
-	// 		}
-
-	// 		if err := s.ServiceParams.WebhookPublisher.PublishWebhook(ctx, webhookEvent); err != nil {
-	// 			s.ServiceParams.Logger.Errorw("failed to publish payment status updated webhook",
-	// 				"payment_id", updatedPayment.ID, "error", err)
-	// 		}
-	// 	}()
-	// }
-
 	return &dto.PaymentResponse{
 		Payment: *updatedPayment,
 	}, nil
 }
 
+// Delete deletes a payment by its ID
 func (s *paymentService) Delete(ctx context.Context, id string) error {
 	// Verify payment exists
 	_, err := s.ServiceParams.PaymentRepo.Get(ctx, id)
@@ -293,6 +201,7 @@ func (s *paymentService) Delete(ctx context.Context, id string) error {
 	return s.ServiceParams.PaymentRepo.Delete(ctx, id)
 }
 
+// List retrieves a paginated list of payments
 func (s *paymentService) List(ctx context.Context, filter *types.PaymentFilter) (*dto.ListPaymentResponse, error) {
 	if filter == nil {
 		filter = types.NewNoLimitPaymentFilter()
@@ -324,7 +233,7 @@ func (s *paymentService) List(ctx context.Context, filter *types.PaymentFilter) 
 	return response, nil
 }
 
-// Payment attempt operations
+// CreateAttempt creates a new payment attempt
 func (s *paymentService) CreateAttempt(ctx context.Context, req *dto.PaymentAttemptRequest) (*dto.PaymentAttemptResponse, error) {
 	if err := req.Validate(); err != nil {
 		return nil, err
@@ -348,6 +257,7 @@ func (s *paymentService) CreateAttempt(ctx context.Context, req *dto.PaymentAtte
 	}, nil
 }
 
+// GetAttempt retrieves a payment attempt by its ID
 func (s *paymentService) GetAttempt(ctx context.Context, id string) (*dto.PaymentAttemptResponse, error) {
 	attempt, err := s.ServiceParams.PaymentRepo.GetAttempt(ctx, id)
 	if err != nil {
@@ -359,6 +269,7 @@ func (s *paymentService) GetAttempt(ctx context.Context, id string) (*dto.Paymen
 	}, nil
 }
 
+// ListAttempts retrieves all attempts for a payment
 func (s *paymentService) ListAttempts(ctx context.Context, paymentID string) ([]*dto.PaymentAttemptResponse, error) {
 	attempts, err := s.ServiceParams.PaymentRepo.ListAttempts(ctx, paymentID)
 	if err != nil {
@@ -373,6 +284,7 @@ func (s *paymentService) ListAttempts(ctx context.Context, paymentID string) ([]
 	return responses, nil
 }
 
+// GetLatestAttempt retrieves the latest attempt for a payment
 func (s *paymentService) GetLatestAttempt(ctx context.Context, paymentID string) (*dto.PaymentAttemptResponse, error) {
 	attempt, err := s.ServiceParams.PaymentRepo.GetLatestAttempt(ctx, paymentID)
 	if err != nil {
@@ -384,68 +296,43 @@ func (s *paymentService) GetLatestAttempt(ctx context.Context, paymentID string)
 	}, nil
 }
 
-func (s *paymentService) ProcessPayment(ctx context.Context, paymentID string) (*dto.PaymentResponse, error) {
-	payment, err := s.ServiceParams.PaymentRepo.Get(ctx, paymentID)
-	if err != nil {
-		return nil, err
+// UpdateStatus updates the payment status with optional metadata
+func (s *paymentService) UpdateStatus(ctx context.Context, paymentID string, status types.PaymentStatus, metadata map[string]string) (*dto.PaymentResponse, error) {
+	req := &dto.UpdatePaymentRequest{
+		PaymentStatus: &status,
+		Metadata:      metadata,
 	}
+	return s.Update(ctx, paymentID, req)
+}
 
-	// Only process pending payments
-	if payment.PaymentStatus != types.PaymentStatusPending {
-		return nil, ierr.NewError("payment cannot be processed").
-			WithHint("Only pending payments can be processed").
-			WithReportableDetails(map[string]any{
-				"payment_id":     paymentID,
-				"current_status": payment.PaymentStatus,
-			}).
-			Mark(ierr.ErrValidation)
+// MarkAsSuccess marks a payment as successful
+func (s *paymentService) MarkAsSuccess(ctx context.Context, paymentID string, gatewayPaymentID *string, metadata map[string]string) (*dto.PaymentResponse, error) {
+	status := types.PaymentStatusSuccess
+	req := &dto.UpdatePaymentRequest{
+		PaymentStatus:    &status,
+		GatewayPaymentID: gatewayPaymentID,
+		Metadata:         metadata,
 	}
+	return s.Update(ctx, paymentID, req)
+}
 
-	// Process with payment gateway if available
-	if s.GatewayRegistry != nil && payment.GatewayPaymentID != nil {
-		provider, err := s.GatewayRegistry.GetProviderByName(ctx, payment.PaymentGatewayProvider)
-		if err != nil {
-			return nil, err
-		}
-
-		gwResp, err := provider.VerifyPaymentStatus(ctx, *payment.GatewayPaymentID)
-		if err != nil {
-			// Update payment status to failed
-			payment.PaymentStatus = types.PaymentStatusFailed
-			payment.ErrorMessage = lo.ToPtr(err.Error())
-			payment.FailedAt = lo.ToPtr(time.Now())
-
-			if updateErr := s.ServiceParams.PaymentRepo.Update(ctx, payment); updateErr != nil {
-				s.ServiceParams.Logger.Errorw("failed to update payment status to failed",
-					"payment_id", payment.ID, "error", updateErr)
-			}
-
-			return nil, err
-		}
-
-		// Update payment status based on gateway response
-		if gwResp != nil {
-			switch gwResp.Status {
-			case "success":
-				payment.PaymentStatus = types.PaymentStatusSuccess
-				payment.SucceededAt = lo.ToPtr(time.Now())
-			case "failed":
-				payment.PaymentStatus = types.PaymentStatusFailed
-				payment.FailedAt = lo.ToPtr(time.Now())
-				if gwResp.Reason != "" {
-					payment.ErrorMessage = lo.ToPtr(gwResp.Reason)
-				}
-			case "processing":
-				payment.PaymentStatus = types.PaymentStatusProcessing
-			}
-
-			if err := s.ServiceParams.PaymentRepo.Update(ctx, payment); err != nil {
-				return nil, err
-			}
-		}
+// MarkAsFailed marks a payment as failed
+func (s *paymentService) MarkAsFailed(ctx context.Context, paymentID string, errorMessage string, metadata map[string]string) (*dto.PaymentResponse, error) {
+	status := types.PaymentStatusFailed
+	req := &dto.UpdatePaymentRequest{
+		PaymentStatus: &status,
+		ErrorMessage:  &errorMessage,
+		Metadata:      metadata,
 	}
+	return s.Update(ctx, paymentID, req)
+}
 
-	return &dto.PaymentResponse{
-		Payment: *payment,
-	}, nil
+// MarkAsRefunded marks a payment as refunded
+func (s *paymentService) MarkAsRefunded(ctx context.Context, paymentID string, metadata map[string]string) (*dto.PaymentResponse, error) {
+	status := types.PaymentStatusRefunded
+	req := &dto.UpdatePaymentRequest{
+		PaymentStatus: &status,
+		Metadata:      metadata,
+	}
+	return s.Update(ctx, paymentID, req)
 }

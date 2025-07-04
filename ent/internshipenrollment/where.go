@@ -106,7 +106,7 @@ func InternshipBatchID(v string) predicate.InternshipEnrollment {
 }
 
 // EnrollmentStatus applies equality check predicate on the "enrollment_status" field. It's identical to EnrollmentStatusEQ.
-func EnrollmentStatus(v types.EnrollmentStatus) predicate.InternshipEnrollment {
+func EnrollmentStatus(v types.InternshipEnrollmentStatus) predicate.InternshipEnrollment {
 	vc := string(v)
 	return predicate.InternshipEnrollment(sql.FieldEQ(FieldEnrollmentStatus, vc))
 }
@@ -648,19 +648,19 @@ func InternshipBatchIDContainsFold(v string) predicate.InternshipEnrollment {
 }
 
 // EnrollmentStatusEQ applies the EQ predicate on the "enrollment_status" field.
-func EnrollmentStatusEQ(v types.EnrollmentStatus) predicate.InternshipEnrollment {
+func EnrollmentStatusEQ(v types.InternshipEnrollmentStatus) predicate.InternshipEnrollment {
 	vc := string(v)
 	return predicate.InternshipEnrollment(sql.FieldEQ(FieldEnrollmentStatus, vc))
 }
 
 // EnrollmentStatusNEQ applies the NEQ predicate on the "enrollment_status" field.
-func EnrollmentStatusNEQ(v types.EnrollmentStatus) predicate.InternshipEnrollment {
+func EnrollmentStatusNEQ(v types.InternshipEnrollmentStatus) predicate.InternshipEnrollment {
 	vc := string(v)
 	return predicate.InternshipEnrollment(sql.FieldNEQ(FieldEnrollmentStatus, vc))
 }
 
 // EnrollmentStatusIn applies the In predicate on the "enrollment_status" field.
-func EnrollmentStatusIn(vs ...types.EnrollmentStatus) predicate.InternshipEnrollment {
+func EnrollmentStatusIn(vs ...types.InternshipEnrollmentStatus) predicate.InternshipEnrollment {
 	v := make([]any, len(vs))
 	for i := range v {
 		v[i] = string(vs[i])
@@ -669,7 +669,7 @@ func EnrollmentStatusIn(vs ...types.EnrollmentStatus) predicate.InternshipEnroll
 }
 
 // EnrollmentStatusNotIn applies the NotIn predicate on the "enrollment_status" field.
-func EnrollmentStatusNotIn(vs ...types.EnrollmentStatus) predicate.InternshipEnrollment {
+func EnrollmentStatusNotIn(vs ...types.InternshipEnrollmentStatus) predicate.InternshipEnrollment {
 	v := make([]any, len(vs))
 	for i := range v {
 		v[i] = string(vs[i])
@@ -678,55 +678,55 @@ func EnrollmentStatusNotIn(vs ...types.EnrollmentStatus) predicate.InternshipEnr
 }
 
 // EnrollmentStatusGT applies the GT predicate on the "enrollment_status" field.
-func EnrollmentStatusGT(v types.EnrollmentStatus) predicate.InternshipEnrollment {
+func EnrollmentStatusGT(v types.InternshipEnrollmentStatus) predicate.InternshipEnrollment {
 	vc := string(v)
 	return predicate.InternshipEnrollment(sql.FieldGT(FieldEnrollmentStatus, vc))
 }
 
 // EnrollmentStatusGTE applies the GTE predicate on the "enrollment_status" field.
-func EnrollmentStatusGTE(v types.EnrollmentStatus) predicate.InternshipEnrollment {
+func EnrollmentStatusGTE(v types.InternshipEnrollmentStatus) predicate.InternshipEnrollment {
 	vc := string(v)
 	return predicate.InternshipEnrollment(sql.FieldGTE(FieldEnrollmentStatus, vc))
 }
 
 // EnrollmentStatusLT applies the LT predicate on the "enrollment_status" field.
-func EnrollmentStatusLT(v types.EnrollmentStatus) predicate.InternshipEnrollment {
+func EnrollmentStatusLT(v types.InternshipEnrollmentStatus) predicate.InternshipEnrollment {
 	vc := string(v)
 	return predicate.InternshipEnrollment(sql.FieldLT(FieldEnrollmentStatus, vc))
 }
 
 // EnrollmentStatusLTE applies the LTE predicate on the "enrollment_status" field.
-func EnrollmentStatusLTE(v types.EnrollmentStatus) predicate.InternshipEnrollment {
+func EnrollmentStatusLTE(v types.InternshipEnrollmentStatus) predicate.InternshipEnrollment {
 	vc := string(v)
 	return predicate.InternshipEnrollment(sql.FieldLTE(FieldEnrollmentStatus, vc))
 }
 
 // EnrollmentStatusContains applies the Contains predicate on the "enrollment_status" field.
-func EnrollmentStatusContains(v types.EnrollmentStatus) predicate.InternshipEnrollment {
+func EnrollmentStatusContains(v types.InternshipEnrollmentStatus) predicate.InternshipEnrollment {
 	vc := string(v)
 	return predicate.InternshipEnrollment(sql.FieldContains(FieldEnrollmentStatus, vc))
 }
 
 // EnrollmentStatusHasPrefix applies the HasPrefix predicate on the "enrollment_status" field.
-func EnrollmentStatusHasPrefix(v types.EnrollmentStatus) predicate.InternshipEnrollment {
+func EnrollmentStatusHasPrefix(v types.InternshipEnrollmentStatus) predicate.InternshipEnrollment {
 	vc := string(v)
 	return predicate.InternshipEnrollment(sql.FieldHasPrefix(FieldEnrollmentStatus, vc))
 }
 
 // EnrollmentStatusHasSuffix applies the HasSuffix predicate on the "enrollment_status" field.
-func EnrollmentStatusHasSuffix(v types.EnrollmentStatus) predicate.InternshipEnrollment {
+func EnrollmentStatusHasSuffix(v types.InternshipEnrollmentStatus) predicate.InternshipEnrollment {
 	vc := string(v)
 	return predicate.InternshipEnrollment(sql.FieldHasSuffix(FieldEnrollmentStatus, vc))
 }
 
 // EnrollmentStatusEqualFold applies the EqualFold predicate on the "enrollment_status" field.
-func EnrollmentStatusEqualFold(v types.EnrollmentStatus) predicate.InternshipEnrollment {
+func EnrollmentStatusEqualFold(v types.InternshipEnrollmentStatus) predicate.InternshipEnrollment {
 	vc := string(v)
 	return predicate.InternshipEnrollment(sql.FieldEqualFold(FieldEnrollmentStatus, vc))
 }
 
 // EnrollmentStatusContainsFold applies the ContainsFold predicate on the "enrollment_status" field.
-func EnrollmentStatusContainsFold(v types.EnrollmentStatus) predicate.InternshipEnrollment {
+func EnrollmentStatusContainsFold(v types.InternshipEnrollmentStatus) predicate.InternshipEnrollment {
 	vc := string(v)
 	return predicate.InternshipEnrollment(sql.FieldContainsFold(FieldEnrollmentStatus, vc))
 }
