@@ -56,3 +56,7 @@ func NewPaymentRepository(params RepositoryParams) payment.Repository {
 func NewInternshipEnrollmentRepository(params RepositoryParams) enrollment.Repository {
 	return ent.NewInternshipEnrollmentRepository(params.Client, params.Logger)
 }
+
+func NewInternshipBatchRepository(params RepositoryParams) internship.InternshipBatchRepository {
+	return ent.NewInternshipBatchRepository(params.Client, params.Logger)
+}

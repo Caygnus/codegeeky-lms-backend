@@ -193,12 +193,13 @@ func (r *categoryRepository) Count(ctx context.Context, filter *types.CategoryFi
 }
 
 func (r *categoryRepository) Update(ctx context.Context, categoryData *domainCategory.Category) error {
-	client := r.client.Querier(ctx)
 
 	r.log.Debugw("updating category",
 		"category_id", categoryData.ID,
 		"name", categoryData.Name,
 	)
+
+	client := r.client.Querier(ctx)
 
 	_, err := client.Category.UpdateOneID(categoryData.ID).
 		SetName(categoryData.Name).

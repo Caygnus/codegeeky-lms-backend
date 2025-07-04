@@ -23,12 +23,13 @@ type ServiceParams struct {
 	DB     postgres.IClient
 
 	// Repository dependencies
-	UserRepo       user.Repository
-	DiscountRepo   discount.Repository
-	PaymentRepo    payment.Repository
-	InternshipRepo internship.InternshipRepository
-	CategoryRepo   internship.CategoryRepository
-	EnrollmentRepo enrollment.Repository
+	UserRepo             user.Repository
+	DiscountRepo         discount.Repository
+	PaymentRepo          payment.Repository
+	InternshipRepo       internship.InternshipRepository
+	InternshipBatchRepo  internship.InternshipBatchRepository
+	CategoryRepo         internship.CategoryRepository
+	EnrollmentRepo       enrollment.Repository
 
 	// Service dependencies
 	WebhookPublisher publisher.WebhookPublisher

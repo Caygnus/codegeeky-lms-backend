@@ -33,7 +33,6 @@ import (
 
 // @host      localhost:8080
 // @BasePath  /v1
-// @Host      localhost:8080
 
 // @securityDefinitions.apikey Authorization
 // @in header
@@ -93,6 +92,9 @@ func main() {
 			// internship enrollment repository
 			repository.NewInternshipEnrollmentRepository,
 
+			// internship batch repository
+			repository.NewInternshipBatchRepository,
+
 			// pubsub router
 			pubsubRouter.NewRouter,
 		),
@@ -110,6 +112,7 @@ func main() {
 		service.NewUserService,
 		service.NewOnboardingService,
 		service.NewInternshipService,
+		service.NewInternshipBatchService,
 		service.NewCategoryService,
 		service.NewDiscountService,
 	))
