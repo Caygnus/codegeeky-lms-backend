@@ -560,8 +560,8 @@ Whether you're a newbie coder or a wizard 🧙‍♀️, your perspective is gol
 
 ## Contributors
 
-<a href="https://github.com/omkar273/codegeeky/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=omkar273/codegeeky" />
+<a href="https://github.com/Caygnus/codegeeky-lms-backend/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=Caygnus/codegeeky-lms-backend" />
 </a>
 
 ## Repo Activity
