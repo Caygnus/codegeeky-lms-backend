@@ -43,8 +43,11 @@ const (
 	UUID_PREFIX_FILE_UPLOAD                 = "file"
 	UUID_PREFIX_PAYMENT                     = "payment"
 	UUID_PREFIX_DISCOUNT                    = "discount"
+	UUID_PREFIX_DISCOUNT_APPLIED            = "da"
 	UUID_PREFIX_INTERNSHIP_ENROLLMENT       = "ie"
 	UUID_PREFIX_PAYMENT_ATTEMPT             = "pa"
 	UUID_PREFIX_INTERNSHIP_BATCH            = "batch"
+	UUID_PREFIX_CART                        = "cart"
+	UUID_PREFIX_CART_LINE_ITEM              = "cli"
 	UUID_PREFIX_INTERNSHIP_BATCH_ENROLLMENT = "enrollment"
 )
