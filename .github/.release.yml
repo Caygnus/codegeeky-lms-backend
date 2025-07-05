@@ -1,0 +1,26 @@
+# .github/release.yml
+
+changelog:
+  categories:
+    - title: 🏕 Features
+      labels:
+        - "*"
+      exclude:
+        labels:
+          - dependencies
+          - chore
+          - docs
+          - refactor
+          - style
+          - test
+          - fix
+    - title: 🐛 Bug Fixes
+      labels:
+        - bug
+        - fix
+    - title: 📚 Documentation
+      labels:
+        - docs
+    - title: 🔄 Refactoring
+      labels:
+        - refactor

@@ -12,12 +12,15 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/omkar273/codegeeky/ent/cart"
+	"github.com/omkar273/codegeeky/ent/cartlineitems"
 	"github.com/omkar273/codegeeky/ent/category"
 	"github.com/omkar273/codegeeky/ent/discount"
 	"github.com/omkar273/codegeeky/ent/fileupload"
 	"github.com/omkar273/codegeeky/ent/internship"
 	"github.com/omkar273/codegeeky/ent/internshipbatch"
 	"github.com/omkar273/codegeeky/ent/internshipenrollment"
+	"github.com/omkar273/codegeeky/ent/order"
 	"github.com/omkar273/codegeeky/ent/payment"
 	"github.com/omkar273/codegeeky/ent/paymentattempt"
 	"github.com/omkar273/codegeeky/ent/user"
@@ -81,12 +84,15 @@ var (
 func checkColumn(table, column string) error {
 	initCheck.Do(func() {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
+			cart.Table:                 cart.ValidColumn,
+			cartlineitems.Table:        cartlineitems.ValidColumn,
 			category.Table:             category.ValidColumn,
 			discount.Table:             discount.ValidColumn,
 			fileupload.Table:           fileupload.ValidColumn,
 			internship.Table:           internship.ValidColumn,
 			internshipbatch.Table:      internshipbatch.ValidColumn,
 			internshipenrollment.Table: internshipenrollment.ValidColumn,
+			order.Table:                order.ValidColumn,
 			payment.Table:              payment.ValidColumn,
 			paymentattempt.Table:       paymentattempt.ValidColumn,
 			user.Table:                 user.ValidColumn,

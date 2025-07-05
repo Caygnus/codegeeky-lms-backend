@@ -15,12 +15,15 @@ import (
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/omkar273/codegeeky/ent/cart"
+	"github.com/omkar273/codegeeky/ent/cartlineitems"
 	"github.com/omkar273/codegeeky/ent/category"
 	"github.com/omkar273/codegeeky/ent/discount"
 	"github.com/omkar273/codegeeky/ent/fileupload"
 	"github.com/omkar273/codegeeky/ent/internship"
 	"github.com/omkar273/codegeeky/ent/internshipbatch"
 	"github.com/omkar273/codegeeky/ent/internshipenrollment"
+	"github.com/omkar273/codegeeky/ent/order"
 	"github.com/omkar273/codegeeky/ent/payment"
 	"github.com/omkar273/codegeeky/ent/paymentattempt"
 	"github.com/omkar273/codegeeky/ent/user"
@@ -31,6 +34,10 @@ type Client struct {
 	config
 	// Schema is the client for creating, migrating and dropping schema.
 	Schema *migrate.Schema
+	// Cart is the client for interacting with the Cart builders.
+	Cart *CartClient
+	// CartLineItems is the client for interacting with the CartLineItems builders.
+	CartLineItems *CartLineItemsClient
 	// Category is the client for interacting with the Category builders.
 	Category *CategoryClient
 	// Discount is the client for interacting with the Discount builders.
@@ -43,6 +50,8 @@ type Client struct {
 	InternshipBatch *InternshipBatchClient
 	// InternshipEnrollment is the client for interacting with the InternshipEnrollment builders.
 	InternshipEnrollment *InternshipEnrollmentClient
+	// Order is the client for interacting with the Order builders.
+	Order *OrderClient
 	// Payment is the client for interacting with the Payment builders.
 	Payment *PaymentClient
 	// PaymentAttempt is the client for interacting with the PaymentAttempt builders.
@@ -60,12 +69,15 @@ func NewClient(opts ...Option) *Client {
 
 func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
+	c.Cart = NewCartClient(c.config)
+	c.CartLineItems = NewCartLineItemsClient(c.config)
 	c.Category = NewCategoryClient(c.config)
 	c.Discount = NewDiscountClient(c.config)
 	c.FileUpload = NewFileUploadClient(c.config)
 	c.Internship = NewInternshipClient(c.config)
 	c.InternshipBatch = NewInternshipBatchClient(c.config)
 	c.InternshipEnrollment = NewInternshipEnrollmentClient(c.config)
+	c.Order = NewOrderClient(c.config)
 	c.Payment = NewPaymentClient(c.config)
 	c.PaymentAttempt = NewPaymentAttemptClient(c.config)
 	c.User = NewUserClient(c.config)
@@ -161,12 +173,15 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	return &Tx{
 		ctx:                  ctx,
 		config:               cfg,
+		Cart:                 NewCartClient(cfg),
+		CartLineItems:        NewCartLineItemsClient(cfg),
 		Category:             NewCategoryClient(cfg),
 		Discount:             NewDiscountClient(cfg),
 		FileUpload:           NewFileUploadClient(cfg),
 		Internship:           NewInternshipClient(cfg),
 		InternshipBatch:      NewInternshipBatchClient(cfg),
 		InternshipEnrollment: NewInternshipEnrollmentClient(cfg),
+		Order:                NewOrderClient(cfg),
 		Payment:              NewPaymentClient(cfg),
 		PaymentAttempt:       NewPaymentAttemptClient(cfg),
 		User:                 NewUserClient(cfg),
@@ -189,12 +204,15 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 	return &Tx{
 		ctx:                  ctx,
 		config:               cfg,
+		Cart:                 NewCartClient(cfg),
+		CartLineItems:        NewCartLineItemsClient(cfg),
 		Category:             NewCategoryClient(cfg),
 		Discount:             NewDiscountClient(cfg),
 		FileUpload:           NewFileUploadClient(cfg),
 		Internship:           NewInternshipClient(cfg),
 		InternshipBatch:      NewInternshipBatchClient(cfg),
 		InternshipEnrollment: NewInternshipEnrollmentClient(cfg),
+		Order:                NewOrderClient(cfg),
 		Payment:              NewPaymentClient(cfg),
 		PaymentAttempt:       NewPaymentAttemptClient(cfg),
 		User:                 NewUserClient(cfg),
@@ -204,7 +222,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 // Debug returns a new debug-client. It's used to get verbose logging on specific operations.
 //
 //	client.Debug().
-//		Category.
+//		Cart.
 //		Query().
 //		Count(ctx)
 func (c *Client) Debug() *Client {
@@ -227,8 +245,9 @@ func (c *Client) Close() error {
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
 	for _, n := range []interface{ Use(...Hook) }{
-		c.Category, c.Discount, c.FileUpload, c.Internship, c.InternshipBatch,
-		c.InternshipEnrollment, c.Payment, c.PaymentAttempt, c.User,
+		c.Cart, c.CartLineItems, c.Category, c.Discount, c.FileUpload, c.Internship,
+		c.InternshipBatch, c.InternshipEnrollment, c.Order, c.Payment,
+		c.PaymentAttempt, c.User,
 	} {
 		n.Use(hooks...)
 	}
@@ -238,8 +257,9 @@ func (c *Client) Use(hooks ...Hook) {
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
 	for _, n := range []interface{ Intercept(...Interceptor) }{
-		c.Category, c.Discount, c.FileUpload, c.Internship, c.InternshipBatch,
-		c.InternshipEnrollment, c.Payment, c.PaymentAttempt, c.User,
+		c.Cart, c.CartLineItems, c.Category, c.Discount, c.FileUpload, c.Internship,
+		c.InternshipBatch, c.InternshipEnrollment, c.Order, c.Payment,
+		c.PaymentAttempt, c.User,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -248,6 +268,10 @@ func (c *Client) Intercept(interceptors ...Interceptor) {
 // Mutate implements the ent.Mutator interface.
 func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 	switch m := m.(type) {
+	case *CartMutation:
+		return c.Cart.mutate(ctx, m)
+	case *CartLineItemsMutation:
+		return c.CartLineItems.mutate(ctx, m)
 	case *CategoryMutation:
 		return c.Category.mutate(ctx, m)
 	case *DiscountMutation:
@@ -260,6 +284,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.InternshipBatch.mutate(ctx, m)
 	case *InternshipEnrollmentMutation:
 		return c.InternshipEnrollment.mutate(ctx, m)
+	case *OrderMutation:
+		return c.Order.mutate(ctx, m)
 	case *PaymentMutation:
 		return c.Payment.mutate(ctx, m)
 	case *PaymentAttemptMutation:
@@ -268,6 +294,320 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.User.mutate(ctx, m)
 	default:
 		return nil, fmt.Errorf("ent: unknown mutation type %T", m)
+	}
+}
+
+// CartClient is a client for the Cart schema.
+type CartClient struct {
+	config
+}
+
+// NewCartClient returns a client for the Cart from the given config.
+func NewCartClient(c config) *CartClient {
+	return &CartClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `cart.Hooks(f(g(h())))`.
+func (c *CartClient) Use(hooks ...Hook) {
+	c.hooks.Cart = append(c.hooks.Cart, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `cart.Intercept(f(g(h())))`.
+func (c *CartClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Cart = append(c.inters.Cart, interceptors...)
+}
+
+// Create returns a builder for creating a Cart entity.
+func (c *CartClient) Create() *CartCreate {
+	mutation := newCartMutation(c.config, OpCreate)
+	return &CartCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Cart entities.
+func (c *CartClient) CreateBulk(builders ...*CartCreate) *CartCreateBulk {
+	return &CartCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *CartClient) MapCreateBulk(slice any, setFunc func(*CartCreate, int)) *CartCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &CartCreateBulk{err: fmt.Errorf("calling to CartClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*CartCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &CartCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Cart.
+func (c *CartClient) Update() *CartUpdate {
+	mutation := newCartMutation(c.config, OpUpdate)
+	return &CartUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *CartClient) UpdateOne(ca *Cart) *CartUpdateOne {
+	mutation := newCartMutation(c.config, OpUpdateOne, withCart(ca))
+	return &CartUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *CartClient) UpdateOneID(id string) *CartUpdateOne {
+	mutation := newCartMutation(c.config, OpUpdateOne, withCartID(id))
+	return &CartUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Cart.
+func (c *CartClient) Delete() *CartDelete {
+	mutation := newCartMutation(c.config, OpDelete)
+	return &CartDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *CartClient) DeleteOne(ca *Cart) *CartDeleteOne {
+	return c.DeleteOneID(ca.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *CartClient) DeleteOneID(id string) *CartDeleteOne {
+	builder := c.Delete().Where(cart.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &CartDeleteOne{builder}
+}
+
+// Query returns a query builder for Cart.
+func (c *CartClient) Query() *CartQuery {
+	return &CartQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeCart},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a Cart entity by its id.
+func (c *CartClient) Get(ctx context.Context, id string) (*Cart, error) {
+	return c.Query().Where(cart.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *CartClient) GetX(ctx context.Context, id string) *Cart {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryLineItems queries the line_items edge of a Cart.
+func (c *CartClient) QueryLineItems(ca *Cart) *CartLineItemsQuery {
+	query := (&CartLineItemsClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := ca.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(cart.Table, cart.FieldID, id),
+			sqlgraph.To(cartlineitems.Table, cartlineitems.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, cart.LineItemsTable, cart.LineItemsColumn),
+		)
+		fromV = sqlgraph.Neighbors(ca.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryUser queries the user edge of a Cart.
+func (c *CartClient) QueryUser(ca *Cart) *UserQuery {
+	query := (&UserClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := ca.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(cart.Table, cart.FieldID, id),
+			sqlgraph.To(user.Table, user.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, cart.UserTable, cart.UserColumn),
+		)
+		fromV = sqlgraph.Neighbors(ca.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *CartClient) Hooks() []Hook {
+	return c.hooks.Cart
+}
+
+// Interceptors returns the client interceptors.
+func (c *CartClient) Interceptors() []Interceptor {
+	return c.inters.Cart
+}
+
+func (c *CartClient) mutate(ctx context.Context, m *CartMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&CartCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&CartUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&CartUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&CartDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown Cart mutation op: %q", m.Op())
+	}
+}
+
+// CartLineItemsClient is a client for the CartLineItems schema.
+type CartLineItemsClient struct {
+	config
+}
+
+// NewCartLineItemsClient returns a client for the CartLineItems from the given config.
+func NewCartLineItemsClient(c config) *CartLineItemsClient {
+	return &CartLineItemsClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `cartlineitems.Hooks(f(g(h())))`.
+func (c *CartLineItemsClient) Use(hooks ...Hook) {
+	c.hooks.CartLineItems = append(c.hooks.CartLineItems, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `cartlineitems.Intercept(f(g(h())))`.
+func (c *CartLineItemsClient) Intercept(interceptors ...Interceptor) {
+	c.inters.CartLineItems = append(c.inters.CartLineItems, interceptors...)
+}
+
+// Create returns a builder for creating a CartLineItems entity.
+func (c *CartLineItemsClient) Create() *CartLineItemsCreate {
+	mutation := newCartLineItemsMutation(c.config, OpCreate)
+	return &CartLineItemsCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of CartLineItems entities.
+func (c *CartLineItemsClient) CreateBulk(builders ...*CartLineItemsCreate) *CartLineItemsCreateBulk {
+	return &CartLineItemsCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *CartLineItemsClient) MapCreateBulk(slice any, setFunc func(*CartLineItemsCreate, int)) *CartLineItemsCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &CartLineItemsCreateBulk{err: fmt.Errorf("calling to CartLineItemsClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*CartLineItemsCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &CartLineItemsCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for CartLineItems.
+func (c *CartLineItemsClient) Update() *CartLineItemsUpdate {
+	mutation := newCartLineItemsMutation(c.config, OpUpdate)
+	return &CartLineItemsUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *CartLineItemsClient) UpdateOne(cli *CartLineItems) *CartLineItemsUpdateOne {
+	mutation := newCartLineItemsMutation(c.config, OpUpdateOne, withCartLineItems(cli))
+	return &CartLineItemsUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *CartLineItemsClient) UpdateOneID(id string) *CartLineItemsUpdateOne {
+	mutation := newCartLineItemsMutation(c.config, OpUpdateOne, withCartLineItemsID(id))
+	return &CartLineItemsUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for CartLineItems.
+func (c *CartLineItemsClient) Delete() *CartLineItemsDelete {
+	mutation := newCartLineItemsMutation(c.config, OpDelete)
+	return &CartLineItemsDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *CartLineItemsClient) DeleteOne(cli *CartLineItems) *CartLineItemsDeleteOne {
+	return c.DeleteOneID(cli.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *CartLineItemsClient) DeleteOneID(id string) *CartLineItemsDeleteOne {
+	builder := c.Delete().Where(cartlineitems.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &CartLineItemsDeleteOne{builder}
+}
+
+// Query returns a query builder for CartLineItems.
+func (c *CartLineItemsClient) Query() *CartLineItemsQuery {
+	return &CartLineItemsQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeCartLineItems},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a CartLineItems entity by its id.
+func (c *CartLineItemsClient) Get(ctx context.Context, id string) (*CartLineItems, error) {
+	return c.Query().Where(cartlineitems.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *CartLineItemsClient) GetX(ctx context.Context, id string) *CartLineItems {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryCart queries the cart edge of a CartLineItems.
+func (c *CartLineItemsClient) QueryCart(cli *CartLineItems) *CartQuery {
+	query := (&CartClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := cli.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(cartlineitems.Table, cartlineitems.FieldID, id),
+			sqlgraph.To(cart.Table, cart.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, cartlineitems.CartTable, cartlineitems.CartColumn),
+		)
+		fromV = sqlgraph.Neighbors(cli.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *CartLineItemsClient) Hooks() []Hook {
+	return c.hooks.CartLineItems
+}
+
+// Interceptors returns the client interceptors.
+func (c *CartLineItemsClient) Interceptors() []Interceptor {
+	return c.inters.CartLineItems
+}
+
+func (c *CartLineItemsClient) mutate(ctx context.Context, m *CartLineItemsMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&CartLineItemsCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&CartLineItemsUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&CartLineItemsUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&CartLineItemsDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown CartLineItems mutation op: %q", m.Op())
 	}
 }
 
@@ -1101,6 +1441,139 @@ func (c *InternshipEnrollmentClient) mutate(ctx context.Context, m *InternshipEn
 	}
 }
 
+// OrderClient is a client for the Order schema.
+type OrderClient struct {
+	config
+}
+
+// NewOrderClient returns a client for the Order from the given config.
+func NewOrderClient(c config) *OrderClient {
+	return &OrderClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `order.Hooks(f(g(h())))`.
+func (c *OrderClient) Use(hooks ...Hook) {
+	c.hooks.Order = append(c.hooks.Order, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `order.Intercept(f(g(h())))`.
+func (c *OrderClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Order = append(c.inters.Order, interceptors...)
+}
+
+// Create returns a builder for creating a Order entity.
+func (c *OrderClient) Create() *OrderCreate {
+	mutation := newOrderMutation(c.config, OpCreate)
+	return &OrderCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Order entities.
+func (c *OrderClient) CreateBulk(builders ...*OrderCreate) *OrderCreateBulk {
+	return &OrderCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *OrderClient) MapCreateBulk(slice any, setFunc func(*OrderCreate, int)) *OrderCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &OrderCreateBulk{err: fmt.Errorf("calling to OrderClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*OrderCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &OrderCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Order.
+func (c *OrderClient) Update() *OrderUpdate {
+	mutation := newOrderMutation(c.config, OpUpdate)
+	return &OrderUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *OrderClient) UpdateOne(o *Order) *OrderUpdateOne {
+	mutation := newOrderMutation(c.config, OpUpdateOne, withOrder(o))
+	return &OrderUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *OrderClient) UpdateOneID(id int) *OrderUpdateOne {
+	mutation := newOrderMutation(c.config, OpUpdateOne, withOrderID(id))
+	return &OrderUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Order.
+func (c *OrderClient) Delete() *OrderDelete {
+	mutation := newOrderMutation(c.config, OpDelete)
+	return &OrderDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *OrderClient) DeleteOne(o *Order) *OrderDeleteOne {
+	return c.DeleteOneID(o.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *OrderClient) DeleteOneID(id int) *OrderDeleteOne {
+	builder := c.Delete().Where(order.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &OrderDeleteOne{builder}
+}
+
+// Query returns a query builder for Order.
+func (c *OrderClient) Query() *OrderQuery {
+	return &OrderQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeOrder},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a Order entity by its id.
+func (c *OrderClient) Get(ctx context.Context, id int) (*Order, error) {
+	return c.Query().Where(order.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *OrderClient) GetX(ctx context.Context, id int) *Order {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *OrderClient) Hooks() []Hook {
+	return c.hooks.Order
+}
+
+// Interceptors returns the client interceptors.
+func (c *OrderClient) Interceptors() []Interceptor {
+	return c.inters.Order
+}
+
+func (c *OrderClient) mutate(ctx context.Context, m *OrderMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&OrderCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&OrderUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&OrderUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&OrderDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown Order mutation op: %q", m.Op())
+	}
+}
+
 // PaymentClient is a client for the Payment schema.
 type PaymentClient struct {
 	config
@@ -1507,6 +1980,22 @@ func (c *UserClient) GetX(ctx context.Context, id string) *User {
 	return obj
 }
 
+// QueryCarts queries the carts edge of a User.
+func (c *UserClient) QueryCarts(u *User) *CartQuery {
+	query := (&CartClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := u.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, id),
+			sqlgraph.To(cart.Table, cart.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.CartsTable, user.CartsColumn),
+		)
+		fromV = sqlgraph.Neighbors(u.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *UserClient) Hooks() []Hook {
 	return c.hooks.User
@@ -1535,11 +2024,13 @@ func (c *UserClient) mutate(ctx context.Context, m *UserMutation) (Value, error)
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		Category, Discount, FileUpload, Internship, InternshipBatch,
-		InternshipEnrollment, Payment, PaymentAttempt, User []ent.Hook
+		Cart, CartLineItems, Category, Discount, FileUpload, Internship,
+		InternshipBatch, InternshipEnrollment, Order, Payment, PaymentAttempt,
+		User []ent.Hook
 	}
 	inters struct {
-		Category, Discount, FileUpload, Internship, InternshipBatch,
-		InternshipEnrollment, Payment, PaymentAttempt, User []ent.Interceptor
+		Cart, CartLineItems, Category, Discount, FileUpload, Internship,
+		InternshipBatch, InternshipEnrollment, Order, Payment, PaymentAttempt,
+		User []ent.Interceptor
 	}
 )

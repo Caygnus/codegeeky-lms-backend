@@ -2,6 +2,7 @@ package schema
 
 import (
 	"entgo.io/ent"
+	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/index"
 	baseMixin "github.com/omkar273/codegeeky/ent/mixin"
@@ -52,7 +53,12 @@ func (User) Fields() []ent.Field {
 }
 
 func (User) Edges() []ent.Edge {
-	return []ent.Edge{}
+	return []ent.Edge{
+		// Cart
+		// one user can have many carts
+		// one cart can have only one user
+		edge.To("carts", Cart.Type),
+	}
 }
 
 // Indexes of the User.

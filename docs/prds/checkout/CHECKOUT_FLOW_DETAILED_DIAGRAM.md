@@ -208,7 +208,9 @@ flowchart TD
 
 ```json
 // POST /api/v1/cart/{token}/auth/check
-{}
+{
+  "cart_token": "74f1d2e0-791d-4f59-9a96-ffff785de270"
+}
 
 // Response
 {

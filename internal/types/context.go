@@ -17,7 +17,11 @@ const (
 	CtxIsGuest       ContextKey = "ctx_is_guest"
 
 	// Default values
-	DefaultUserID = "00000000-0000-0000-0000-000000000000"
+	DefaultUserID    = "00000000-0000-0000-0000-000000000000"
+	DefaultRequestID = "00000000-0000-0000-0000-000000000000"
+	DefaultUserEmail = "test@test.com"
+	DefaultUserRole  = UserRoleAdmin
+	DefaultIsGuest   = true
 )
 
 func GetUserID(ctx context.Context) string {

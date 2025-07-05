@@ -140,7 +140,8 @@ func (r *discountRepository) List(ctx context.Context, filter *types.DiscountFil
 			Mark(ierr.ErrDatabase)
 	}
 
-	return domainDiscount.FromEntList(discounts), nil
+	discount := &domainDiscount.Discount{}
+	return discount.FromEntList(discounts), nil
 }
 
 func (r *discountRepository) ListAll(ctx context.Context, filter *types.DiscountFilter) ([]*domainDiscount.Discount, error) {
@@ -168,7 +169,8 @@ func (r *discountRepository) ListAll(ctx context.Context, filter *types.Discount
 			Mark(ierr.ErrDatabase)
 	}
 
-	return domainDiscount.FromEntList(discounts), nil
+	discount := &domainDiscount.Discount{}
+	return discount.FromEntList(discounts), nil
 }
 
 func (r *discountRepository) Update(ctx context.Context, discount *domainDiscount.Discount) error {

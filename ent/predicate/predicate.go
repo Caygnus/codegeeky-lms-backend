@@ -6,6 +6,12 @@ import (
 	"entgo.io/ent/dialect/sql"
 )
 
+// Cart is the predicate function for cart builders.
+type Cart func(*sql.Selector)
+
+// CartLineItems is the predicate function for cartlineitems builders.
+type CartLineItems func(*sql.Selector)
+
 // Category is the predicate function for category builders.
 type Category func(*sql.Selector)
 
@@ -23,6 +29,9 @@ type InternshipBatch func(*sql.Selector)
 
 // InternshipEnrollment is the predicate function for internshipenrollment builders.
 type InternshipEnrollment func(*sql.Selector)
+
+// Order is the predicate function for order builders.
+type Order func(*sql.Selector)
 
 // Payment is the predicate function for payment builders.
 type Payment func(*sql.Selector)

@@ -12,6 +12,10 @@ import (
 // Tx is a transactional client that is created by calling Client.Tx().
 type Tx struct {
 	config
+	// Cart is the client for interacting with the Cart builders.
+	Cart *CartClient
+	// CartLineItems is the client for interacting with the CartLineItems builders.
+	CartLineItems *CartLineItemsClient
 	// Category is the client for interacting with the Category builders.
 	Category *CategoryClient
 	// Discount is the client for interacting with the Discount builders.
@@ -24,6 +28,8 @@ type Tx struct {
 	InternshipBatch *InternshipBatchClient
 	// InternshipEnrollment is the client for interacting with the InternshipEnrollment builders.
 	InternshipEnrollment *InternshipEnrollmentClient
+	// Order is the client for interacting with the Order builders.
+	Order *OrderClient
 	// Payment is the client for interacting with the Payment builders.
 	Payment *PaymentClient
 	// PaymentAttempt is the client for interacting with the PaymentAttempt builders.
@@ -161,12 +167,15 @@ func (tx *Tx) Client() *Client {
 }
 
 func (tx *Tx) init() {
+	tx.Cart = NewCartClient(tx.config)
+	tx.CartLineItems = NewCartLineItemsClient(tx.config)
 	tx.Category = NewCategoryClient(tx.config)
 	tx.Discount = NewDiscountClient(tx.config)
 	tx.FileUpload = NewFileUploadClient(tx.config)
 	tx.Internship = NewInternshipClient(tx.config)
 	tx.InternshipBatch = NewInternshipBatchClient(tx.config)
 	tx.InternshipEnrollment = NewInternshipEnrollmentClient(tx.config)
+	tx.Order = NewOrderClient(tx.config)
 	tx.Payment = NewPaymentClient(tx.config)
 	tx.PaymentAttempt = NewPaymentAttemptClient(tx.config)
 	tx.User = NewUserClient(tx.config)
@@ -179,7 +188,7 @@ func (tx *Tx) init() {
 // of them in order to commit or rollback the transaction.
 //
 // If a closed transaction is embedded in one of the generated entities, and the entity
-// applies a query, for example: Category.QueryXXX(), the query will be executed
+// applies a query, for example: Cart.QueryXXX(), the query will be executed
 // through the driver which created this transaction.
 //
 // Note that txDriver is not goroutine safe.
