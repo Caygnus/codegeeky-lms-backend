@@ -54,9 +54,13 @@ type Internship struct {
 	// Price of the internship
 	Price decimal.Decimal `json:"price,omitempty"`
 	// Flat discount on the internship
-	FlatDiscount decimal.Decimal `json:"flat_discount,omitempty"`
+	FlatDiscount *decimal.Decimal `json:"flat_discount,omitempty"`
 	// Percentage discount on the internship
-	PercentageDiscount decimal.Decimal `json:"percentage_discount,omitempty"`
+	PercentageDiscount *decimal.Decimal `json:"percentage_discount,omitempty"`
+	// Subtotal of the internship
+	Subtotal decimal.Decimal `json:"subtotal,omitempty"`
+	// Price of the internship
+	Total decimal.Decimal `json:"total,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the InternshipQuery when eager-loading is set.
 	Edges        InternshipEdges `json:"edges"`
@@ -87,9 +91,11 @@ func (*Internship) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
+		case internship.FieldFlatDiscount, internship.FieldPercentageDiscount:
+			values[i] = &sql.NullScanner{S: new(decimal.Decimal)}
 		case internship.FieldSkills, internship.FieldLearningOutcomes, internship.FieldPrerequisites, internship.FieldBenefits:
 			values[i] = new([]byte)
-		case internship.FieldPrice, internship.FieldFlatDiscount, internship.FieldPercentageDiscount:
+		case internship.FieldPrice, internship.FieldSubtotal, internship.FieldTotal:
 			values[i] = new(decimal.Decimal)
 		case internship.FieldDurationInWeeks:
 			values[i] = new(sql.NullInt64)
@@ -231,16 +237,30 @@ func (i *Internship) assignValues(columns []string, values []any) error {
 				i.Price = *value
 			}
 		case internship.FieldFlatDiscount:
-			if value, ok := values[j].(*decimal.Decimal); !ok {
+			if value, ok := values[j].(*sql.NullScanner); !ok {
 				return fmt.Errorf("unexpected type %T for field flat_discount", values[j])
-			} else if value != nil {
-				i.FlatDiscount = *value
+			} else if value.Valid {
+				i.FlatDiscount = new(decimal.Decimal)
+				*i.FlatDiscount = *value.S.(*decimal.Decimal)
 			}
 		case internship.FieldPercentageDiscount:
-			if value, ok := values[j].(*decimal.Decimal); !ok {
+			if value, ok := values[j].(*sql.NullScanner); !ok {
 				return fmt.Errorf("unexpected type %T for field percentage_discount", values[j])
+			} else if value.Valid {
+				i.PercentageDiscount = new(decimal.Decimal)
+				*i.PercentageDiscount = *value.S.(*decimal.Decimal)
+			}
+		case internship.FieldSubtotal:
+			if value, ok := values[j].(*decimal.Decimal); !ok {
+				return fmt.Errorf("unexpected type %T for field subtotal", values[j])
 			} else if value != nil {
-				i.PercentageDiscount = *value
+				i.Subtotal = *value
+			}
+		case internship.FieldTotal:
+			if value, ok := values[j].(*decimal.Decimal); !ok {
+				return fmt.Errorf("unexpected type %T for field total", values[j])
+			} else if value != nil {
+				i.Total = *value
 			}
 		case internship.ForeignKeys[0]:
 			if value, ok := values[j].(*sql.NullString); !ok {
@@ -341,11 +361,21 @@ func (i *Internship) String() string {
 	builder.WriteString("price=")
 	builder.WriteString(fmt.Sprintf("%v", i.Price))
 	builder.WriteString(", ")
-	builder.WriteString("flat_discount=")
-	builder.WriteString(fmt.Sprintf("%v", i.FlatDiscount))
+	if v := i.FlatDiscount; v != nil {
+		builder.WriteString("flat_discount=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
 	builder.WriteString(", ")
-	builder.WriteString("percentage_discount=")
-	builder.WriteString(fmt.Sprintf("%v", i.PercentageDiscount))
+	if v := i.PercentageDiscount; v != nil {
+		builder.WriteString("percentage_discount=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
+	builder.WriteString(", ")
+	builder.WriteString("subtotal=")
+	builder.WriteString(fmt.Sprintf("%v", i.Subtotal))
+	builder.WriteString(", ")
+	builder.WriteString("total=")
+	builder.WriteString(fmt.Sprintf("%v", i.Total))
 	builder.WriteByte(')')
 	return builder.String()
 }

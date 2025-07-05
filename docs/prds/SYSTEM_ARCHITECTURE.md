@@ -129,12 +129,12 @@ This document provides a comprehensive overview of the event-driven pubsub syste
 └──────┬──────┘  └──────┬──────┘  └──────┬──────┘  └──────┬──────┘  └──────┬──────┘
        │                │                │                │                │
        │                │                │                │                │
-   1.  │─── Webhook ────▶│                │                │                │
+   1.  │─── Webhook ───▶│                │                │                │
        │                │                │                │                │
-   2.  │                │─ Validate ─────▶│                │                │
-       │                │  Signature      │                │                │
+   2.  │                │─ Validate  ───▶│                │                │
+       │                │  Signature     │                │                │
        │                │                │                │                │
-   3.  │                │                │─ Transform ────▶│                │
+   3.  │                │                │─ Transform ───▶│                │
        │                │                │  to Internal   │                │
        │                │                │  Event Format  │                │
        │                │                │                │                │
@@ -156,19 +156,19 @@ This document provides a comprehensive overview of the event-driven pubsub syste
 └──────┬──────┘  └──────┬──────┘  └──────┬──────┘  └──────┬──────┘  └──────┬──────┘
        │                │                │                │                │
        │                │                │                │                │
-   1.  │─── Publish ────▶│                │                │                │
-       │    Event        │                │                │                │
+   1.  │─── Publish ───▶│                │                │                │
+       │    Event       │                │                │                │
        │                │                │                │                │
-   2.  │                │─── Route ──────▶│                │                │
-       │                │    to RT        │                │                │
-       │                │    Handler      │                │                │
+   2.  │                │─── Route ─────▶│                │                │
+       │                │    to RT       │                │                │
+       │                │    Handler     │                │                │
        │                │                │                │                │
-   3.  │                │                │─── Broadcast ──▶│                │
-       │                │                │    to User      │                │
-       │                │                │    Connection   │                │
+   3.  │                │                │─── Broadcast ─▶│                │
+       │                │                │    to User     │                │
+       │                │                │    Connection  │                │
        │                │                │                │                │
-   4.  │                │                │                │─── Send Event ─▶│
-       │                │                │                │    via WS       │
+   4.  │                │                │                │─── Send Event ▶│
+       │                │                │                │    via WS      │
        │                │                │                │                │
    5.  │                │                │                │                │─ Update UI
        │                │                │                │                │  Show Notification
@@ -185,7 +185,7 @@ This document provides a comprehensive overview of the event-driven pubsub syste
 │                                                                                 │
 │   ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────────────────┐ │
 │   │                 │    │                 │    │                             │ │
-│   │   Application   │    │   Memory        │    │        PostgreSQL          │ │
+│   │   Application   │    │   Memory        │    │        PostgreSQL           │ │
 │   │    Server       │────│   PubSub        │    │        Database             │ │
 │   │  (Port: 8080)   │    │                 │    │      (Port: 5432)           │ │
 │   │                 │    │                 │    │                             │ │
@@ -374,19 +374,19 @@ Message Broker
 │ Application │    │  Gateway    │    │  Service    │    │   System    │
 └──────┬──────┘    └──────┬──────┘    └──────┬──────┘    └──────┬──────┘
        │                  │                  │                  │
-   1.  │─── Request ──────▶│                  │                  │
-       │    + JWT Token    │                  │                  │
+   1.  │─── Request ─────▶│                  │                  │
+       │    + JWT Token   │                  │                  │
        │                  │                  │                  │
    2.  │                  │─── Validate ────▶│                  │
        │                  │    Token         │                  │
        │                  │                  │                  │
    3.  │                  │◀─── User Info ───│                  │
        │                  │                  │                  │
-   4.  │                  │─── Process ──────────────────────────▶│
+   4.  │                  │─── Process ────────────────────────▶│
        │                  │    Event         │                  │
        │                  │    + User Context│                  │
        │                  │                  │                  │
-   5.  │◀─── Response ────│◀─── Success ─────────────────────────│
+   5.  │◀─── Response ────│◀─── Success ────────────────────────│
        │                  │                  │                  │
 ```
 

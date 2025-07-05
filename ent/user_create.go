@@ -10,6 +10,7 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/omkar273/codegeeky/ent/cart"
 	"github.com/omkar273/codegeeky/ent/user"
 )
 
@@ -126,6 +127,21 @@ func (uc *UserCreate) SetNillableID(s *string) *UserCreate {
 		uc.SetID(*s)
 	}
 	return uc
+}
+
+// AddCartIDs adds the "carts" edge to the Cart entity by IDs.
+func (uc *UserCreate) AddCartIDs(ids ...string) *UserCreate {
+	uc.mutation.AddCartIDs(ids...)
+	return uc
+}
+
+// AddCarts adds the "carts" edges to the Cart entity.
+func (uc *UserCreate) AddCarts(c ...*Cart) *UserCreate {
+	ids := make([]string, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return uc.AddCartIDs(ids...)
 }
 
 // Mutation returns the UserMutation object of the builder.
@@ -289,6 +305,22 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 	if value, ok := uc.mutation.Role(); ok {
 		_spec.SetField(user.FieldRole, field.TypeString, value)
 		_node.Role = value
+	}
+	if nodes := uc.mutation.CartsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.CartsTable,
+			Columns: []string{user.CartsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(cart.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
 }

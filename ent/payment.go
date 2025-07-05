@@ -37,11 +37,11 @@ type Payment struct {
 	// DestinationID holds the value of the "destination_id" field.
 	DestinationID string `json:"destination_id,omitempty"`
 	// PaymentMethodType holds the value of the "payment_method_type" field.
-	PaymentMethodType types.PaymentMethodType `json:"payment_method_type,omitempty"`
+	PaymentMethodType *types.PaymentMethodType `json:"payment_method_type,omitempty"`
 	// PaymentMethodID holds the value of the "payment_method_id" field.
 	PaymentMethodID string `json:"payment_method_id,omitempty"`
 	// PaymentGatewayProvider holds the value of the "payment_gateway_provider" field.
-	PaymentGatewayProvider *types.PaymentGatewayProvider `json:"payment_gateway_provider,omitempty"`
+	PaymentGatewayProvider types.PaymentGatewayProvider `json:"payment_gateway_provider,omitempty"`
 	// GatewayPaymentID holds the value of the "gateway_payment_id" field.
 	GatewayPaymentID *string `json:"gateway_payment_id,omitempty"`
 	// Amount holds the value of the "amount" field.
@@ -174,7 +174,8 @@ func (pa *Payment) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field payment_method_type", values[i])
 			} else if value.Valid {
-				pa.PaymentMethodType = types.PaymentMethodType(value.String)
+				pa.PaymentMethodType = new(types.PaymentMethodType)
+				*pa.PaymentMethodType = types.PaymentMethodType(value.String)
 			}
 		case payment.FieldPaymentMethodID:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -186,8 +187,7 @@ func (pa *Payment) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field payment_gateway_provider", values[i])
 			} else if value.Valid {
-				pa.PaymentGatewayProvider = new(types.PaymentGatewayProvider)
-				*pa.PaymentGatewayProvider = types.PaymentGatewayProvider(value.String)
+				pa.PaymentGatewayProvider = types.PaymentGatewayProvider(value.String)
 			}
 		case payment.FieldGatewayPaymentID:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -321,16 +321,16 @@ func (pa *Payment) String() string {
 	builder.WriteString("destination_id=")
 	builder.WriteString(pa.DestinationID)
 	builder.WriteString(", ")
-	builder.WriteString("payment_method_type=")
-	builder.WriteString(fmt.Sprintf("%v", pa.PaymentMethodType))
+	if v := pa.PaymentMethodType; v != nil {
+		builder.WriteString("payment_method_type=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
 	builder.WriteString(", ")
 	builder.WriteString("payment_method_id=")
 	builder.WriteString(pa.PaymentMethodID)
 	builder.WriteString(", ")
-	if v := pa.PaymentGatewayProvider; v != nil {
-		builder.WriteString("payment_gateway_provider=")
-		builder.WriteString(fmt.Sprintf("%v", *v))
-	}
+	builder.WriteString("payment_gateway_provider=")
+	builder.WriteString(fmt.Sprintf("%v", pa.PaymentGatewayProvider))
 	builder.WriteString(", ")
 	if v := pa.GatewayPaymentID; v != nil {
 		builder.WriteString("gateway_payment_id=")

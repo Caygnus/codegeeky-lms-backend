@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 )
 
 const (
@@ -31,8 +32,17 @@ const (
 	FieldPhoneNumber = "phone_number"
 	// FieldRole holds the string denoting the role field in the database.
 	FieldRole = "role"
+	// EdgeCarts holds the string denoting the carts edge name in mutations.
+	EdgeCarts = "carts"
 	// Table holds the table name of the user in the database.
 	Table = "users"
+	// CartsTable is the table that holds the carts relation/edge.
+	CartsTable = "carts"
+	// CartsInverseTable is the table name for the Cart entity.
+	// It exists in this package in order to avoid circular dependency with the "cart" package.
+	CartsInverseTable = "carts"
+	// CartsColumn is the table column denoting the carts relation/edge.
+	CartsColumn = "user_id"
 )
 
 // Columns holds all SQL columns for user fields.
@@ -129,4 +139,25 @@ func ByPhoneNumber(opts ...sql.OrderTermOption) OrderOption {
 // ByRole orders the results by the role field.
 func ByRole(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldRole, opts...).ToFunc()
+}
+
+// ByCartsCount orders the results by carts count.
+func ByCartsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newCartsStep(), opts...)
+	}
+}
+
+// ByCarts orders the results by carts terms.
+func ByCarts(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newCartsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+func newCartsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(CartsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, CartsTable, CartsColumn),
+	)
 }

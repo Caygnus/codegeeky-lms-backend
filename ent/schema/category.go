@@ -17,6 +17,7 @@ type Category struct {
 func (Category) Mixin() []ent.Mixin {
 	return []ent.Mixin{
 		baseMixin.BaseMixin{},
+		baseMixin.MetadataMixin{},
 	}
 }
 

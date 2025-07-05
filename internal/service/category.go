@@ -4,9 +4,7 @@ import (
 	"context"
 
 	"github.com/omkar273/codegeeky/internal/api/dto"
-	domainInternship "github.com/omkar273/codegeeky/internal/domain/internship"
 	ierr "github.com/omkar273/codegeeky/internal/errors"
-	"github.com/omkar273/codegeeky/internal/logger"
 	"github.com/omkar273/codegeeky/internal/types"
 )
 
@@ -19,17 +17,14 @@ type CategoryService interface {
 }
 
 type categoryService struct {
-	categoryRepo domainInternship.CategoryRepository
-	logger       *logger.Logger
+	ServiceParams
 }
 
 func NewCategoryService(
-	categoryRepo domainInternship.CategoryRepository,
-	logger *logger.Logger,
+	params ServiceParams,
 ) CategoryService {
 	return &categoryService{
-		categoryRepo: categoryRepo,
-		logger:       logger,
+		ServiceParams: params,
 	}
 }
 
@@ -41,7 +36,7 @@ func (s *categoryService) Create(ctx context.Context, req *dto.CreateCategoryReq
 
 	category := req.ToCategory(ctx)
 
-	err := s.categoryRepo.Create(ctx, category)
+	err := s.CategoryRepo.Create(ctx, category)
 	if err != nil {
 		return nil, err
 	}
@@ -52,7 +47,7 @@ func (s *categoryService) Create(ctx context.Context, req *dto.CreateCategoryReq
 }
 
 func (s *categoryService) GetByID(ctx context.Context, id string) (*dto.CategoryResponse, error) {
-	category, err := s.categoryRepo.Get(ctx, id)
+	category, err := s.CategoryRepo.Get(ctx, id)
 	if err != nil {
 		return nil, err
 	}
@@ -68,7 +63,7 @@ func (s *categoryService) Update(ctx context.Context, id string, req *dto.Update
 		return nil, err
 	}
 
-	category, err := s.categoryRepo.Get(ctx, id)
+	category, err := s.CategoryRepo.Get(ctx, id)
 	if err != nil {
 		return nil, err
 	}
@@ -90,7 +85,7 @@ func (s *categoryService) Update(ctx context.Context, id string, req *dto.Update
 		category.LookupKey = req.LookupKey
 	}
 
-	err = s.categoryRepo.Update(ctx, category)
+	err = s.CategoryRepo.Update(ctx, category)
 	if err != nil {
 		return nil, err
 	}
@@ -108,12 +103,12 @@ func (s *categoryService) Delete(ctx context.Context, id string) error {
 			Mark(ierr.ErrValidation)
 	}
 
-	_, err := s.categoryRepo.Get(ctx, id)
+	_, err := s.CategoryRepo.Get(ctx, id)
 	if err != nil {
 		return err
 	}
 
-	err = s.categoryRepo.Delete(ctx, id)
+	err = s.CategoryRepo.Delete(ctx, id)
 	if err != nil {
 		return err
 	}
@@ -130,13 +125,13 @@ func (s *categoryService) List(ctx context.Context, filter *types.CategoryFilter
 		return nil, err
 	}
 
-	count, err := s.categoryRepo.Count(ctx, filter)
+	count, err := s.CategoryRepo.Count(ctx, filter)
 	if err != nil {
 		return nil, err
 	}
 
 	// Get categories
-	categories, err := s.categoryRepo.List(ctx, filter)
+	categories, err := s.CategoryRepo.List(ctx, filter)
 	if err != nil {
 		return nil, err
 	}

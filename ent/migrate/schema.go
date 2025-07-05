@@ -9,6 +9,70 @@ import (
 )
 
 var (
+	// CartsColumns holds the columns for the "carts" table.
+	CartsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeString, SchemaType: map[string]string{"postgres": "varchar(255)"}},
+		{Name: "status", Type: field.TypeString, Default: "published", SchemaType: map[string]string{"postgres": "varchar(20)"}},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "created_by", Type: field.TypeString, Nullable: true},
+		{Name: "updated_by", Type: field.TypeString, Nullable: true},
+		{Name: "metadata", Type: field.TypeJSON, Nullable: true},
+		{Name: "type", Type: field.TypeString, SchemaType: map[string]string{"postgres": "varchar(255)"}},
+		{Name: "subtotal", Type: field.TypeOther, SchemaType: map[string]string{"postgres": "numeric"}},
+		{Name: "discount_amount", Type: field.TypeOther, SchemaType: map[string]string{"postgres": "numeric"}},
+		{Name: "tax_amount", Type: field.TypeOther, SchemaType: map[string]string{"postgres": "numeric"}},
+		{Name: "total", Type: field.TypeOther, SchemaType: map[string]string{"postgres": "numeric"}},
+		{Name: "expires_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp"}},
+		{Name: "user_id", Type: field.TypeString, SchemaType: map[string]string{"postgres": "varchar(255)"}},
+	}
+	// CartsTable holds the schema information for the "carts" table.
+	CartsTable = &schema.Table{
+		Name:       "carts",
+		Columns:    CartsColumns,
+		PrimaryKey: []*schema.Column{CartsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "carts_users_carts",
+				Columns:    []*schema.Column{CartsColumns[13]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+	}
+	// CartLineItemsColumns holds the columns for the "cart_line_items" table.
+	CartLineItemsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeString, SchemaType: map[string]string{"postgres": "varchar(255)"}},
+		{Name: "status", Type: field.TypeString, Default: "published", SchemaType: map[string]string{"postgres": "varchar(20)"}},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "created_by", Type: field.TypeString, Nullable: true},
+		{Name: "updated_by", Type: field.TypeString, Nullable: true},
+		{Name: "metadata", Type: field.TypeJSON, Nullable: true},
+		{Name: "entity_id", Type: field.TypeString, SchemaType: map[string]string{"postgres": "varchar(255)"}},
+		{Name: "entity_type", Type: field.TypeString, SchemaType: map[string]string{"postgres": "varchar(255)"}},
+		{Name: "quantity", Type: field.TypeInt, Default: 1},
+		{Name: "per_unit_price", Type: field.TypeOther, SchemaType: map[string]string{"postgres": "numeric"}},
+		{Name: "tax_amount", Type: field.TypeOther, SchemaType: map[string]string{"postgres": "numeric"}},
+		{Name: "discount_amount", Type: field.TypeOther, SchemaType: map[string]string{"postgres": "numeric"}},
+		{Name: "subtotal", Type: field.TypeOther, SchemaType: map[string]string{"postgres": "numeric"}},
+		{Name: "total", Type: field.TypeOther, SchemaType: map[string]string{"postgres": "numeric"}},
+		{Name: "cart_id", Type: field.TypeString, SchemaType: map[string]string{"postgres": "varchar(255)"}},
+	}
+	// CartLineItemsTable holds the schema information for the "cart_line_items" table.
+	CartLineItemsTable = &schema.Table{
+		Name:       "cart_line_items",
+		Columns:    CartLineItemsColumns,
+		PrimaryKey: []*schema.Column{CartLineItemsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "cart_line_items_carts_line_items",
+				Columns:    []*schema.Column{CartLineItemsColumns[15]},
+				RefColumns: []*schema.Column{CartsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+	}
 	// CategoriesColumns holds the columns for the "categories" table.
 	CategoriesColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeString, SchemaType: map[string]string{"postgres": "varchar(255)"}},
@@ -17,6 +81,7 @@ var (
 		{Name: "updated_at", Type: field.TypeTime},
 		{Name: "created_by", Type: field.TypeString, Nullable: true},
 		{Name: "updated_by", Type: field.TypeString, Nullable: true},
+		{Name: "metadata", Type: field.TypeJSON, Nullable: true},
 		{Name: "name", Type: field.TypeString, SchemaType: map[string]string{"postgres": "varchar(255)"}},
 		{Name: "lookup_key", Type: field.TypeString, SchemaType: map[string]string{"postgres": "varchar(255)"}},
 		{Name: "description", Type: field.TypeString, Nullable: true, SchemaType: map[string]string{"postgres": "text"}},
@@ -30,7 +95,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "categories_internships_categories",
-				Columns:    []*schema.Column{CategoriesColumns[9]},
+				Columns:    []*schema.Column{CategoriesColumns[10]},
 				RefColumns: []*schema.Column{InternshipsColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
@@ -39,7 +104,7 @@ var (
 			{
 				Name:    "category_name",
 				Unique:  true,
-				Columns: []*schema.Column{CategoriesColumns[6]},
+				Columns: []*schema.Column{CategoriesColumns[7]},
 			},
 		},
 	}
@@ -113,9 +178,11 @@ var (
 		{Name: "prerequisites", Type: field.TypeJSON, Nullable: true},
 		{Name: "benefits", Type: field.TypeJSON, Nullable: true},
 		{Name: "currency", Type: field.TypeString, Nullable: true, SchemaType: map[string]string{"postgres": "varchar(255)"}},
-		{Name: "price", Type: field.TypeOther, Nullable: true, SchemaType: map[string]string{"postgres": "decimal(10,2)"}},
+		{Name: "price", Type: field.TypeOther, SchemaType: map[string]string{"postgres": "decimal(10,2)"}},
 		{Name: "flat_discount", Type: field.TypeOther, Nullable: true, SchemaType: map[string]string{"postgres": "decimal(10,2)"}},
 		{Name: "percentage_discount", Type: field.TypeOther, Nullable: true, SchemaType: map[string]string{"postgres": "decimal(10,2)"}},
+		{Name: "subtotal", Type: field.TypeOther, SchemaType: map[string]string{"postgres": "decimal(10,2)"}},
+		{Name: "total", Type: field.TypeOther, SchemaType: map[string]string{"postgres": "decimal(10,2)"}},
 		{Name: "category_id", Type: field.TypeString, Nullable: true, SchemaType: map[string]string{"postgres": "varchar(255)"}},
 	}
 	// InternshipsTable holds the schema information for the "internships" table.
@@ -126,11 +193,70 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "internships_categories_internships",
-				Columns:    []*schema.Column{InternshipsColumns[20]},
+				Columns:    []*schema.Column{InternshipsColumns[22]},
 				RefColumns: []*schema.Column{CategoriesColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 		},
+	}
+	// InternshipBatchesColumns holds the columns for the "internship_batches" table.
+	InternshipBatchesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeString, Unique: true, SchemaType: map[string]string{"postgres": "varchar(255)"}},
+		{Name: "status", Type: field.TypeString, Default: "published", SchemaType: map[string]string{"postgres": "varchar(20)"}},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "created_by", Type: field.TypeString, Nullable: true},
+		{Name: "updated_by", Type: field.TypeString, Nullable: true},
+		{Name: "metadata", Type: field.TypeJSON, Nullable: true},
+		{Name: "internship_id", Type: field.TypeString, SchemaType: map[string]string{"postgres": "varchar(255)"}},
+		{Name: "name", Type: field.TypeString, SchemaType: map[string]string{"postgres": "varchar(255)"}},
+		{Name: "description", Type: field.TypeString, Nullable: true, SchemaType: map[string]string{"postgres": "varchar(255)"}},
+		{Name: "start_date", Type: field.TypeTime, Nullable: true, SchemaType: map[string]string{"postgres": "timestamp"}},
+		{Name: "end_date", Type: field.TypeTime, Nullable: true, SchemaType: map[string]string{"postgres": "timestamp"}},
+		{Name: "batch_status", Type: field.TypeString, Default: "upcoming", SchemaType: map[string]string{"postgres": "varchar(255)"}},
+	}
+	// InternshipBatchesTable holds the schema information for the "internship_batches" table.
+	InternshipBatchesTable = &schema.Table{
+		Name:       "internship_batches",
+		Columns:    InternshipBatchesColumns,
+		PrimaryKey: []*schema.Column{InternshipBatchesColumns[0]},
+	}
+	// InternshipEnrollmentsColumns holds the columns for the "internship_enrollments" table.
+	InternshipEnrollmentsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeString, SchemaType: map[string]string{"postgres": "varchar(255)"}},
+		{Name: "status", Type: field.TypeString, Default: "published", SchemaType: map[string]string{"postgres": "varchar(20)"}},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "created_by", Type: field.TypeString, Nullable: true},
+		{Name: "updated_by", Type: field.TypeString, Nullable: true},
+		{Name: "metadata", Type: field.TypeJSON, Nullable: true},
+		{Name: "user_id", Type: field.TypeString, SchemaType: map[string]string{"postgres": "varchar(255)"}},
+		{Name: "internship_id", Type: field.TypeString, SchemaType: map[string]string{"postgres": "varchar(255)"}},
+		{Name: "internship_batch_id", Type: field.TypeString, SchemaType: map[string]string{"postgres": "varchar(255)"}},
+		{Name: "enrollment_status", Type: field.TypeString, Default: "pending", SchemaType: map[string]string{"postgres": "varchar(255)"}},
+		{Name: "payment_status", Type: field.TypeString, Default: "pending", SchemaType: map[string]string{"postgres": "varchar(255)"}},
+		{Name: "enrolled_at", Type: field.TypeTime, Nullable: true},
+		{Name: "payment_id", Type: field.TypeString, Nullable: true, SchemaType: map[string]string{"postgres": "varchar(255)"}},
+		{Name: "refunded_at", Type: field.TypeTime, Nullable: true},
+		{Name: "cancellation_reason", Type: field.TypeString, Nullable: true},
+		{Name: "refund_reason", Type: field.TypeString, Nullable: true},
+		{Name: "idempotency_key", Type: field.TypeString, Nullable: true, SchemaType: map[string]string{"postgres": "varchar(255)"}},
+	}
+	// InternshipEnrollmentsTable holds the schema information for the "internship_enrollments" table.
+	InternshipEnrollmentsTable = &schema.Table{
+		Name:       "internship_enrollments",
+		Columns:    InternshipEnrollmentsColumns,
+		PrimaryKey: []*schema.Column{InternshipEnrollmentsColumns[0]},
+	}
+	// OrdersColumns holds the columns for the "orders" table.
+	OrdersColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+	}
+	// OrdersTable holds the schema information for the "orders" table.
+	OrdersTable = &schema.Table{
+		Name:       "orders",
+		Columns:    OrdersColumns,
+		PrimaryKey: []*schema.Column{OrdersColumns[0]},
 	}
 	// PaymentsColumns holds the columns for the "payments" table.
 	PaymentsColumns = []*schema.Column{
@@ -143,14 +269,14 @@ var (
 		{Name: "idempotency_key", Type: field.TypeString, Unique: true, SchemaType: map[string]string{"postgres": "varchar(50)"}},
 		{Name: "destination_type", Type: field.TypeString, SchemaType: map[string]string{"postgres": "varchar(50)"}},
 		{Name: "destination_id", Type: field.TypeString, SchemaType: map[string]string{"postgres": "varchar(50)"}},
-		{Name: "payment_method_type", Type: field.TypeString, SchemaType: map[string]string{"postgres": "varchar(50)"}},
+		{Name: "payment_method_type", Type: field.TypeString, Nullable: true, SchemaType: map[string]string{"postgres": "varchar(50)"}},
 		{Name: "payment_method_id", Type: field.TypeString, Nullable: true, SchemaType: map[string]string{"postgres": "varchar(50)"}},
-		{Name: "payment_gateway_provider", Type: field.TypeString, Nullable: true, SchemaType: map[string]string{"postgres": "varchar(50)"}},
+		{Name: "payment_gateway_provider", Type: field.TypeString, SchemaType: map[string]string{"postgres": "varchar(50)"}},
 		{Name: "gateway_payment_id", Type: field.TypeString, Nullable: true, SchemaType: map[string]string{"postgres": "varchar(255)"}},
 		{Name: "amount", Type: field.TypeOther, SchemaType: map[string]string{"postgres": "numeric(20,8)"}},
 		{Name: "currency", Type: field.TypeString, SchemaType: map[string]string{"postgres": "varchar(10)"}},
-		{Name: "payment_status", Type: field.TypeString, SchemaType: map[string]string{"postgres": "varchar(50)"}},
-		{Name: "track_attempts", Type: field.TypeBool, Default: false},
+		{Name: "payment_status", Type: field.TypeString, Default: "pending", SchemaType: map[string]string{"postgres": "varchar(50)"}},
+		{Name: "track_attempts", Type: field.TypeBool, Default: true},
 		{Name: "metadata", Type: field.TypeJSON, Nullable: true, SchemaType: map[string]string{"postgres": "jsonb"}},
 		{Name: "succeeded_at", Type: field.TypeTime, Nullable: true},
 		{Name: "failed_at", Type: field.TypeTime, Nullable: true},
@@ -270,10 +396,15 @@ var (
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
+		CartsTable,
+		CartLineItemsTable,
 		CategoriesTable,
 		DiscountsTable,
 		FileUploadsTable,
 		InternshipsTable,
+		InternshipBatchesTable,
+		InternshipEnrollmentsTable,
+		OrdersTable,
 		PaymentsTable,
 		PaymentAttemptsTable,
 		UsersTable,
@@ -281,6 +412,8 @@ var (
 )
 
 func init() {
+	CartsTable.ForeignKeys[0].RefTable = UsersTable
+	CartLineItemsTable.ForeignKeys[0].RefTable = CartsTable
 	CategoriesTable.ForeignKeys[0].RefTable = InternshipsTable
 	InternshipsTable.ForeignKeys[0].RefTable = CategoriesTable
 	PaymentAttemptsTable.ForeignKeys[0].RefTable = PaymentsTable

@@ -11,6 +11,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/omkar273/codegeeky/ent/cart"
 	"github.com/omkar273/codegeeky/ent/predicate"
 	"github.com/omkar273/codegeeky/ent/user"
 )
@@ -124,9 +125,45 @@ func (uu *UserUpdate) SetNillableRole(s *string) *UserUpdate {
 	return uu
 }
 
+// AddCartIDs adds the "carts" edge to the Cart entity by IDs.
+func (uu *UserUpdate) AddCartIDs(ids ...string) *UserUpdate {
+	uu.mutation.AddCartIDs(ids...)
+	return uu
+}
+
+// AddCarts adds the "carts" edges to the Cart entity.
+func (uu *UserUpdate) AddCarts(c ...*Cart) *UserUpdate {
+	ids := make([]string, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return uu.AddCartIDs(ids...)
+}
+
 // Mutation returns the UserMutation object of the builder.
 func (uu *UserUpdate) Mutation() *UserMutation {
 	return uu.mutation
+}
+
+// ClearCarts clears all "carts" edges to the Cart entity.
+func (uu *UserUpdate) ClearCarts() *UserUpdate {
+	uu.mutation.ClearCarts()
+	return uu
+}
+
+// RemoveCartIDs removes the "carts" edge to Cart entities by IDs.
+func (uu *UserUpdate) RemoveCartIDs(ids ...string) *UserUpdate {
+	uu.mutation.RemoveCartIDs(ids...)
+	return uu
+}
+
+// RemoveCarts removes "carts" edges to Cart entities.
+func (uu *UserUpdate) RemoveCarts(c ...*Cart) *UserUpdate {
+	ids := make([]string, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return uu.RemoveCartIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -223,6 +260,51 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := uu.mutation.Role(); ok {
 		_spec.SetField(user.FieldRole, field.TypeString, value)
+	}
+	if uu.mutation.CartsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.CartsTable,
+			Columns: []string{user.CartsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(cart.FieldID, field.TypeString),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uu.mutation.RemovedCartsIDs(); len(nodes) > 0 && !uu.mutation.CartsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.CartsTable,
+			Columns: []string{user.CartsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(cart.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uu.mutation.CartsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.CartsTable,
+			Columns: []string{user.CartsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(cart.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	if n, err = sqlgraph.UpdateNodes(ctx, uu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -340,9 +422,45 @@ func (uuo *UserUpdateOne) SetNillableRole(s *string) *UserUpdateOne {
 	return uuo
 }
 
+// AddCartIDs adds the "carts" edge to the Cart entity by IDs.
+func (uuo *UserUpdateOne) AddCartIDs(ids ...string) *UserUpdateOne {
+	uuo.mutation.AddCartIDs(ids...)
+	return uuo
+}
+
+// AddCarts adds the "carts" edges to the Cart entity.
+func (uuo *UserUpdateOne) AddCarts(c ...*Cart) *UserUpdateOne {
+	ids := make([]string, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return uuo.AddCartIDs(ids...)
+}
+
 // Mutation returns the UserMutation object of the builder.
 func (uuo *UserUpdateOne) Mutation() *UserMutation {
 	return uuo.mutation
+}
+
+// ClearCarts clears all "carts" edges to the Cart entity.
+func (uuo *UserUpdateOne) ClearCarts() *UserUpdateOne {
+	uuo.mutation.ClearCarts()
+	return uuo
+}
+
+// RemoveCartIDs removes the "carts" edge to Cart entities by IDs.
+func (uuo *UserUpdateOne) RemoveCartIDs(ids ...string) *UserUpdateOne {
+	uuo.mutation.RemoveCartIDs(ids...)
+	return uuo
+}
+
+// RemoveCarts removes "carts" edges to Cart entities.
+func (uuo *UserUpdateOne) RemoveCarts(c ...*Cart) *UserUpdateOne {
+	ids := make([]string, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return uuo.RemoveCartIDs(ids...)
 }
 
 // Where appends a list predicates to the UserUpdate builder.
@@ -469,6 +587,51 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 	}
 	if value, ok := uuo.mutation.Role(); ok {
 		_spec.SetField(user.FieldRole, field.TypeString, value)
+	}
+	if uuo.mutation.CartsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.CartsTable,
+			Columns: []string{user.CartsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(cart.FieldID, field.TypeString),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uuo.mutation.RemovedCartsIDs(); len(nodes) > 0 && !uuo.mutation.CartsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.CartsTable,
+			Columns: []string{user.CartsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(cart.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uuo.mutation.CartsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.CartsTable,
+			Columns: []string{user.CartsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(cart.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_node = &User{config: uuo.config}
 	_spec.Assign = _node.assignValues

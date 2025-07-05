@@ -753,6 +753,16 @@ func PaymentMethodTypeHasSuffix(v types.PaymentMethodType) predicate.Payment {
 	return predicate.Payment(sql.FieldHasSuffix(FieldPaymentMethodType, vc))
 }
 
+// PaymentMethodTypeIsNil applies the IsNil predicate on the "payment_method_type" field.
+func PaymentMethodTypeIsNil() predicate.Payment {
+	return predicate.Payment(sql.FieldIsNull(FieldPaymentMethodType))
+}
+
+// PaymentMethodTypeNotNil applies the NotNil predicate on the "payment_method_type" field.
+func PaymentMethodTypeNotNil() predicate.Payment {
+	return predicate.Payment(sql.FieldNotNull(FieldPaymentMethodType))
+}
+
 // PaymentMethodTypeEqualFold applies the EqualFold predicate on the "payment_method_type" field.
 func PaymentMethodTypeEqualFold(v types.PaymentMethodType) predicate.Payment {
 	vc := string(v)
@@ -910,16 +920,6 @@ func PaymentGatewayProviderHasPrefix(v types.PaymentGatewayProvider) predicate.P
 func PaymentGatewayProviderHasSuffix(v types.PaymentGatewayProvider) predicate.Payment {
 	vc := string(v)
 	return predicate.Payment(sql.FieldHasSuffix(FieldPaymentGatewayProvider, vc))
-}
-
-// PaymentGatewayProviderIsNil applies the IsNil predicate on the "payment_gateway_provider" field.
-func PaymentGatewayProviderIsNil() predicate.Payment {
-	return predicate.Payment(sql.FieldIsNull(FieldPaymentGatewayProvider))
-}
-
-// PaymentGatewayProviderNotNil applies the NotNil predicate on the "payment_gateway_provider" field.
-func PaymentGatewayProviderNotNil() predicate.Payment {
-	return predicate.Payment(sql.FieldNotNull(FieldPaymentGatewayProvider))
 }
 
 // PaymentGatewayProviderEqualFold applies the EqualFold predicate on the "payment_gateway_provider" field.

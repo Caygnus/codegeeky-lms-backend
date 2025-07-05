@@ -30,59 +30,92 @@ type CreateInternshipRequest struct {
 	CategoryIDs        []string              `json:"category_ids,omitempty"`
 }
 
-func (i *CreateInternshipRequest) Validate() error {
-	err := validator.ValidateRequest(i)
+func (req *CreateInternshipRequest) Validate() error {
+	err := validator.ValidateRequest(req)
 	if err != nil {
 		return ierr.WithError(err).
 			WithHint("invalid internship create request").
 			Mark(ierr.ErrValidation)
 	}
 
-	if i.FlatDiscount != nil && i.PercentageDiscount != nil {
+	if req.FlatDiscount != nil && req.PercentageDiscount != nil {
 		return ierr.NewError("both flat discount and percentage discount cannot be provided").
 			WithHint("please provide only one of flat discount or percentage discount").
 			Mark(ierr.ErrValidation)
 	}
 
 	// validate level
-	if err := validator.ValidateEnums([]types.InternshipLevel{i.Level}, types.InternshipLevels, "level"); err != nil {
+	if err := req.Level.Validate(); err != nil {
 		return ierr.WithError(err).
 			WithHint("invalid level").
 			Mark(ierr.ErrValidation)
 	}
 
 	// validate mode
-	if err := validator.ValidateEnums([]types.InternshipMode{i.Mode}, types.InternshipModes, "mode"); err != nil {
+	if err := req.Mode.Validate(); err != nil {
 		return ierr.WithError(err).
 			WithHint("invalid mode").
+			Mark(ierr.ErrValidation)
+	}
+
+	if req.Price.LessThan(decimal.Zero) {
+		return ierr.NewError("price cannot be less than zero").
+			WithHint("please provide a valid price").
+			Mark(ierr.ErrValidation)
+	}
+
+	if req.FlatDiscount != nil && req.FlatDiscount.LessThan(decimal.Zero) {
+		return ierr.NewError("flat discount cannot be less than zero").
+			WithHint("please provide a valid flat discount").
+			Mark(ierr.ErrValidation)
+	}
+
+	if req.PercentageDiscount != nil && req.PercentageDiscount.LessThan(decimal.Zero) {
+		return ierr.NewError("percentage discount cannot be less than zero").
+			WithHint("please provide a valid percentage discount").
 			Mark(ierr.ErrValidation)
 	}
 
 	return nil
 }
 
-func (i *CreateInternshipRequest) ToInternship(ctx context.Context) *domainInternship.Internship {
+func (req *CreateInternshipRequest) ToInternship(ctx context.Context) *domainInternship.Internship {
+	total := req.Price
+	if req.FlatDiscount != nil {
+		total = total.Sub(lo.FromPtr(req.FlatDiscount))
+	}
+	if req.PercentageDiscount != nil {
+		discountAmount := total.Mul(lo.FromPtr(req.PercentageDiscount)).Div(decimal.NewFromInt(100))
+		total = total.Sub(discountAmount)
+	}
+
+	if total.LessThan(decimal.Zero) {
+		total = decimal.Zero
+	}
+
 	return &domainInternship.Internship{
 		ID:                 types.GenerateUUIDWithPrefix(types.UUID_PREFIX_INTERNSHIP),
-		Title:              i.Title,
-		Description:        i.Description,
-		LookupKey:          i.LookupKey,
-		Skills:             i.Skills,
-		Level:              i.Level,
-		Mode:               i.Mode,
-		DurationInWeeks:    i.DurationInWeeks,
-		LearningOutcomes:   i.LearningOutcomes,
-		Prerequisites:      i.Prerequisites,
-		Benefits:           i.Benefits,
-		Currency:           i.Currency,
-		Price:              i.Price,
-		FlatDiscount:       lo.FromPtr(i.FlatDiscount),
-		PercentageDiscount: lo.FromPtr(i.PercentageDiscount),
-		Categories: lo.Map(i.CategoryIDs, func(id string, _ int) *domainInternship.Category {
+		Title:              req.Title,
+		Description:        req.Description,
+		LookupKey:          req.LookupKey,
+		Skills:             req.Skills,
+		Level:              req.Level,
+		Mode:               req.Mode,
+		DurationInWeeks:    req.DurationInWeeks,
+		LearningOutcomes:   req.LearningOutcomes,
+		Prerequisites:      req.Prerequisites,
+		Benefits:           req.Benefits,
+		Currency:           req.Currency,
+		Price:              req.Price,
+		FlatDiscount:       req.FlatDiscount,
+		PercentageDiscount: req.PercentageDiscount,
+		Categories: lo.Map(req.CategoryIDs, func(id string, _ int) *domainInternship.Category {
 			return &domainInternship.Category{
 				ID: id,
 			}
 		}),
+		Subtotal:  req.Price,
+		Total:     total,
 		BaseModel: types.GetDefaultBaseModel(ctx),
 	}
 }

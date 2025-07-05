@@ -97,7 +97,8 @@ func (r *categoryRepository) Get(ctx context.Context, id string) (*domainCategor
 			Mark(ierr.ErrDatabase)
 	}
 
-	return domainCategory.CategoryFromEnt(entCategory), nil
+	category := &domainCategory.Category{}
+	return category.FromEnt(entCategory), nil
 }
 
 func (r *categoryRepository) GetByLookupKey(ctx context.Context, lookupKey string) (*domainCategory.Category, error) {
@@ -129,7 +130,8 @@ func (r *categoryRepository) GetByLookupKey(ctx context.Context, lookupKey strin
 			Mark(ierr.ErrDatabase)
 	}
 
-	return domainCategory.CategoryFromEnt(entCategory), nil
+	category := &domainCategory.Category{}
+	return category.FromEnt(entCategory), nil
 }
 
 func (r *categoryRepository) List(ctx context.Context, filter *types.CategoryFilter) ([]*domainCategory.Category, error) {
@@ -151,7 +153,8 @@ func (r *categoryRepository) List(ctx context.Context, filter *types.CategoryFil
 			Mark(ierr.ErrDatabase)
 	}
 
-	return domainCategory.CategoryFromEntList(categories), nil
+	category := &domainCategory.Category{}
+	return category.FromEntList(categories), nil
 }
 
 func (r *categoryRepository) ListAll(ctx context.Context, filter *types.CategoryFilter) ([]*domainCategory.Category, error) {
@@ -190,12 +193,13 @@ func (r *categoryRepository) Count(ctx context.Context, filter *types.CategoryFi
 }
 
 func (r *categoryRepository) Update(ctx context.Context, categoryData *domainCategory.Category) error {
-	client := r.client.Querier(ctx)
 
 	r.log.Debugw("updating category",
 		"category_id", categoryData.ID,
 		"name", categoryData.Name,
 	)
+
+	client := r.client.Querier(ctx)
 
 	_, err := client.Category.UpdateOneID(categoryData.ID).
 		SetName(categoryData.Name).

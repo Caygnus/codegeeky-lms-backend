@@ -15,6 +15,22 @@ const (
 	InternshipModeOnsite InternshipMode = "onsite"
 )
 
+var InternshipModes = []InternshipMode{
+	InternshipModeRemote,
+	InternshipModeHybrid,
+	InternshipModeOnsite,
+}
+
+func (m InternshipMode) Validate() error {
+	if !lo.Contains(InternshipModes, m) {
+		return ierr.NewErrorf("invalid internship mode").
+			WithReportableDetails(map[string]any{"mode": m}).
+			Mark(ierr.ErrValidation)
+	}
+
+	return nil
+}
+
 type InternshipLevel string
 
 const (
@@ -23,17 +39,23 @@ const (
 	InternshipLevelAdvanced     InternshipLevel = "advanced"
 )
 
-var InternshipModes = []InternshipMode{
-	InternshipModeRemote,
-	InternshipModeHybrid,
-	InternshipModeOnsite,
-}
-
 var InternshipLevels = []InternshipLevel{
 	InternshipLevelBeginner,
 	InternshipLevelIntermediate,
 	InternshipLevelAdvanced,
 }
+
+func (l InternshipLevel) Validate() error {
+	if !lo.Contains(InternshipLevels, l) {
+		return ierr.NewErrorf("invalid internship level").
+			WithReportableDetails(map[string]any{"level": l}).
+			Mark(ierr.ErrValidation)
+	}
+
+	return nil
+}
+
+
 
 type InternshipFilter struct {
 	*QueryFilter

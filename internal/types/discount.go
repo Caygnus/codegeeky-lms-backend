@@ -38,6 +38,8 @@ type DiscountFilter struct {
 	ValidUntil    *time.Time       `json:"valid_until,omitempty" form:"valid_until" validate:"omitempty"`
 	MinOrderValue *decimal.Decimal `json:"min_order_value,omitempty" form:"min_order_value" validate:"omitempty"`
 	IsCombinable  bool             `json:"is_combinable,omitempty" form:"is_combinable" validate:"omitempty"`
+	Codes         []string         `json:"codes,omitempty" form:"codes" validate:"omitempty"`
+	DiscountIDs   []string         `json:"discount_ids,omitempty" form:"discount_ids" validate:"omitempty"`
 }
 
 func (f *DiscountFilter) Validate() error {

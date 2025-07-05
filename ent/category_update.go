@@ -69,6 +69,18 @@ func (cu *CategoryUpdate) ClearUpdatedBy() *CategoryUpdate {
 	return cu
 }
 
+// SetMetadata sets the "metadata" field.
+func (cu *CategoryUpdate) SetMetadata(m map[string]string) *CategoryUpdate {
+	cu.mutation.SetMetadata(m)
+	return cu
+}
+
+// ClearMetadata clears the value of the "metadata" field.
+func (cu *CategoryUpdate) ClearMetadata() *CategoryUpdate {
+	cu.mutation.ClearMetadata()
+	return cu
+}
+
 // SetName sets the "name" field.
 func (cu *CategoryUpdate) SetName(s string) *CategoryUpdate {
 	cu.mutation.SetName(s)
@@ -236,6 +248,12 @@ func (cu *CategoryUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if cu.mutation.UpdatedByCleared() {
 		_spec.ClearField(category.FieldUpdatedBy, field.TypeString)
 	}
+	if value, ok := cu.mutation.Metadata(); ok {
+		_spec.SetField(category.FieldMetadata, field.TypeJSON, value)
+	}
+	if cu.mutation.MetadataCleared() {
+		_spec.ClearField(category.FieldMetadata, field.TypeJSON)
+	}
 	if value, ok := cu.mutation.Name(); ok {
 		_spec.SetField(category.FieldName, field.TypeString, value)
 	}
@@ -350,6 +368,18 @@ func (cuo *CategoryUpdateOne) SetNillableUpdatedBy(s *string) *CategoryUpdateOne
 // ClearUpdatedBy clears the value of the "updated_by" field.
 func (cuo *CategoryUpdateOne) ClearUpdatedBy() *CategoryUpdateOne {
 	cuo.mutation.ClearUpdatedBy()
+	return cuo
+}
+
+// SetMetadata sets the "metadata" field.
+func (cuo *CategoryUpdateOne) SetMetadata(m map[string]string) *CategoryUpdateOne {
+	cuo.mutation.SetMetadata(m)
+	return cuo
+}
+
+// ClearMetadata clears the value of the "metadata" field.
+func (cuo *CategoryUpdateOne) ClearMetadata() *CategoryUpdateOne {
+	cuo.mutation.ClearMetadata()
 	return cuo
 }
 
@@ -549,6 +579,12 @@ func (cuo *CategoryUpdateOne) sqlSave(ctx context.Context) (_node *Category, err
 	}
 	if cuo.mutation.UpdatedByCleared() {
 		_spec.ClearField(category.FieldUpdatedBy, field.TypeString)
+	}
+	if value, ok := cuo.mutation.Metadata(); ok {
+		_spec.SetField(category.FieldMetadata, field.TypeJSON, value)
+	}
+	if cuo.mutation.MetadataCleared() {
+		_spec.ClearField(category.FieldMetadata, field.TypeJSON)
 	}
 	if value, ok := cuo.mutation.Name(); ok {
 		_spec.SetField(category.FieldName, field.TypeString, value)

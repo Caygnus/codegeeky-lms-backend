@@ -140,7 +140,8 @@ func (r *discountRepository) List(ctx context.Context, filter *types.DiscountFil
 			Mark(ierr.ErrDatabase)
 	}
 
-	return domainDiscount.FromEntList(discounts), nil
+	discount := &domainDiscount.Discount{}
+	return discount.FromEntList(discounts), nil
 }
 
 func (r *discountRepository) ListAll(ctx context.Context, filter *types.DiscountFilter) ([]*domainDiscount.Discount, error) {
@@ -168,7 +169,8 @@ func (r *discountRepository) ListAll(ctx context.Context, filter *types.Discount
 			Mark(ierr.ErrDatabase)
 	}
 
-	return domainDiscount.FromEntList(discounts), nil
+	discount := &domainDiscount.Discount{}
+	return discount.FromEntList(discounts), nil
 }
 
 func (r *discountRepository) Update(ctx context.Context, discount *domainDiscount.Discount) error {
@@ -343,5 +345,12 @@ func (o DiscountQueryOptions) ApplyEntityQueryOptions(
 		query = query.Where(discount.IsCombinable(f.IsCombinable))
 	}
 
+	if len(f.Codes) > 0 {
+		query = query.Where(discount.CodeIn(f.Codes...))
+	}
+
+	if len(f.DiscountIDs) > 0 {
+		query = query.Where(discount.IDIn(f.DiscountIDs...))
+	}
 	return query
 }
