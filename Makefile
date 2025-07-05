@@ -83,3 +83,20 @@ swagger-3-0: install-swag
 swagger-fix-refs:
 	@./scripts/fix_swagger_refs.sh
 
+
+
+
+.PHONY: test test-verbose test-coverage
+
+# Run all tests
+test:
+	go test -v -race ./internal/...
+
+# Run tests with verbose output
+test-verbose:
+	go test -v ./internal/...
+
+# Run tests with coverage report
+test-coverage:
+	go test -coverprofile=coverage.out ./internal/...
+	go tool cover -html=coverage.out -o coverage.html
