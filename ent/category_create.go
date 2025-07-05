@@ -91,6 +91,12 @@ func (cc *CategoryCreate) SetNillableUpdatedBy(s *string) *CategoryCreate {
 	return cc
 }
 
+// SetMetadata sets the "metadata" field.
+func (cc *CategoryCreate) SetMetadata(m map[string]string) *CategoryCreate {
+	cc.mutation.SetMetadata(m)
+	return cc
+}
+
 // SetName sets the "name" field.
 func (cc *CategoryCreate) SetName(s string) *CategoryCreate {
 	cc.mutation.SetName(s)
@@ -193,6 +199,10 @@ func (cc *CategoryCreate) defaults() {
 		v := category.DefaultUpdatedAt()
 		cc.mutation.SetUpdatedAt(v)
 	}
+	if _, ok := cc.mutation.Metadata(); !ok {
+		v := category.DefaultMetadata
+		cc.mutation.SetMetadata(v)
+	}
 	if _, ok := cc.mutation.ID(); !ok {
 		v := category.DefaultID()
 		cc.mutation.SetID(v)
@@ -280,6 +290,10 @@ func (cc *CategoryCreate) createSpec() (*Category, *sqlgraph.CreateSpec) {
 	if value, ok := cc.mutation.UpdatedBy(); ok {
 		_spec.SetField(category.FieldUpdatedBy, field.TypeString, value)
 		_node.UpdatedBy = value
+	}
+	if value, ok := cc.mutation.Metadata(); ok {
+		_spec.SetField(category.FieldMetadata, field.TypeJSON, value)
+		_node.Metadata = value
 	}
 	if value, ok := cc.mutation.Name(); ok {
 		_spec.SetField(category.FieldName, field.TypeString, value)

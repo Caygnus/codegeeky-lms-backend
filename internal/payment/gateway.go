@@ -21,15 +21,15 @@ type GatewayProvider interface {
 	// ProcessWebhook is a generic handler for incoming webhooks from the provider
 	ProcessWebhook(ctx context.Context, payload []byte, headers map[string]string) (*dto.WebhookResult, error)
 
-	// CreatePaymentRequest is a generic abstraction to initiate payments
-	CreatePaymentRequest(ctx context.Context, input *dto.PaymentRequest) (*dto.PaymentResponse, error)
+	// CreatePaymentOrder is a generic abstraction to initiate payments
+	CreatePaymentOrder(ctx context.Context, input *dto.PaymentRequest) (*dto.PaymentResponse, error)
 
 	// VerifyPaymentStatus checks status of a payment from provider
 	VerifyPaymentStatus(ctx context.Context, providerPaymentID string) (*dto.PaymentStatus, error)
 }
 
 type GatewayRegistryService interface {
-	GetProvider(ctx context.Context, attrs *types.SelectionAttributes) (GatewayProvider, error)
+	GetProviderByName(ctx context.Context, name types.PaymentGatewayProvider) (GatewayProvider, error)
 	ListAvailableProviders(ctx context.Context) ([]types.PaymentGatewayProvider, error)
 	RegisterProvider(name types.PaymentGatewayProvider, provider GatewayProvider)
 }

@@ -13,10 +13,11 @@ const (
 	PaymentStatusFailed            PaymentStatus = "failed"
 	PaymentStatusPendingRefund     PaymentStatus = "pending_refund"
 	PaymentStatusRefunding         PaymentStatus = "refunding"
-	PaymentStatusRefunded          PaymentStatus = "refunded"
+	PaymentStatusProcessing        PaymentStatus = "processing"
 	PaymentStatusPartiallyRefunded PaymentStatus = "partially_refunded"
 	PaymentStatusCancelled         PaymentStatus = "cancelled"
 	PaymentStatusExpired           PaymentStatus = "expired"
+	PaymentStatusRefunded          PaymentStatus = "refunded"
 )
 
 func (s PaymentStatus) String() string {
@@ -103,6 +104,7 @@ func (s PaymentGatewayProvider) Validate() error {
 type PaymentDestinationType string
 
 const (
+	PaymentDestinationTypeInternship PaymentDestinationType = "internship"
 	PaymentDestinationTypeEnrollment PaymentDestinationType = "enrollment"
 	PaymentDestinationTypeCourse     PaymentDestinationType = "course"
 	PaymentDestinationTypeOrder      PaymentDestinationType = "order"
@@ -110,6 +112,7 @@ const (
 
 func (s PaymentDestinationType) Validate() error {
 	allowed := []PaymentDestinationType{
+		PaymentDestinationTypeInternship,
 		PaymentDestinationTypeEnrollment,
 		PaymentDestinationTypeCourse,
 		PaymentDestinationTypeOrder,

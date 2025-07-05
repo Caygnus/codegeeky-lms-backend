@@ -71,34 +71,6 @@ func (pu *PaymentUpdate) ClearUpdatedBy() *PaymentUpdate {
 	return pu
 }
 
-// SetDestinationType sets the "destination_type" field.
-func (pu *PaymentUpdate) SetDestinationType(tdt types.PaymentDestinationType) *PaymentUpdate {
-	pu.mutation.SetDestinationType(tdt)
-	return pu
-}
-
-// SetNillableDestinationType sets the "destination_type" field if the given value is not nil.
-func (pu *PaymentUpdate) SetNillableDestinationType(tdt *types.PaymentDestinationType) *PaymentUpdate {
-	if tdt != nil {
-		pu.SetDestinationType(*tdt)
-	}
-	return pu
-}
-
-// SetDestinationID sets the "destination_id" field.
-func (pu *PaymentUpdate) SetDestinationID(s string) *PaymentUpdate {
-	pu.mutation.SetDestinationID(s)
-	return pu
-}
-
-// SetNillableDestinationID sets the "destination_id" field if the given value is not nil.
-func (pu *PaymentUpdate) SetNillableDestinationID(s *string) *PaymentUpdate {
-	if s != nil {
-		pu.SetDestinationID(*s)
-	}
-	return pu
-}
-
 // SetPaymentMethodType sets the "payment_method_type" field.
 func (pu *PaymentUpdate) SetPaymentMethodType(tmt types.PaymentMethodType) *PaymentUpdate {
 	pu.mutation.SetPaymentMethodType(tmt)
@@ -110,6 +82,12 @@ func (pu *PaymentUpdate) SetNillablePaymentMethodType(tmt *types.PaymentMethodTy
 	if tmt != nil {
 		pu.SetPaymentMethodType(*tmt)
 	}
+	return pu
+}
+
+// ClearPaymentMethodType clears the value of the "payment_method_type" field.
+func (pu *PaymentUpdate) ClearPaymentMethodType() *PaymentUpdate {
+	pu.mutation.ClearPaymentMethodType()
 	return pu
 }
 
@@ -130,26 +108,6 @@ func (pu *PaymentUpdate) SetNillablePaymentMethodID(s *string) *PaymentUpdate {
 // ClearPaymentMethodID clears the value of the "payment_method_id" field.
 func (pu *PaymentUpdate) ClearPaymentMethodID() *PaymentUpdate {
 	pu.mutation.ClearPaymentMethodID()
-	return pu
-}
-
-// SetPaymentGatewayProvider sets the "payment_gateway_provider" field.
-func (pu *PaymentUpdate) SetPaymentGatewayProvider(tgp types.PaymentGatewayProvider) *PaymentUpdate {
-	pu.mutation.SetPaymentGatewayProvider(tgp)
-	return pu
-}
-
-// SetNillablePaymentGatewayProvider sets the "payment_gateway_provider" field if the given value is not nil.
-func (pu *PaymentUpdate) SetNillablePaymentGatewayProvider(tgp *types.PaymentGatewayProvider) *PaymentUpdate {
-	if tgp != nil {
-		pu.SetPaymentGatewayProvider(*tgp)
-	}
-	return pu
-}
-
-// ClearPaymentGatewayProvider clears the value of the "payment_gateway_provider" field.
-func (pu *PaymentUpdate) ClearPaymentGatewayProvider() *PaymentUpdate {
-	pu.mutation.ClearPaymentGatewayProvider()
 	return pu
 }
 
@@ -386,24 +344,9 @@ func (pu *PaymentUpdate) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (pu *PaymentUpdate) check() error {
-	if v, ok := pu.mutation.DestinationType(); ok {
-		if err := payment.DestinationTypeValidator(string(v)); err != nil {
-			return &ValidationError{Name: "destination_type", err: fmt.Errorf(`ent: validator failed for field "Payment.destination_type": %w`, err)}
-		}
-	}
-	if v, ok := pu.mutation.DestinationID(); ok {
-		if err := payment.DestinationIDValidator(v); err != nil {
-			return &ValidationError{Name: "destination_id", err: fmt.Errorf(`ent: validator failed for field "Payment.destination_id": %w`, err)}
-		}
-	}
 	if v, ok := pu.mutation.PaymentMethodType(); ok {
-		if err := payment.PaymentMethodTypeValidator(string(v)); err != nil {
-			return &ValidationError{Name: "payment_method_type", err: fmt.Errorf(`ent: validator failed for field "Payment.payment_method_type": %w`, err)}
-		}
-	}
-	if v, ok := pu.mutation.PaymentGatewayProvider(); ok {
 		if err := v.Validate(); err != nil {
-			return &ValidationError{Name: "payment_gateway_provider", err: fmt.Errorf(`ent: validator failed for field "Payment.payment_gateway_provider": %w`, err)}
+			return &ValidationError{Name: "payment_method_type", err: fmt.Errorf(`ent: validator failed for field "Payment.payment_method_type": %w`, err)}
 		}
 	}
 	if v, ok := pu.mutation.PaymentStatus(); ok {
@@ -441,26 +384,17 @@ func (pu *PaymentUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if pu.mutation.UpdatedByCleared() {
 		_spec.ClearField(payment.FieldUpdatedBy, field.TypeString)
 	}
-	if value, ok := pu.mutation.DestinationType(); ok {
-		_spec.SetField(payment.FieldDestinationType, field.TypeString, value)
-	}
-	if value, ok := pu.mutation.DestinationID(); ok {
-		_spec.SetField(payment.FieldDestinationID, field.TypeString, value)
-	}
 	if value, ok := pu.mutation.PaymentMethodType(); ok {
 		_spec.SetField(payment.FieldPaymentMethodType, field.TypeString, value)
+	}
+	if pu.mutation.PaymentMethodTypeCleared() {
+		_spec.ClearField(payment.FieldPaymentMethodType, field.TypeString)
 	}
 	if value, ok := pu.mutation.PaymentMethodID(); ok {
 		_spec.SetField(payment.FieldPaymentMethodID, field.TypeString, value)
 	}
 	if pu.mutation.PaymentMethodIDCleared() {
 		_spec.ClearField(payment.FieldPaymentMethodID, field.TypeString)
-	}
-	if value, ok := pu.mutation.PaymentGatewayProvider(); ok {
-		_spec.SetField(payment.FieldPaymentGatewayProvider, field.TypeString, value)
-	}
-	if pu.mutation.PaymentGatewayProviderCleared() {
-		_spec.ClearField(payment.FieldPaymentGatewayProvider, field.TypeString)
 	}
 	if value, ok := pu.mutation.GatewayPaymentID(); ok {
 		_spec.SetField(payment.FieldGatewayPaymentID, field.TypeString, value)
@@ -612,34 +546,6 @@ func (puo *PaymentUpdateOne) ClearUpdatedBy() *PaymentUpdateOne {
 	return puo
 }
 
-// SetDestinationType sets the "destination_type" field.
-func (puo *PaymentUpdateOne) SetDestinationType(tdt types.PaymentDestinationType) *PaymentUpdateOne {
-	puo.mutation.SetDestinationType(tdt)
-	return puo
-}
-
-// SetNillableDestinationType sets the "destination_type" field if the given value is not nil.
-func (puo *PaymentUpdateOne) SetNillableDestinationType(tdt *types.PaymentDestinationType) *PaymentUpdateOne {
-	if tdt != nil {
-		puo.SetDestinationType(*tdt)
-	}
-	return puo
-}
-
-// SetDestinationID sets the "destination_id" field.
-func (puo *PaymentUpdateOne) SetDestinationID(s string) *PaymentUpdateOne {
-	puo.mutation.SetDestinationID(s)
-	return puo
-}
-
-// SetNillableDestinationID sets the "destination_id" field if the given value is not nil.
-func (puo *PaymentUpdateOne) SetNillableDestinationID(s *string) *PaymentUpdateOne {
-	if s != nil {
-		puo.SetDestinationID(*s)
-	}
-	return puo
-}
-
 // SetPaymentMethodType sets the "payment_method_type" field.
 func (puo *PaymentUpdateOne) SetPaymentMethodType(tmt types.PaymentMethodType) *PaymentUpdateOne {
 	puo.mutation.SetPaymentMethodType(tmt)
@@ -651,6 +557,12 @@ func (puo *PaymentUpdateOne) SetNillablePaymentMethodType(tmt *types.PaymentMeth
 	if tmt != nil {
 		puo.SetPaymentMethodType(*tmt)
 	}
+	return puo
+}
+
+// ClearPaymentMethodType clears the value of the "payment_method_type" field.
+func (puo *PaymentUpdateOne) ClearPaymentMethodType() *PaymentUpdateOne {
+	puo.mutation.ClearPaymentMethodType()
 	return puo
 }
 
@@ -671,26 +583,6 @@ func (puo *PaymentUpdateOne) SetNillablePaymentMethodID(s *string) *PaymentUpdat
 // ClearPaymentMethodID clears the value of the "payment_method_id" field.
 func (puo *PaymentUpdateOne) ClearPaymentMethodID() *PaymentUpdateOne {
 	puo.mutation.ClearPaymentMethodID()
-	return puo
-}
-
-// SetPaymentGatewayProvider sets the "payment_gateway_provider" field.
-func (puo *PaymentUpdateOne) SetPaymentGatewayProvider(tgp types.PaymentGatewayProvider) *PaymentUpdateOne {
-	puo.mutation.SetPaymentGatewayProvider(tgp)
-	return puo
-}
-
-// SetNillablePaymentGatewayProvider sets the "payment_gateway_provider" field if the given value is not nil.
-func (puo *PaymentUpdateOne) SetNillablePaymentGatewayProvider(tgp *types.PaymentGatewayProvider) *PaymentUpdateOne {
-	if tgp != nil {
-		puo.SetPaymentGatewayProvider(*tgp)
-	}
-	return puo
-}
-
-// ClearPaymentGatewayProvider clears the value of the "payment_gateway_provider" field.
-func (puo *PaymentUpdateOne) ClearPaymentGatewayProvider() *PaymentUpdateOne {
-	puo.mutation.ClearPaymentGatewayProvider()
 	return puo
 }
 
@@ -940,24 +832,9 @@ func (puo *PaymentUpdateOne) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (puo *PaymentUpdateOne) check() error {
-	if v, ok := puo.mutation.DestinationType(); ok {
-		if err := payment.DestinationTypeValidator(string(v)); err != nil {
-			return &ValidationError{Name: "destination_type", err: fmt.Errorf(`ent: validator failed for field "Payment.destination_type": %w`, err)}
-		}
-	}
-	if v, ok := puo.mutation.DestinationID(); ok {
-		if err := payment.DestinationIDValidator(v); err != nil {
-			return &ValidationError{Name: "destination_id", err: fmt.Errorf(`ent: validator failed for field "Payment.destination_id": %w`, err)}
-		}
-	}
 	if v, ok := puo.mutation.PaymentMethodType(); ok {
-		if err := payment.PaymentMethodTypeValidator(string(v)); err != nil {
-			return &ValidationError{Name: "payment_method_type", err: fmt.Errorf(`ent: validator failed for field "Payment.payment_method_type": %w`, err)}
-		}
-	}
-	if v, ok := puo.mutation.PaymentGatewayProvider(); ok {
 		if err := v.Validate(); err != nil {
-			return &ValidationError{Name: "payment_gateway_provider", err: fmt.Errorf(`ent: validator failed for field "Payment.payment_gateway_provider": %w`, err)}
+			return &ValidationError{Name: "payment_method_type", err: fmt.Errorf(`ent: validator failed for field "Payment.payment_method_type": %w`, err)}
 		}
 	}
 	if v, ok := puo.mutation.PaymentStatus(); ok {
@@ -1012,26 +889,17 @@ func (puo *PaymentUpdateOne) sqlSave(ctx context.Context) (_node *Payment, err e
 	if puo.mutation.UpdatedByCleared() {
 		_spec.ClearField(payment.FieldUpdatedBy, field.TypeString)
 	}
-	if value, ok := puo.mutation.DestinationType(); ok {
-		_spec.SetField(payment.FieldDestinationType, field.TypeString, value)
-	}
-	if value, ok := puo.mutation.DestinationID(); ok {
-		_spec.SetField(payment.FieldDestinationID, field.TypeString, value)
-	}
 	if value, ok := puo.mutation.PaymentMethodType(); ok {
 		_spec.SetField(payment.FieldPaymentMethodType, field.TypeString, value)
+	}
+	if puo.mutation.PaymentMethodTypeCleared() {
+		_spec.ClearField(payment.FieldPaymentMethodType, field.TypeString)
 	}
 	if value, ok := puo.mutation.PaymentMethodID(); ok {
 		_spec.SetField(payment.FieldPaymentMethodID, field.TypeString, value)
 	}
 	if puo.mutation.PaymentMethodIDCleared() {
 		_spec.ClearField(payment.FieldPaymentMethodID, field.TypeString)
-	}
-	if value, ok := puo.mutation.PaymentGatewayProvider(); ok {
-		_spec.SetField(payment.FieldPaymentGatewayProvider, field.TypeString, value)
-	}
-	if puo.mutation.PaymentGatewayProviderCleared() {
-		_spec.ClearField(payment.FieldPaymentGatewayProvider, field.TypeString)
 	}
 	if value, ok := puo.mutation.GatewayPaymentID(); ok {
 		_spec.SetField(payment.FieldGatewayPaymentID, field.TypeString, value)

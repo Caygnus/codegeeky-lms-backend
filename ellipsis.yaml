@@ -1,0 +1,83 @@
+version: 1.3
+about:
+  - "Our golang stack"
+  - go version "1.24.0"
+  - go.mod
+  - gin for rest apis
+  - entgo.io/ent for database ORM and schema management
+  - github.com/lib/pq for postgres database access
+  - github.com/ThreeDotsLabs/watermill for pub/sub message processing
+  - github.com/razorpay/razorpay-go for payment processing
+  - github.com/cloudinary/cloudinary-go/v2 for file uploads
+  - github.com/nedpals/supabase-go for authentication
+  - "we are using golang with well defined interfaces and dependency injection using fx"
+  - "Our file structure"
+  - cmd/server/main.go: entry point for the server
+  - "This is responsible for starting the server and initializing all dependencies using fx dependency injection"
+  - internal/api/v1: all rest api handlers defined here"
+  - "This is responsible for validating input request DTOS and calling service layer"
+  - internal/api/dto: all data transfer objects defined here"
+  - "This is responsible for defining request and response DTOS with required validations and types"
+  - internal/api/router.go: all rest api router defined here"
+  - "This is responsible for defining all api routes and their handlers"
+  - internal/config: all configuration defined here"
+  - "This is responsible for loading configuration from environment variables and files using viper"
+  - internal/logger: logging wrapper on top of zap.SugaredLogger"
+  - internal/postgres: postgres client wrapper with ent ORM
+  - internal/domain: all domain models and repository interfaces defined here"
+  - "This contains business logic models for cart, internship, payment, user, etc."
+  - ent/schema: all ent schemas defined here"
+  - "This is mapped with the domain model as well by implementing a func FromEnt(ent *ent.Schema) DomainModel function"
+  - "internal/repository"
+  - internal/repository/ent: all ent repository implementations defined here
+  - This is responsible for interacting with postgres database using ent ORM
+  - internal/repository/factory.go: all repository factory defined here
+  - This is responsible for choosing the correct repository based on the configuration
+  - internal/service: all service logic defined here
+  - This is responsible for calling the repository layer and performing business logic
+  - This layer can call other service layers if needed
+  - internal/auth: authentication and authorization system
+  - "This includes RBAC, ABAC, and Supabase integration for auth"
+  - internal/payment: payment gateway system
+  - "This includes Razorpay integration and payment processing logic"
+  - internal/webhook: webhook system for external integrations
+  - "This handles webhook publishing, subscribing, and payload management"
+  - internal/pubsub: pub/sub system for event-driven architecture
+  - "This includes memory-based pub/sub and message routing"
+  - internal/fileupload: file upload system using Cloudinary
+  - "This handles file uploads, storage, and management"
+  - internal/cache: caching system using go-cache
+  - "This provides in-memory caching capabilities"
+  - internal/security: security utilities including encryption
+  - "This handles encryption and other security-related functionality"
+  - internal/validator: request validation using go-playground/validator
+  - "This provides request validation capabilities"
+  - internal/errors: error handling and custom error types
+  - "This defines custom error types and error handling utilities"
+  - internal/types: common types and interfaces
+  - "This contains shared types, enums, and interfaces used across the system"
+  - internal/testutil: testing utilities and mocks
+  - "This provides testing utilities, mocks, and test suites"
+  - internal/httpclient: HTTP client wrapper
+  - "This provides HTTP client functionality for external API calls"
+  - internal/idempotency: idempotency utilities
+  - "This handles idempotency for API requests"
+  - internal/utils: utility functions
+  - "This contains common utility functions used across the system"
+  - migrations: all migrations defined here
+  - migrations/postgres: all postgres migrations defined here
+  - This is responsible for creating and running postgres migrations
+  - Whenever creating a new domain model, add a new migration
+  - docs/swagger: API documentation using swaggo
+  - "This contains auto-generated Swagger documentation for the API"
+ignore:
+  - "ent/" # ignore everything in the `ent/` directory as most code is auto generated
+  - "*.json"
+  - "*.yaml"
+  - "*.yml"
+  - "*.toml"
+  - "*.ini"
+  - "*.env"
+  - "*.lock"
+  - "*.log"
+  - "*.txt"

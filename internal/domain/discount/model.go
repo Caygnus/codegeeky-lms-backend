@@ -5,6 +5,7 @@ import (
 
 	"github.com/omkar273/codegeeky/ent"
 	"github.com/omkar273/codegeeky/internal/types"
+	"github.com/samber/lo"
 	"github.com/shopspring/decimal"
 )
 
@@ -48,10 +49,8 @@ func FromEnt(ent *ent.Discount) *Discount {
 	}
 }
 
-func FromEntList(ents []*ent.Discount) []*Discount {
-	discounts := make([]*Discount, len(ents))
-	for i, ent := range ents {
-		discounts[i] = FromEnt(ent)
-	}
-	return discounts
+func (d *Discount) FromEntList(ents []*ent.Discount) []*Discount {
+	return lo.Map(ents, func(ent *ent.Discount, _ int) *Discount {
+		return FromEnt(ent)
+	})
 }

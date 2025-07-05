@@ -7,6 +7,7 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/omkar273/codegeeky/internal/types"
 	"github.com/shopspring/decimal"
 )
 
@@ -115,20 +116,18 @@ var (
 	DefaultUpdatedAt func() time.Time
 	// UpdateDefaultUpdatedAt holds the default value on update for the "updated_at" field.
 	UpdateDefaultUpdatedAt func() time.Time
-	// DestinationTypeValidator is a validator for the "destination_type" field. It is called by the builders before save.
-	DestinationTypeValidator func(string) error
-	// DestinationIDValidator is a validator for the "destination_id" field. It is called by the builders before save.
-	DestinationIDValidator func(string) error
-	// PaymentMethodTypeValidator is a validator for the "payment_method_type" field. It is called by the builders before save.
-	PaymentMethodTypeValidator func(string) error
 	// DefaultAmount holds the default value on creation for the "amount" field.
 	DefaultAmount decimal.Decimal
 	// CurrencyValidator is a validator for the "currency" field. It is called by the builders before save.
 	CurrencyValidator func(string) error
+	// DefaultPaymentStatus holds the default value on creation for the "payment_status" field.
+	DefaultPaymentStatus types.PaymentStatus
 	// PaymentStatusValidator is a validator for the "payment_status" field. It is called by the builders before save.
 	PaymentStatusValidator func(string) error
 	// DefaultTrackAttempts holds the default value on creation for the "track_attempts" field.
 	DefaultTrackAttempts bool
+	// DefaultMetadata holds the default value on creation for the "metadata" field.
+	DefaultMetadata map[string]string
 )
 
 // OrderOption defines the ordering options for the Payment queries.

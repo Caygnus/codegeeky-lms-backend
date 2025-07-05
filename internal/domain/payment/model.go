@@ -12,38 +12,51 @@ import (
 
 // Payment represents a payment transaction
 type Payment struct {
-	ID             string `json:"id"`
-	IdempotencyKey string `json:"idempotency_key"`
-
-	// payment destination
-	DestinationType   types.PaymentDestinationType `json:"destination_type"`
-	DestinationID     string                       `json:"destination_id"`
-	PaymentMethodType types.PaymentMethodType      `json:"payment_method_type"`
-	PaymentMethodID   string                       `json:"payment_method_id"`
-
-	// payment gateway
-	PaymentGatewayProvider types.PaymentGatewayProvider `json:"payment_gateway_provider"`
-	GatewayPaymentID       *string                      `json:"gateway_payment_id,omitempty"`
-
-	// payment amount and currency
-	Amount   decimal.Decimal `json:"amount"`
-	Currency types.Currency  `json:"currency"`
-
-	// payment status
-	PaymentStatus types.PaymentStatus `json:"payment_status"`
-
-	// payment tracking
-	TrackAttempts bool       `json:"track_attempts"`
-	SucceededAt   *time.Time `json:"succeeded_at,omitempty"`
-	FailedAt      *time.Time `json:"failed_at,omitempty"`
-	RefundedAt    *time.Time `json:"refunded_at,omitempty"`
-
-	// payment error
-	ErrorMessage *string `json:"error_message,omitempty"`
-
-	// payment metadata
-	Metadata types.Metadata    `json:"metadata,omitempty"`
-	Attempts []*PaymentAttempt `json:"attempts,omitempty"`
+	// ID of the ent.
+	ID string `json:"id,omitempty"`
+	// Status holds the value of the "status" field.
+	Status string `json:"status,omitempty"`
+	// CreatedAt holds the value of the "created_at" field.
+	CreatedAt time.Time `json:"created_at,omitempty"`
+	// UpdatedAt holds the value of the "updated_at" field.
+	UpdatedAt time.Time `json:"updated_at,omitempty"`
+	// CreatedBy holds the value of the "created_by" field.
+	CreatedBy string `json:"created_by,omitempty"`
+	// UpdatedBy holds the value of the "updated_by" field.
+	UpdatedBy string `json:"updated_by,omitempty"`
+	// IdempotencyKey holds the value of the "idempotency_key" field.
+	IdempotencyKey string `json:"idempotency_key,omitempty"`
+	// DestinationType holds the value of the "destination_type" field.
+	DestinationType types.PaymentDestinationType `json:"destination_type,omitempty"`
+	// DestinationID holds the value of the "destination_id" field.
+	DestinationID string `json:"destination_id,omitempty"`
+	// PaymentMethodType holds the value of the "payment_method_type" field.
+	PaymentMethodType *types.PaymentMethodType `json:"payment_method_type,omitempty"`
+	// PaymentMethodID holds the value of the "payment_method_id" field.
+	PaymentMethodID string `json:"payment_method_id,omitempty"`
+	// PaymentGatewayProvider holds the value of the "payment_gateway_provider" field.
+	PaymentGatewayProvider types.PaymentGatewayProvider `json:"payment_gateway_provider,omitempty"`
+	// GatewayPaymentID holds the value of the "gateway_payment_id" field.
+	GatewayPaymentID *string `json:"gateway_payment_id,omitempty"`
+	// Amount holds the value of the "amount" field.
+	Amount decimal.Decimal `json:"amount,omitempty"`
+	// Currency holds the value of the "currency" field.
+	Currency types.Currency `json:"currency,omitempty"`
+	// PaymentStatus holds the value of the "payment_status" field.
+	PaymentStatus types.PaymentStatus `json:"payment_status,omitempty"`
+	// TrackAttempts holds the value of the "track_attempts" field.
+	TrackAttempts bool `json:"track_attempts,omitempty"`
+	// Metadata holds the value of the "metadata" field.
+	Metadata map[string]string `json:"metadata,omitempty"`
+	// SucceededAt holds the value of the "succeeded_at" field.
+	SucceededAt *time.Time `json:"succeeded_at,omitempty"`
+	// FailedAt holds the value of the "failed_at" field.
+	FailedAt *time.Time `json:"failed_at,omitempty"`
+	// RefundedAt holds the value of the "refunded_at" field.
+	RefundedAt *time.Time `json:"refunded_at,omitempty"`
+	// ErrorMessage holds the value of the "error_message" field.
+	ErrorMessage *string           `json:"error_message,omitempty"`
+	Attempts     []*PaymentAttempt `json:"attempts,omitempty"`
 	types.BaseModel
 }
 
@@ -61,6 +74,7 @@ type PaymentAttempt struct {
 
 // Validate validates the payment
 func (p *Payment) Validate() error {
+
 	if p.Amount.IsZero() || p.Amount.IsNegative() {
 		return ierr.NewError("invalid amount").
 			WithHint("Amount must be greater than 0").
@@ -79,7 +93,7 @@ func (p *Payment) Validate() error {
 			Mark(ierr.ErrValidation)
 	}
 
-	if err := p.PaymentMethodType.Validate(); err != nil {
+	if p.PaymentMethodType != nil && p.PaymentMethodType.Validate() != nil {
 		return ierr.NewError("invalid payment method type").
 			WithHint("Payment method type is invalid").
 			Mark(ierr.ErrValidation)
@@ -91,13 +105,13 @@ func (p *Payment) Validate() error {
 			Mark(ierr.ErrValidation)
 	}
 
-	if p.PaymentMethodType == types.PaymentMethodTypeOffline && p.PaymentMethodID != "" {
+	if p.PaymentMethodType != nil && lo.FromPtr(p.PaymentMethodType) == types.PaymentMethodTypeOffline && p.PaymentMethodID != "" {
 		return ierr.NewError("payment method id is not allowed for offline payment method type").
 			WithHint("Payment method id is invalid").
 			Mark(ierr.ErrValidation)
 	}
 
-	if p.PaymentMethodType != types.PaymentMethodTypeOffline && p.PaymentMethodID == "" {
+	if p.PaymentMethodType != nil && lo.FromPtr(p.PaymentMethodType) != types.PaymentMethodTypeOffline && p.PaymentMethodID == "" {
 		return ierr.NewError("invalid payment method id").
 			WithHint("Payment method id is required").
 			Mark(ierr.ErrValidation)
@@ -146,7 +160,7 @@ func FromEnt(p *ent.Payment) *Payment {
 		DestinationID:          p.DestinationID,
 		PaymentMethodType:      p.PaymentMethodType,
 		PaymentMethodID:        p.PaymentMethodID,
-		PaymentGatewayProvider: lo.FromPtr(p.PaymentGatewayProvider),
+		PaymentGatewayProvider: p.PaymentGatewayProvider,
 		GatewayPaymentID:       p.GatewayPaymentID,
 		Amount:                 p.Amount,
 		Currency:               p.Currency,

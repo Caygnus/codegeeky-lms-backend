@@ -32,52 +32,78 @@ func (Payment) Fields() []ent.Field {
 			}).
 			Unique().
 			Immutable(),
+
+		// idempotency key
+		// Optional, for safe retries
 		field.String("idempotency_key").
 			SchemaType(map[string]string{
 				"postgres": "varchar(50)",
 			}).
 			Unique().
 			Immutable(),
+		// destination type
+		// internship, subscription, charge, etc.
 		field.String("destination_type").
 			GoType(types.PaymentDestinationType("")).
 			SchemaType(map[string]string{
 				"postgres": "varchar(50)",
 			}).
-			NotEmpty(),
+			Immutable(),
+
+		// destination id
+		// ID of the destination (internship ID, subscription ID, etc.)
 		field.String("destination_id").
 			SchemaType(map[string]string{
 				"postgres": "varchar(50)",
 			}).
-			NotEmpty(),
+			Immutable(),
+
+		// payment method type
+		// upi, card, wallet, etc.
 		field.String("payment_method_type").
 			GoType(types.PaymentMethodType("")).
 			SchemaType(map[string]string{
 				"postgres": "varchar(50)",
 			}).
-			NotEmpty(),
+			Optional().
+			Nillable(),
+
+		// payment method id
+		// Saved method ID or token (optional)
 		field.String("payment_method_id").
 			SchemaType(map[string]string{
 				"postgres": "varchar(50)",
 			}).
 			Optional(),
+
+		// payment gateway provider
+		// razorpay, stripe, etc.
 		field.String("payment_gateway_provider").
 			GoType(types.PaymentGatewayProvider("")).
 			SchemaType(map[string]string{
 				"postgres": "varchar(50)",
 			}).
-			Optional().
-			Nillable(),
+			Immutable(),
+
+		// gateway payment id
+		// Payment ID from the gateway
 		field.String("gateway_payment_id").
 			SchemaType(map[string]string{
 				"postgres": "varchar(255)",
 			}).
 			Optional().
 			Nillable(),
+
+		// amount
+		// Amount in smallest unit (e.g. paisa)
 		field.Other("amount", decimal.Decimal{}).
 			SchemaType(map[string]string{
 				"postgres": "numeric(20,8)",
 			}).
 			Default(decimal.Zero),
+
+		// currency
+		// "INR", "USD", etc.
 		field.String("currency").
 			GoType(types.Currency("")).
 			SchemaType(map[string]string{
@@ -85,28 +111,51 @@ func (Payment) Fields() []ent.Field {
 			}).
 			NotEmpty().
 			Immutable(),
+
+		// payment status
+		// pending, failed, succeeded, etc.
 		field.String("payment_status").
 			GoType(types.PaymentStatus("")).
 			SchemaType(map[string]string{
 				"postgres": "varchar(50)",
 			}).
+			Default(string(types.PaymentStatusPending)).
 			NotEmpty(),
+
+		// track attempts
+		// Whether to track payment attempts
 		field.Bool("track_attempts").
-			Default(false),
+			Default(true),
+
+		// metadata
+		// Additional tracking info (origin, cohort, etc.)
 		field.JSON("metadata", map[string]string{}).
 			Optional().
 			SchemaType(map[string]string{
 				"postgres": "jsonb",
-			}),
+			}).
+			Default(map[string]string{}),
+
+		// succeeded at
+		// Time when the payment succeeded
 		field.Time("succeeded_at").
 			Optional().
 			Nillable(),
+
+		// failed at
+		// Time when the payment failed
 		field.Time("failed_at").
 			Optional().
 			Nillable(),
+
+		// refunded at
+		// Time when the payment was refunded
 		field.Time("refunded_at").
 			Optional().
 			Nillable(),
+
+		// error message
+		// Error message from the payment gateway
 		field.String("error_message").
 			SchemaType(map[string]string{
 				"postgres": "text",
@@ -119,6 +168,8 @@ func (Payment) Fields() []ent.Field {
 // Edges of the Payment.
 func (Payment) Edges() []ent.Edge {
 	return []ent.Edge{
+		// attempts
+		// Payment attempts
 		edge.To("attempts", PaymentAttempt.Type),
 	}
 }

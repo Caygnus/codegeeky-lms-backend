@@ -23,5 +23,3 @@ func (c Currency) Validate() error {
 	}
 	return nil
 }
-
-

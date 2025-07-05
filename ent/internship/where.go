@@ -141,6 +141,16 @@ func PercentageDiscount(v decimal.Decimal) predicate.Internship {
 	return predicate.Internship(sql.FieldEQ(FieldPercentageDiscount, v))
 }
 
+// Subtotal applies equality check predicate on the "subtotal" field. It's identical to SubtotalEQ.
+func Subtotal(v decimal.Decimal) predicate.Internship {
+	return predicate.Internship(sql.FieldEQ(FieldSubtotal, v))
+}
+
+// Total applies equality check predicate on the "total" field. It's identical to TotalEQ.
+func Total(v decimal.Decimal) predicate.Internship {
+	return predicate.Internship(sql.FieldEQ(FieldTotal, v))
+}
+
 // StatusEQ applies the EQ predicate on the "status" field.
 func StatusEQ(v string) predicate.Internship {
 	return predicate.Internship(sql.FieldEQ(FieldStatus, v))
@@ -976,16 +986,6 @@ func PriceLTE(v decimal.Decimal) predicate.Internship {
 	return predicate.Internship(sql.FieldLTE(FieldPrice, v))
 }
 
-// PriceIsNil applies the IsNil predicate on the "price" field.
-func PriceIsNil() predicate.Internship {
-	return predicate.Internship(sql.FieldIsNull(FieldPrice))
-}
-
-// PriceNotNil applies the NotNil predicate on the "price" field.
-func PriceNotNil() predicate.Internship {
-	return predicate.Internship(sql.FieldNotNull(FieldPrice))
-}
-
 // FlatDiscountEQ applies the EQ predicate on the "flat_discount" field.
 func FlatDiscountEQ(v decimal.Decimal) predicate.Internship {
 	return predicate.Internship(sql.FieldEQ(FieldFlatDiscount, v))
@@ -1084,6 +1084,86 @@ func PercentageDiscountIsNil() predicate.Internship {
 // PercentageDiscountNotNil applies the NotNil predicate on the "percentage_discount" field.
 func PercentageDiscountNotNil() predicate.Internship {
 	return predicate.Internship(sql.FieldNotNull(FieldPercentageDiscount))
+}
+
+// SubtotalEQ applies the EQ predicate on the "subtotal" field.
+func SubtotalEQ(v decimal.Decimal) predicate.Internship {
+	return predicate.Internship(sql.FieldEQ(FieldSubtotal, v))
+}
+
+// SubtotalNEQ applies the NEQ predicate on the "subtotal" field.
+func SubtotalNEQ(v decimal.Decimal) predicate.Internship {
+	return predicate.Internship(sql.FieldNEQ(FieldSubtotal, v))
+}
+
+// SubtotalIn applies the In predicate on the "subtotal" field.
+func SubtotalIn(vs ...decimal.Decimal) predicate.Internship {
+	return predicate.Internship(sql.FieldIn(FieldSubtotal, vs...))
+}
+
+// SubtotalNotIn applies the NotIn predicate on the "subtotal" field.
+func SubtotalNotIn(vs ...decimal.Decimal) predicate.Internship {
+	return predicate.Internship(sql.FieldNotIn(FieldSubtotal, vs...))
+}
+
+// SubtotalGT applies the GT predicate on the "subtotal" field.
+func SubtotalGT(v decimal.Decimal) predicate.Internship {
+	return predicate.Internship(sql.FieldGT(FieldSubtotal, v))
+}
+
+// SubtotalGTE applies the GTE predicate on the "subtotal" field.
+func SubtotalGTE(v decimal.Decimal) predicate.Internship {
+	return predicate.Internship(sql.FieldGTE(FieldSubtotal, v))
+}
+
+// SubtotalLT applies the LT predicate on the "subtotal" field.
+func SubtotalLT(v decimal.Decimal) predicate.Internship {
+	return predicate.Internship(sql.FieldLT(FieldSubtotal, v))
+}
+
+// SubtotalLTE applies the LTE predicate on the "subtotal" field.
+func SubtotalLTE(v decimal.Decimal) predicate.Internship {
+	return predicate.Internship(sql.FieldLTE(FieldSubtotal, v))
+}
+
+// TotalEQ applies the EQ predicate on the "total" field.
+func TotalEQ(v decimal.Decimal) predicate.Internship {
+	return predicate.Internship(sql.FieldEQ(FieldTotal, v))
+}
+
+// TotalNEQ applies the NEQ predicate on the "total" field.
+func TotalNEQ(v decimal.Decimal) predicate.Internship {
+	return predicate.Internship(sql.FieldNEQ(FieldTotal, v))
+}
+
+// TotalIn applies the In predicate on the "total" field.
+func TotalIn(vs ...decimal.Decimal) predicate.Internship {
+	return predicate.Internship(sql.FieldIn(FieldTotal, vs...))
+}
+
+// TotalNotIn applies the NotIn predicate on the "total" field.
+func TotalNotIn(vs ...decimal.Decimal) predicate.Internship {
+	return predicate.Internship(sql.FieldNotIn(FieldTotal, vs...))
+}
+
+// TotalGT applies the GT predicate on the "total" field.
+func TotalGT(v decimal.Decimal) predicate.Internship {
+	return predicate.Internship(sql.FieldGT(FieldTotal, v))
+}
+
+// TotalGTE applies the GTE predicate on the "total" field.
+func TotalGTE(v decimal.Decimal) predicate.Internship {
+	return predicate.Internship(sql.FieldGTE(FieldTotal, v))
+}
+
+// TotalLT applies the LT predicate on the "total" field.
+func TotalLT(v decimal.Decimal) predicate.Internship {
+	return predicate.Internship(sql.FieldLT(FieldTotal, v))
+}
+
+// TotalLTE applies the LTE predicate on the "total" field.
+func TotalLTE(v decimal.Decimal) predicate.Internship {
+	return predicate.Internship(sql.FieldLTE(FieldTotal, v))
 }
 
 // HasCategories applies the HasEdge predicate on the "categories" edge.

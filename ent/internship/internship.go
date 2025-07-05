@@ -7,6 +7,7 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/shopspring/decimal"
 )
 
 const (
@@ -52,6 +53,10 @@ const (
 	FieldFlatDiscount = "flat_discount"
 	// FieldPercentageDiscount holds the string denoting the percentage_discount field in the database.
 	FieldPercentageDiscount = "percentage_discount"
+	// FieldSubtotal holds the string denoting the subtotal field in the database.
+	FieldSubtotal = "subtotal"
+	// FieldTotal holds the string denoting the total field in the database.
+	FieldTotal = "total"
 	// EdgeCategories holds the string denoting the categories edge name in mutations.
 	EdgeCategories = "categories"
 	// Table holds the table name of the internship in the database.
@@ -87,6 +92,8 @@ var Columns = []string{
 	FieldPrice,
 	FieldFlatDiscount,
 	FieldPercentageDiscount,
+	FieldSubtotal,
+	FieldTotal,
 }
 
 // ForeignKeys holds the SQL foreign-keys that are owned by the "internships"
@@ -129,6 +136,10 @@ var (
 	DefaultSkills []string
 	// ModeValidator is a validator for the "mode" field. It is called by the builders before save.
 	ModeValidator func(string) error
+	// DefaultSubtotal holds the default value on creation for the "subtotal" field.
+	DefaultSubtotal decimal.Decimal
+	// DefaultTotal holds the default value on creation for the "total" field.
+	DefaultTotal decimal.Decimal
 	// DefaultID holds the default value on creation for the "id" field.
 	DefaultID func() string
 )
@@ -214,6 +225,16 @@ func ByFlatDiscount(opts ...sql.OrderTermOption) OrderOption {
 // ByPercentageDiscount orders the results by the percentage_discount field.
 func ByPercentageDiscount(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldPercentageDiscount, opts...).ToFunc()
+}
+
+// BySubtotal orders the results by the subtotal field.
+func BySubtotal(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldSubtotal, opts...).ToFunc()
+}
+
+// ByTotal orders the results by the total field.
+func ByTotal(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldTotal, opts...).ToFunc()
 }
 
 // ByCategoriesCount orders the results by categories count.

@@ -27,3 +27,13 @@ type CategoryRepository interface {
 	List(ctx context.Context, filter *types.CategoryFilter) ([]*Category, error)
 	ListAll(ctx context.Context, filter *types.CategoryFilter) ([]*Category, error)
 }
+
+type InternshipBatchRepository interface {
+	Create(ctx context.Context, batch *InternshipBatch) error
+	Get(ctx context.Context, id string) (*InternshipBatch, error)
+	Update(ctx context.Context, batch *InternshipBatch) error
+	Delete(ctx context.Context, id string) error
+	Count(ctx context.Context, filter *types.InternshipBatchFilter) (int, error)
+	List(ctx context.Context, filter *types.InternshipBatchFilter) ([]*InternshipBatch, error)
+	ListAll(ctx context.Context, filter *types.InternshipBatchFilter) ([]*InternshipBatch, error)
+}

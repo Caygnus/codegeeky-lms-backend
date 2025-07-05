@@ -12,7 +12,7 @@ linters:
     - ineffassign
     - typecheck
 
-issues:
+issues: 
   exclude-use-default: false
   max-same-issues: 5
   max-issues-per-linter: 0

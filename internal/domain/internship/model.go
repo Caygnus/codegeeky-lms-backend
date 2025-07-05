@@ -8,65 +8,39 @@ import (
 )
 
 type Internship struct {
-
-	// ID of the ent.
-	ID string `json:"id,omitempty" db:"id"`
-
-	// Title holds the value of the "title" field.
-	Title string `json:"title,omitempty" db:"title"`
-
-	// Description holds the value of the "description" field.
-	Description string `json:"description,omitempty" db:"description"`
-
-	// LookupKey holds the value of the "lookup_key" field.
-	LookupKey string `json:"lookup_key,omitempty" db:"lookup_key"`
-
-	// List of required skills
-	Skills []string `json:"skills,omitempty" db:"skills"`
-
-	// Level of the internship: beginner, intermediate, advanced
-	Level types.InternshipLevel `json:"level,omitempty" db:"level"`
-
-	// Internship mode: remote, hybrid, onsite
-	Mode types.InternshipMode `json:"mode,omitempty" db:"mode"`
-
-	// Alternative to months for shorter internships
-	DurationInWeeks int `json:"duration_in_weeks,omitempty" db:"duration_in_weeks"`
-
-	// What students will learn in the internship
-	LearningOutcomes []string `json:"learning_outcomes,omitempty" db:"learning_outcomes"`
-
-	// Prerequisites or recommended knowledge
-	Prerequisites []string `json:"prerequisites,omitempty" db:"prerequisites"`
-
-	// Benefits of the internship
-	Benefits []string `json:"benefits,omitempty" db:"benefits"`
-
-	// Currency of the internship
-	Currency string `json:"currency,omitempty" db:"currency"`
-
-	// Price of the internship
-	Price decimal.Decimal `json:"price,omitempty" db:"price"`
-
-	// Flat discount on the internship
-	FlatDiscount decimal.Decimal `json:"flat_discount,omitempty" db:"flat_discount"`
-
-	// Percentage discount on the internship
-	PercentageDiscount decimal.Decimal `json:"percentage_discount,omitempty" db:"percentage_discount"`
-
-	// Categories holds the value of the categories edge.
-	Categories []*Category `json:"categories,omitempty" db:"categories"`
+	ID                 string                `json:"id,omitempty"`
+	Title              string                `json:"title,omitempty"`
+	LookupKey          string                `json:"lookup_key,omitempty"`
+	Description        string                `json:"description,omitempty"`
+	Skills             []string              `json:"skills,omitempty"`
+	Level              types.InternshipLevel `json:"level,omitempty"`
+	Mode               types.InternshipMode  `json:"mode,omitempty"`
+	DurationInWeeks    int                   `json:"duration_in_weeks,omitempty"`
+	LearningOutcomes   []string              `json:"learning_outcomes,omitempty"`
+	Prerequisites      []string              `json:"prerequisites,omitempty"`
+	Benefits           []string              `json:"benefits,omitempty"`
+	Currency           string                `json:"currency,omitempty"`
+	Price              decimal.Decimal       `json:"price,omitempty"`
+	FlatDiscount       *decimal.Decimal      `json:"flat_discount,omitempty"`
+	PercentageDiscount *decimal.Decimal      `json:"percentage_discount,omitempty"`
+	Subtotal           decimal.Decimal       `json:"subtotal,omitempty"`
+	Total              decimal.Decimal       `json:"total,omitempty"`
+	Categories         []*Category           `json:"categories,omitempty" db:"categories"`
 
 	types.BaseModel
 }
 
-func InternshipFromEnt(internship *ent.Internship) *Internship {
+func (i *Internship) FromEnt(internship *ent.Internship) *Internship {
+	c := &Category{}
+
 	return &Internship{
 		ID:                 internship.ID,
 		Title:              internship.Title,
 		Description:        internship.Description,
 		LookupKey:          internship.LookupKey,
 		Skills:             internship.Skills,
+		Subtotal:           internship.Subtotal,
+		Total:              internship.Total,
 		Level:              types.InternshipLevel(internship.Level),
 		Mode:               types.InternshipMode(internship.Mode),
 		DurationInWeeks:    internship.DurationInWeeks,
@@ -77,7 +51,7 @@ func InternshipFromEnt(internship *ent.Internship) *Internship {
 		Price:              internship.Price,
 		FlatDiscount:       internship.FlatDiscount,
 		PercentageDiscount: internship.PercentageDiscount,
-		Categories:         CategoryFromEntList(internship.Edges.Categories),
+		Categories:         c.FromEntList(internship.Edges.Categories),
 		BaseModel: types.BaseModel{
 			Status:    types.Status(internship.Status),
 			CreatedAt: internship.CreatedAt,
@@ -88,62 +62,8 @@ func InternshipFromEnt(internship *ent.Internship) *Internship {
 	}
 }
 
-func InternshipFromEntList(internships []*ent.Internship) []*Internship {
+func (i *Internship) FromEntList(internships []*ent.Internship) []*Internship {
 	return lo.Map(internships, func(internship *ent.Internship, _ int) *Internship {
-		return InternshipFromEnt(internship)
+		return i.FromEnt(internship)
 	})
-}
-
-type Category struct {
-	// ID of the ent.
-	ID string `json:"id,omitempty" db:"id"`
-
-	// Name holds the value of the "name" field.
-	Name string `json:"name,omitempty" db:"name"`
-
-	// LookupKey holds the value of the "lookup_key" field.
-	LookupKey string `json:"lookup_key,omitempty" db:"lookup_key"`
-
-	// Description holds the value of the "description" field.
-	Description string `json:"description,omitempty" db:"description"`
-
-	// Internships holds the value of the internships edge.
-	Internships []*Internship `json:"internships,omitempty" db:"internships"`
-
-	types.BaseModel
-}
-
-func CategoryFromEnt(category *ent.Category) *Category {
-	return &Category{
-		ID:          category.ID,
-		Name:        category.Name,
-		LookupKey:   category.LookupKey,
-		Description: category.Description,
-		Internships: InternshipFromEntList(category.Edges.Internships),
-		BaseModel: types.BaseModel{
-			Status:    types.Status(category.Status),
-			CreatedAt: category.CreatedAt,
-			UpdatedAt: category.UpdatedAt,
-			CreatedBy: category.CreatedBy,
-			UpdatedBy: category.UpdatedBy,
-		},
-	}
-}
-
-func CategoryFromEntList(categories []*ent.Category) []*Category {
-	return lo.Map(categories, func(category *ent.Category, _ int) *Category {
-		return CategoryFromEnt(category)
-	})
-}
-
-func (i *Internship) FinalPrice() decimal.Decimal {
-	price := i.Price
-	if !i.FlatDiscount.IsZero() && !i.FlatDiscount.IsNegative() {
-		price = price.Sub(i.FlatDiscount)
-	}
-	if !i.PercentageDiscount.IsZero() && !i.PercentageDiscount.IsNegative() {
-		discount := price.Mul(i.PercentageDiscount.Div(decimal.NewFromInt(100)))
-		price = price.Sub(discount)
-	}
-	return price
 }

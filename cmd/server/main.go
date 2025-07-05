@@ -12,6 +12,7 @@ import (
 	"github.com/omkar273/codegeeky/internal/config"
 	"github.com/omkar273/codegeeky/internal/httpclient"
 	"github.com/omkar273/codegeeky/internal/logger"
+	gateway "github.com/omkar273/codegeeky/internal/payment"
 	"github.com/omkar273/codegeeky/internal/postgres"
 	pubsubRouter "github.com/omkar273/codegeeky/internal/pubsub/router"
 	"github.com/omkar273/codegeeky/internal/repository"
@@ -31,7 +32,7 @@ import (
 // @contact.email  support@example.com
 
 // @host      localhost:8080
-// @BasePath  /api/v1
+// @BasePath  /v1
 
 // @securityDefinitions.apikey Authorization
 // @in header
@@ -70,6 +71,9 @@ func main() {
 			// http client
 			httpclient.NewDefaultClient,
 
+			// payment gateway registry
+			gateway.InitializeProviders,
+
 			// user repository
 			repository.NewUserRepository,
 
@@ -81,6 +85,15 @@ func main() {
 
 			// discount repository
 			repository.NewDiscountRepository,
+
+			// payment repository
+			repository.NewPaymentRepository,
+
+			// internship enrollment repository
+			repository.NewInternshipEnrollmentRepository,
+
+			// internship batch repository
+			repository.NewInternshipBatchRepository,
 
 			// pubsub router
 			pubsubRouter.NewRouter,
@@ -99,8 +112,12 @@ func main() {
 		service.NewUserService,
 		service.NewOnboardingService,
 		service.NewInternshipService,
+		service.NewInternshipBatchService,
 		service.NewCategoryService,
 		service.NewDiscountService,
+		service.NewPricingService,
+		service.NewPaymentService,
+		service.NewInternshipEnrollmentService,
 	))
 
 	// factory layer

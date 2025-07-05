@@ -12,8 +12,8 @@ type ExpandableField string
 
 // Common expandable fields
 const (
-	ExpandStation  ExpandableField = "station"
-	ExpandCategory ExpandableField = "category"
+	ExpandCategory      ExpandableField = "category"
+	ExpandCartLineItems ExpandableField = "cart_line_items"
 )
 
 // ExpandConfig defines which fields can be expanded and their nested expansions
@@ -27,17 +27,18 @@ type ExpandConfig struct {
 // Common expand configurations
 var (
 	// UserExpandConfig defines what can be expanded on a user
-	UserExpandConfig = ExpandConfig{
-		AllowedFields: []ExpandableField{ExpandStation},
-		NestedExpands: map[ExpandableField][]ExpandableField{
-			ExpandStation: {ExpandStation},
-		},
-	}
 
 	InternshipExpandConfig = ExpandConfig{
 		AllowedFields: []ExpandableField{ExpandCategory},
 		NestedExpands: map[ExpandableField][]ExpandableField{
 			ExpandCategory: {ExpandCategory},
+		},
+	}
+
+	CartExpandConfig = ExpandConfig{
+		AllowedFields: []ExpandableField{ExpandCartLineItems},
+		NestedExpands: map[ExpandableField][]ExpandableField{
+			ExpandCartLineItems: {ExpandCartLineItems},
 		},
 	}
 )

@@ -7,6 +7,7 @@ import (
 
 	"github.com/omkar273/codegeeky/internal/api/dto"
 	"github.com/omkar273/codegeeky/internal/config"
+	"github.com/omkar273/codegeeky/internal/domain/payment"
 	"github.com/omkar273/codegeeky/internal/httpclient"
 	"github.com/omkar273/codegeeky/internal/types"
 	"github.com/razorpay/razorpay-go"
@@ -63,7 +64,7 @@ func (r *RazorpayProvider) ProcessWebhook(ctx context.Context, payload []byte, h
 	}, nil
 }
 
-func (r *RazorpayProvider) CreatePaymentRequest(ctx context.Context, input *dto.PaymentRequest) (*dto.PaymentResponse, error) {
+func (r *RazorpayProvider) CreatePaymentOrder(ctx context.Context, input *dto.PaymentRequest) (*dto.PaymentResponse, error) {
 	// create order
 	order, err := r.razorpayClient.Order.Create(map[string]interface{}{
 		"amount":          input.Amount,
@@ -83,10 +84,9 @@ func (r *RazorpayProvider) CreatePaymentRequest(ctx context.Context, input *dto.
 
 	// return payment details
 	return &dto.PaymentResponse{
-		ProviderPaymentID: order["id"].(string),
-		RedirectURL:       order["short_url"].(string),
-		Status:            "success",
-		Raw:               map[string]any{"order_id": order["id"].(string)},
+		Payment: payment.Payment{
+			ID: order["id"].(string),
+		},
 	}, nil
 }
 
