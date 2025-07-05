@@ -2,6 +2,7 @@ package repository
 
 import (
 	"github.com/omkar273/codegeeky/internal/config"
+	"github.com/omkar273/codegeeky/internal/domain/cart"
 	"github.com/omkar273/codegeeky/internal/domain/discount"
 	"github.com/omkar273/codegeeky/internal/domain/internship"
 	"github.com/omkar273/codegeeky/internal/domain/internshipenrollment"
@@ -59,4 +60,8 @@ func NewInternshipEnrollmentRepository(params RepositoryParams) internshipenroll
 
 func NewInternshipBatchRepository(params RepositoryParams) internship.InternshipBatchRepository {
 	return ent.NewInternshipBatchRepository(params.Client, params.Logger)
+}
+
+func NewCartRepository(params RepositoryParams) cart.Repository {
+	return ent.NewCartRepository(params.Client, params.Logger)
 }

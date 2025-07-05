@@ -406,7 +406,7 @@ func (cc *CartCreate) createSpec() (*Cart, *sqlgraph.CreateSpec) {
 	}
 	if value, ok := cc.mutation.ExpiresAt(); ok {
 		_spec.SetField(cart.FieldExpiresAt, field.TypeTime, value)
-		_node.ExpiresAt = value
+		_node.ExpiresAt = &value
 	}
 	if nodes := cc.mutation.LineItemsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

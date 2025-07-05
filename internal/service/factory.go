@@ -2,6 +2,7 @@ package service
 
 import (
 	"github.com/omkar273/codegeeky/internal/config"
+	"github.com/omkar273/codegeeky/internal/domain/cart"
 	"github.com/omkar273/codegeeky/internal/domain/discount"
 	"github.com/omkar273/codegeeky/internal/domain/internship"
 	"github.com/omkar273/codegeeky/internal/domain/internshipenrollment"
@@ -30,7 +31,7 @@ type ServiceParams struct {
 	InternshipBatchRepo      internship.InternshipBatchRepository
 	CategoryRepo             internship.CategoryRepository
 	InternshipEnrollmentRepo internshipenrollment.Repository
-
+	CartRepo                 cart.Repository
 	// Service dependencies
 	WebhookPublisher publisher.WebhookPublisher
 

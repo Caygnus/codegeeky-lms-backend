@@ -76,6 +76,7 @@ func (Cart) Fields() []ent.Field {
 			SchemaType(map[string]string{
 				"postgres": "timestamp",
 			}).
+			Nillable().
 			Immutable(),
 	}
 }

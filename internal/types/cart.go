@@ -36,8 +36,8 @@ func (c CartType) Validate() error {
 type CartLineItemEntityType string
 
 const (
-	CartLineItemEntityTypeInternship CartLineItemEntityType = "internship"
-	CartLineItemEntityTypeCourse     CartLineItemEntityType = "course"
+	CartLineItemEntityTypeInternshipBatch CartLineItemEntityType = "internship_batch"
+	CartLineItemEntityTypeCourse          CartLineItemEntityType = "course"
 )
 
 func (c CartLineItemEntityType) String() string {
@@ -45,7 +45,7 @@ func (c CartLineItemEntityType) String() string {
 }
 
 func (c CartLineItemEntityType) Validate() error {
-	allowedValues := []CartLineItemEntityType{CartLineItemEntityTypeInternship, CartLineItemEntityTypeCourse}
+	allowedValues := []CartLineItemEntityType{CartLineItemEntityTypeInternshipBatch, CartLineItemEntityTypeCourse}
 
 	if !slices.Contains(allowedValues, c) {
 		return ierr.NewError("INVALID_CART_LINE_ITEM_ENTITY_TYPE").

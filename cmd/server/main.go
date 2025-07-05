@@ -95,6 +95,9 @@ func main() {
 			// internship batch repository
 			repository.NewInternshipBatchRepository,
 
+			// cart repository
+			repository.NewCartRepository,
+
 			// pubsub router
 			pubsubRouter.NewRouter,
 		),

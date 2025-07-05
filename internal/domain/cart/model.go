@@ -17,7 +17,7 @@ type Cart struct {
 	DiscountAmount decimal.Decimal   `json:"discount_amount,omitempty"`
 	TaxAmount      decimal.Decimal   `json:"tax_amount,omitempty"`
 	Total          decimal.Decimal   `json:"total,omitempty"`
-	ExpiresAt      time.Time         `json:"expires_at,omitempty"`
+	ExpiresAt      *time.Time        `json:"expires_at,omitempty"`
 	Metadata       map[string]string `json:"metadata,omitempty"`
 	LineItems      []*CartLineItem   `json:"line_items,omitempty"`
 	types.BaseModel
