@@ -404,7 +404,7 @@ func (s *InMemoryCartStore) GetUserDefaultCart(ctx context.Context, userID strin
 			c.LineItems = lineItems
 			return c, nil
 		}
-	} 
+	}
 
 	// No default cart found
 	return nil, ierr.NewError("user default cart not found").

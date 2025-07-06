@@ -55,8 +55,6 @@ func (l InternshipLevel) Validate() error {
 	return nil
 }
 
-
-
 type InternshipFilter struct {
 	*QueryFilter
 	*TimeRangeFilter

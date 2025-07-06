@@ -1,5 +1,79 @@
 basePath: /v1
 definitions:
+  cart.CartLineItem:
+    properties:
+      cart_id:
+        type: string
+      created_at:
+        type: string
+      created_by:
+        type: string
+      discount_amount:
+        type: number
+      entity_id:
+        type: string
+      entity_type:
+        $ref: '#/definitions/types.CartLineItemEntityType'
+      id:
+        type: string
+      metadata:
+        additionalProperties:
+          type: string
+        type: object
+      per_unit_price:
+        type: number
+      quantity:
+        type: integer
+      status:
+        $ref: '#/definitions/types.Status'
+      subtotal:
+        type: number
+      tax_amount:
+        type: number
+      total:
+        type: number
+      updated_at:
+        type: string
+      updated_by:
+        type: string
+    type: object
+  dto.CartResponse:
+    properties:
+      created_at:
+        type: string
+      created_by:
+        type: string
+      discount_amount:
+        type: number
+      expires_at:
+        type: string
+      id:
+        type: string
+      line_items:
+        items:
+          $ref: '#/definitions/cart.CartLineItem'
+        type: array
+      metadata:
+        additionalProperties:
+          type: string
+        type: object
+      status:
+        $ref: '#/definitions/types.Status'
+      subtotal:
+        type: number
+      tax_amount:
+        type: number
+      total:
+        type: number
+      type:
+        $ref: '#/definitions/types.CartType'
+      updated_at:
+        type: string
+      updated_by:
+        type: string
+      user_id:
+        type: string
+    type: object
   dto.CategoryResponse:
     properties:
       created_at:
@@ -29,6 +103,43 @@ definitions:
         type: string
       updated_by:
         type: string
+    type: object
+  dto.CreateCartLineItemRequest:
+    properties:
+      cart_id:
+        type: string
+      entity_id:
+        type: string
+      entity_type:
+        $ref: '#/definitions/types.CartLineItemEntityType'
+      metadata:
+        additionalProperties:
+          type: string
+        type: object
+      quantity:
+        minimum: 1
+        type: integer
+    required:
+    - entity_id
+    - entity_type
+    - quantity
+    type: object
+  dto.CreateCartRequest:
+    properties:
+      expires_at:
+        type: string
+      line_items:
+        items:
+          $ref: '#/definitions/dto.CreateCartLineItemRequest'
+        type: array
+      metadata:
+        additionalProperties:
+          type: string
+        type: object
+      type:
+        $ref: '#/definitions/types.CartType'
+    required:
+    - type
     type: object
   dto.CreateCategoryRequest:
     properties:
@@ -70,6 +181,26 @@ definitions:
     - code
     - discount_type
     - discount_value
+    type: object
+  dto.CreateInternshipBatchRequest:
+    properties:
+      batch_status:
+        $ref: '#/definitions/types.InternshipBatchStatus'
+      description:
+        type: string
+      end_date:
+        type: string
+      internship_id:
+        type: string
+      name:
+        maxLength: 255
+        minLength: 3
+        type: string
+      start_date:
+        type: string
+    required:
+    - internship_id
+    - name
     type: object
   dto.CreateInternshipRequest:
     properties:
@@ -163,15 +294,42 @@ definitions:
       valid_until:
         type: string
     type: object
+  dto.InternshipBatchResponse:
+    properties:
+      batch_status:
+        $ref: '#/definitions/types.InternshipBatchStatus'
+      created_at:
+        type: string
+      created_by:
+        type: string
+      description:
+        type: string
+      end_date:
+        type: string
+      id:
+        type: string
+      internship_id:
+        type: string
+      metadata:
+        $ref: '#/definitions/types.Metadata'
+      name:
+        type: string
+      start_date:
+        type: string
+      status:
+        $ref: '#/definitions/types.Status'
+      updated_at:
+        type: string
+      updated_by:
+        type: string
+    type: object
   dto.InternshipResponse:
     properties:
       benefits:
-        description: Benefits of the internship
         items:
           type: string
         type: array
       categories:
-        description: Categories holds the value of the categories edge.
         items:
           $ref: '#/definitions/internship.Category'
         type: array
@@ -180,61 +338,58 @@ definitions:
       created_by:
         type: string
       currency:
-        description: Currency of the internship
         type: string
       description:
-        description: Description holds the value of the "description" field.
         type: string
       duration_in_weeks:
-        description: Alternative to months for shorter internships
         type: integer
       flat_discount:
-        description: Flat discount on the internship
         type: number
       id:
-        description: ID of the ent.
         type: string
       learning_outcomes:
-        description: What students will learn in the internship
         items:
           type: string
         type: array
       level:
-        allOf:
-        - $ref: '#/definitions/types.InternshipLevel'
-        description: 'Level of the internship: beginner, intermediate, advanced'
+        $ref: '#/definitions/types.InternshipLevel'
       lookup_key:
-        description: LookupKey holds the value of the "lookup_key" field.
         type: string
       mode:
-        allOf:
-        - $ref: '#/definitions/types.InternshipMode'
-        description: 'Internship mode: remote, hybrid, onsite'
+        $ref: '#/definitions/types.InternshipMode'
       percentage_discount:
-        description: Percentage discount on the internship
         type: number
       prerequisites:
-        description: Prerequisites or recommended knowledge
         items:
           type: string
         type: array
       price:
-        description: Price of the internship
         type: number
       skills:
-        description: List of required skills
         items:
           type: string
         type: array
       status:
         $ref: '#/definitions/types.Status'
+      subtotal:
+        type: number
       title:
-        description: Title holds the value of the "title" field.
         type: string
+      total:
+        type: number
       updated_at:
         type: string
       updated_by:
         type: string
+    type: object
+  dto.ListCartResponse:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/dto.CartResponse'
+        type: array
+      pagination:
+        $ref: '#/definitions/types.PaginationResponse'
     type: object
   dto.ListCategoryResponse:
     properties:
@@ -250,6 +405,15 @@ definitions:
       items:
         items:
           $ref: '#/definitions/dto.DiscountResponse'
+        type: array
+      pagination:
+        $ref: '#/definitions/types.PaginationResponse'
+    type: object
+  dto.ListInternshipBatchResponse:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/dto.InternshipBatchResponse'
         type: array
       pagination:
         $ref: '#/definitions/types.PaginationResponse'
@@ -305,6 +469,21 @@ definitions:
       id:
         type: string
     type: object
+  dto.UpdateCartRequest:
+    properties:
+      expires_at:
+        type: string
+      id:
+        type: string
+      line_items:
+        items:
+          $ref: '#/definitions/dto.CreateCartLineItemRequest'
+        type: array
+      metadata:
+        additionalProperties:
+          type: string
+        type: object
+    type: object
   dto.UpdateCategoryRequest:
     properties:
       description:
@@ -331,6 +510,21 @@ definitions:
       valid_from:
         type: string
       valid_until:
+        type: string
+    type: object
+  dto.UpdateInternshipBatchRequest:
+    properties:
+      batch_status:
+        $ref: '#/definitions/types.InternshipBatchStatus'
+      description:
+        type: string
+      end_date:
+        type: string
+      name:
+        maxLength: 255
+        minLength: 3
+        type: string
+      start_date:
         type: string
     type: object
   dto.UpdateInternshipRequest:
@@ -437,12 +631,10 @@ definitions:
   internship.Internship:
     properties:
       benefits:
-        description: Benefits of the internship
         items:
           type: string
         type: array
       categories:
-        description: Categories holds the value of the categories edge.
         items:
           $ref: '#/definitions/internship.Category'
         type: array
@@ -451,62 +643,66 @@ definitions:
       created_by:
         type: string
       currency:
-        description: Currency of the internship
         type: string
       description:
-        description: Description holds the value of the "description" field.
         type: string
       duration_in_weeks:
-        description: Alternative to months for shorter internships
         type: integer
       flat_discount:
-        description: Flat discount on the internship
         type: number
       id:
-        description: ID of the ent.
         type: string
       learning_outcomes:
-        description: What students will learn in the internship
         items:
           type: string
         type: array
       level:
-        allOf:
-        - $ref: '#/definitions/types.InternshipLevel'
-        description: 'Level of the internship: beginner, intermediate, advanced'
+        $ref: '#/definitions/types.InternshipLevel'
       lookup_key:
-        description: LookupKey holds the value of the "lookup_key" field.
         type: string
       mode:
-        allOf:
-        - $ref: '#/definitions/types.InternshipMode'
-        description: 'Internship mode: remote, hybrid, onsite'
+        $ref: '#/definitions/types.InternshipMode'
       percentage_discount:
-        description: Percentage discount on the internship
         type: number
       prerequisites:
-        description: Prerequisites or recommended knowledge
         items:
           type: string
         type: array
       price:
-        description: Price of the internship
         type: number
       skills:
-        description: List of required skills
         items:
           type: string
         type: array
       status:
         $ref: '#/definitions/types.Status'
+      subtotal:
+        type: number
       title:
-        description: Title holds the value of the "title" field.
         type: string
+      total:
+        type: number
       updated_at:
         type: string
       updated_by:
         type: string
     type: object
+  types.CartLineItemEntityType:
+    enum:
+    - internship_batch
+    - course
+    type: string
+    x-enum-varnames:
+    - CartLineItemEntityTypeInternshipBatch
+    - CartLineItemEntityTypeCourse
+  types.CartType:
+    enum:
+    - onetime
+    - default
+    type: string
+    x-enum-varnames:
+    - CartTypeOneTime
+    - CartTypeDefault
   types.DiscountType:
     enum:
     - flat
@@ -515,6 +711,18 @@ definitions:
     x-enum-varnames:
     - DiscountTypeFlat
     - DiscountTypePercentage
+  types.InternshipBatchStatus:
+    enum:
+    - upcoming
+    - ongoing
+    - completed
+    - cancelled
+    type: string
+    x-enum-varnames:
+    - InternshipBatchStatusUpcoming
+    - InternshipBatchStatusOngoing
+    - InternshipBatchStatusCompleted
+    - InternshipBatchStatusCancelled
   types.InternshipLevel:
     enum:
     - beginner
@@ -564,11 +772,13 @@ definitions:
     - StatusPending
   types.UserRole:
     enum:
+    - ADMIN
     - STUDENT
     - INSTRUCTOR
     - ADMIN
     type: string
     x-enum-varnames:
+    - DefaultUserRole
     - UserRoleStudent
     - UserRoleInstructor
     - UserRoleAdmin
@@ -604,6 +814,419 @@ paths:
       summary: Signup
       tags:
       - Auth
+  /carts:
+    get:
+      consumes:
+      - application/json
+      description: List carts with optional filtering
+      parameters:
+      - enum:
+        - onetime
+        - default
+        in: query
+        name: cart_type
+        type: string
+        x-enum-varnames:
+        - CartTypeOneTime
+        - CartTypeDefault
+      - in: query
+        name: end_time
+        type: string
+      - in: query
+        name: entity_id
+        type: string
+      - enum:
+        - internship_batch
+        - course
+        in: query
+        name: entity_type
+        type: string
+        x-enum-varnames:
+        - CartLineItemEntityTypeInternshipBatch
+        - CartLineItemEntityTypeCourse
+      - in: query
+        name: expand
+        type: string
+      - in: query
+        name: expires_at
+        type: string
+      - in: query
+        maximum: 1000
+        minimum: 1
+        name: limit
+        type: integer
+      - in: query
+        minimum: 0
+        name: offset
+        type: integer
+      - enum:
+        - asc
+        - desc
+        in: query
+        name: order
+        type: string
+      - in: query
+        name: sort
+        type: string
+      - in: query
+        name: start_time
+        type: string
+      - enum:
+        - published
+        - deleted
+        - archived
+        - inactive
+        - pending
+        in: query
+        name: status
+        type: string
+        x-enum-varnames:
+        - StatusPublished
+        - StatusDeleted
+        - StatusArchived
+        - StatusInactive
+        - StatusPending
+      - description: These fields are used to filter carts by user id
+        in: query
+        name: user_id
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ListCartResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ierr.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ierr.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: List carts
+      tags:
+      - Cart
+    post:
+      consumes:
+      - application/json
+      description: Create a new cart with the provided details
+      parameters:
+      - description: Cart details
+        in: body
+        name: cart
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateCartRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.CartResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ierr.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ierr.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Create a new cart
+      tags:
+      - Cart
+  /carts/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a cart by its unique identifier
+      parameters:
+      - description: Cart ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ierr.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/ierr.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ierr.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Delete a cart
+      tags:
+      - Cart
+    get:
+      consumes:
+      - application/json
+      description: Get a cart by ID
+      parameters:
+      - description: Cart ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.CartResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ierr.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/ierr.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ierr.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Get a cart
+      tags:
+      - Cart
+    put:
+      consumes:
+      - application/json
+      description: Update a cart by its unique identifier
+      parameters:
+      - description: Cart ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Cart details
+        in: body
+        name: cart
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateCartRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.CartResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ierr.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/ierr.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ierr.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Update a cart
+      tags:
+      - Cart
+  /carts/{id}/line-items:
+    get:
+      consumes:
+      - application/json
+      description: Get all line items for a specific cart
+      parameters:
+      - description: Cart ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/cart.CartLineItem'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ierr.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/ierr.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ierr.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Get cart line items
+      tags:
+      - Cart
+    post:
+      consumes:
+      - application/json
+      description: Add a new line item to a cart
+      parameters:
+      - description: Cart ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Line item details
+        in: body
+        name: line_item
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateCartLineItemRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/cart.CartLineItem'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ierr.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/ierr.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ierr.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Add line item to cart
+      tags:
+      - Cart
+  /carts/{id}/line-items/{line_item_id}:
+    delete:
+      consumes:
+      - application/json
+      description: Remove a line item from a cart
+      parameters:
+      - description: Cart ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Line Item ID
+        in: path
+        name: line_item_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ierr.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/ierr.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ierr.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Remove line item from cart
+      tags:
+      - Cart
+    get:
+      consumes:
+      - application/json
+      description: Get a specific line item by its ID
+      parameters:
+      - description: Cart ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Line Item ID
+        in: path
+        name: line_item_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/cart.CartLineItem'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ierr.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/ierr.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ierr.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Get line item
+      tags:
+      - Cart
+  /carts/default:
+    get:
+      consumes:
+      - application/json
+      description: Get the default cart for the authenticated user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.CartResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/ierr.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ierr.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Get user's default cart
+      tags:
+      - Cart
   /categories:
     get:
       consumes:
@@ -822,6 +1445,18 @@ paths:
       - application/json
       description: List discounts with optional filtering
       parameters:
+      - collectionFormat: csv
+        in: query
+        items:
+          type: string
+        name: codes
+        type: array
+      - collectionFormat: csv
+        in: query
+        items:
+          type: string
+        name: discount_ids
+        type: array
       - enum:
         - flat
         - percentage
@@ -1062,6 +1697,234 @@ paths:
       summary: Get a discount by code
       tags:
       - Discount
+  /internshipbatches:
+    get:
+      consumes:
+      - application/json
+      description: List internship batches with optional filtering
+      parameters:
+      - description: These fields are used to filter internships by start and end
+          date
+        enum:
+        - upcoming
+        - ongoing
+        - completed
+        - cancelled
+        in: query
+        name: batch_status
+        type: string
+        x-enum-varnames:
+        - InternshipBatchStatusUpcoming
+        - InternshipBatchStatusOngoing
+        - InternshipBatchStatusCompleted
+        - InternshipBatchStatusCancelled
+      - in: query
+        name: end_date
+        type: string
+      - in: query
+        name: end_time
+        type: string
+      - in: query
+        name: expand
+        type: string
+      - collectionFormat: csv
+        description: These fields are used to filter internships by internship id
+        in: query
+        items:
+          type: string
+        name: internship_ids
+        type: array
+      - in: query
+        maximum: 1000
+        minimum: 1
+        name: limit
+        type: integer
+      - description: These fields are used to filter internships by name
+        in: query
+        name: name
+        type: string
+      - in: query
+        minimum: 0
+        name: offset
+        type: integer
+      - enum:
+        - asc
+        - desc
+        in: query
+        name: order
+        type: string
+      - in: query
+        name: sort
+        type: string
+      - in: query
+        name: start_date
+        type: string
+      - in: query
+        name: start_time
+        type: string
+      - enum:
+        - published
+        - deleted
+        - archived
+        - inactive
+        - pending
+        in: query
+        name: status
+        type: string
+        x-enum-varnames:
+        - StatusPublished
+        - StatusDeleted
+        - StatusArchived
+        - StatusInactive
+        - StatusPending
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ListInternshipBatchResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ierr.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ierr.ErrorResponse'
+      summary: List internship batches
+      tags:
+      - InternshipBatch
+    post:
+      consumes:
+      - application/json
+      description: Create a new internship batch with the provided details
+      parameters:
+      - description: Internship batch details
+        in: body
+        name: batch
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateInternshipBatchRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.InternshipBatchResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ierr.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ierr.ErrorResponse'
+      summary: Create a new internship batch
+      tags:
+      - InternshipBatch
+  /internshipbatches/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete an internship batch by its unique identifier
+      parameters:
+      - description: Internship Batch ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ierr.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/ierr.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ierr.ErrorResponse'
+      summary: Delete an internship batch
+      tags:
+      - InternshipBatch
+    get:
+      consumes:
+      - application/json
+      description: Get an internship batch by its unique identifier
+      parameters:
+      - description: Internship Batch ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.InternshipBatchResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ierr.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/ierr.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ierr.ErrorResponse'
+      summary: Get an internship batch by ID
+      tags:
+      - InternshipBatch
+    put:
+      consumes:
+      - application/json
+      description: Update an internship batch by its unique identifier
+      parameters:
+      - description: Internship Batch ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Internship batch details
+        in: body
+        name: batch
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateInternshipBatchRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.InternshipBatchResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ierr.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/ierr.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ierr.ErrorResponse'
+      summary: Update an internship batch
+      tags:
+      - InternshipBatch
   /internships:
     get:
       consumes:

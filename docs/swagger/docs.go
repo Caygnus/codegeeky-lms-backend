@@ -53,6 +53,646 @@ const docTemplate = `{
                 }
             }
         },
+        "/carts": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "List carts with optional filtering",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Cart"
+                ],
+                "summary": "List carts",
+                "parameters": [
+                    {
+                        "enum": [
+                            "onetime",
+                            "default"
+                        ],
+                        "type": "string",
+                        "x-enum-varnames": [
+                            "CartTypeOneTime",
+                            "CartTypeDefault"
+                        ],
+                        "name": "cart_type",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "end_time",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "entity_id",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "internship_batch",
+                            "course"
+                        ],
+                        "type": "string",
+                        "x-enum-varnames": [
+                            "CartLineItemEntityTypeInternshipBatch",
+                            "CartLineItemEntityTypeCourse"
+                        ],
+                        "name": "entity_type",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "expand",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "expires_at",
+                        "in": "query"
+                    },
+                    {
+                        "maximum": 1000,
+                        "minimum": 1,
+                        "type": "integer",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "minimum": 0,
+                        "type": "integer",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "asc",
+                            "desc"
+                        ],
+                        "type": "string",
+                        "name": "order",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "sort",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "start_time",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "published",
+                            "deleted",
+                            "archived",
+                            "inactive",
+                            "pending"
+                        ],
+                        "type": "string",
+                        "x-enum-varnames": [
+                            "StatusPublished",
+                            "StatusDeleted",
+                            "StatusArchived",
+                            "StatusInactive",
+                            "StatusPending"
+                        ],
+                        "name": "status",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "These fields are used to filter carts by user id",
+                        "name": "user_id",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ListCartResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/ierr.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/ierr.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Create a new cart with the provided details",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Cart"
+                ],
+                "summary": "Create a new cart",
+                "parameters": [
+                    {
+                        "description": "Cart details",
+                        "name": "cart",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.CreateCartRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/dto.CartResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/ierr.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/ierr.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/carts/default": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Get the default cart for the authenticated user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Cart"
+                ],
+                "summary": "Get user's default cart",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.CartResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/ierr.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/ierr.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/carts/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Get a cart by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Cart"
+                ],
+                "summary": "Get a cart",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Cart ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.CartResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/ierr.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/ierr.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/ierr.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Update a cart by its unique identifier",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Cart"
+                ],
+                "summary": "Update a cart",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Cart ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Cart details",
+                        "name": "cart",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.UpdateCartRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.CartResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/ierr.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/ierr.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/ierr.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Delete a cart by its unique identifier",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Cart"
+                ],
+                "summary": "Delete a cart",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Cart ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/ierr.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/ierr.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/ierr.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/carts/{id}/line-items": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Get all line items for a specific cart",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Cart"
+                ],
+                "summary": "Get cart line items",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Cart ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/cart.CartLineItem"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/ierr.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/ierr.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/ierr.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Add a new line item to a cart",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Cart"
+                ],
+                "summary": "Add line item to cart",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Cart ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Line item details",
+                        "name": "line_item",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.CreateCartLineItemRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/cart.CartLineItem"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/ierr.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/ierr.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/ierr.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/carts/{id}/line-items/{line_item_id}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Get a specific line item by its ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Cart"
+                ],
+                "summary": "Get line item",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Cart ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Line Item ID",
+                        "name": "line_item_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/cart.CartLineItem"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/ierr.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/ierr.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/ierr.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Remove a line item from a cart",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Cart"
+                ],
+                "summary": "Remove line item from cart",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Cart ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Line Item ID",
+                        "name": "line_item_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/ierr.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/ierr.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/ierr.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/categories": {
             "get": {
                 "description": "List categories with optional filtering",
@@ -390,6 +1030,24 @@ const docTemplate = `{
                 ],
                 "summary": "List discounts",
                 "parameters": [
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "csv",
+                        "name": "codes",
+                        "in": "query"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "csv",
+                        "name": "discount_ids",
+                        "in": "query"
+                    },
                     {
                         "enum": [
                             "flat",
@@ -741,6 +1399,344 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/ierr.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/ierr.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/internshipbatches": {
+            "get": {
+                "description": "List internship batches with optional filtering",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "InternshipBatch"
+                ],
+                "summary": "List internship batches",
+                "parameters": [
+                    {
+                        "enum": [
+                            "upcoming",
+                            "ongoing",
+                            "completed",
+                            "cancelled"
+                        ],
+                        "type": "string",
+                        "x-enum-varnames": [
+                            "InternshipBatchStatusUpcoming",
+                            "InternshipBatchStatusOngoing",
+                            "InternshipBatchStatusCompleted",
+                            "InternshipBatchStatusCancelled"
+                        ],
+                        "description": "These fields are used to filter internships by start and end date",
+                        "name": "batch_status",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "end_date",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "end_time",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "expand",
+                        "in": "query"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "csv",
+                        "description": "These fields are used to filter internships by internship id",
+                        "name": "internship_ids",
+                        "in": "query"
+                    },
+                    {
+                        "maximum": 1000,
+                        "minimum": 1,
+                        "type": "integer",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "These fields are used to filter internships by name",
+                        "name": "name",
+                        "in": "query"
+                    },
+                    {
+                        "minimum": 0,
+                        "type": "integer",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "asc",
+                            "desc"
+                        ],
+                        "type": "string",
+                        "name": "order",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "sort",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "start_date",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "start_time",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "published",
+                            "deleted",
+                            "archived",
+                            "inactive",
+                            "pending"
+                        ],
+                        "type": "string",
+                        "x-enum-varnames": [
+                            "StatusPublished",
+                            "StatusDeleted",
+                            "StatusArchived",
+                            "StatusInactive",
+                            "StatusPending"
+                        ],
+                        "name": "status",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ListInternshipBatchResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/ierr.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/ierr.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create a new internship batch with the provided details",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "InternshipBatch"
+                ],
+                "summary": "Create a new internship batch",
+                "parameters": [
+                    {
+                        "description": "Internship batch details",
+                        "name": "batch",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.CreateInternshipBatchRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/dto.InternshipBatchResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/ierr.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/ierr.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/internshipbatches/{id}": {
+            "get": {
+                "description": "Get an internship batch by its unique identifier",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "InternshipBatch"
+                ],
+                "summary": "Get an internship batch by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Internship Batch ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.InternshipBatchResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/ierr.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/ierr.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/ierr.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Update an internship batch by its unique identifier",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "InternshipBatch"
+                ],
+                "summary": "Update an internship batch",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Internship Batch ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Internship batch details",
+                        "name": "batch",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.UpdateInternshipBatchRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.InternshipBatchResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/ierr.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/ierr.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/ierr.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete an internship batch by its unique identifier",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "InternshipBatch"
+                ],
+                "summary": "Delete an internship batch",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Internship Batch ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/ierr.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
                         "schema": {
                             "$ref": "#/definitions/ierr.ErrorResponse"
                         }
@@ -1202,6 +2198,118 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "cart.CartLineItem": {
+            "type": "object",
+            "properties": {
+                "cart_id": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "created_by": {
+                    "type": "string"
+                },
+                "discount_amount": {
+                    "type": "number"
+                },
+                "entity_id": {
+                    "type": "string"
+                },
+                "entity_type": {
+                    "$ref": "#/definitions/types.CartLineItemEntityType"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "metadata": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "per_unit_price": {
+                    "type": "number"
+                },
+                "quantity": {
+                    "type": "integer"
+                },
+                "status": {
+                    "$ref": "#/definitions/types.Status"
+                },
+                "subtotal": {
+                    "type": "number"
+                },
+                "tax_amount": {
+                    "type": "number"
+                },
+                "total": {
+                    "type": "number"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "updated_by": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.CartResponse": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "created_by": {
+                    "type": "string"
+                },
+                "discount_amount": {
+                    "type": "number"
+                },
+                "expires_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "line_items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/cart.CartLineItem"
+                    }
+                },
+                "metadata": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "status": {
+                    "$ref": "#/definitions/types.Status"
+                },
+                "subtotal": {
+                    "type": "number"
+                },
+                "tax_amount": {
+                    "type": "number"
+                },
+                "total": {
+                    "type": "number"
+                },
+                "type": {
+                    "$ref": "#/definitions/types.CartType"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "updated_by": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
         "dto.CategoryResponse": {
             "type": "object",
             "properties": {
@@ -1242,6 +2350,61 @@ const docTemplate = `{
                 },
                 "updated_by": {
                     "type": "string"
+                }
+            }
+        },
+        "dto.CreateCartLineItemRequest": {
+            "type": "object",
+            "required": [
+                "entity_id",
+                "entity_type",
+                "quantity"
+            ],
+            "properties": {
+                "cart_id": {
+                    "type": "string"
+                },
+                "entity_id": {
+                    "type": "string"
+                },
+                "entity_type": {
+                    "$ref": "#/definitions/types.CartLineItemEntityType"
+                },
+                "metadata": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "quantity": {
+                    "type": "integer",
+                    "minimum": 1
+                }
+            }
+        },
+        "dto.CreateCartRequest": {
+            "type": "object",
+            "required": [
+                "type"
+            ],
+            "properties": {
+                "expires_at": {
+                    "type": "string"
+                },
+                "line_items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.CreateCartLineItemRequest"
+                    }
+                },
+                "metadata": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "type": {
+                    "$ref": "#/definitions/types.CartType"
                 }
             }
         },
@@ -1302,6 +2465,35 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "valid_until": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.CreateInternshipBatchRequest": {
+            "type": "object",
+            "required": [
+                "internship_id",
+                "name"
+            ],
+            "properties": {
+                "batch_status": {
+                    "$ref": "#/definitions/types.InternshipBatchStatus"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "end_date": {
+                    "type": "string"
+                },
+                "internship_id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 255,
+                    "minLength": 3
+                },
+                "start_date": {
                     "type": "string"
                 }
             }
@@ -1440,18 +2632,60 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.InternshipBatchResponse": {
+            "type": "object",
+            "properties": {
+                "batch_status": {
+                    "$ref": "#/definitions/types.InternshipBatchStatus"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "created_by": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "end_date": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "internship_id": {
+                    "type": "string"
+                },
+                "metadata": {
+                    "$ref": "#/definitions/types.Metadata"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "start_date": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/types.Status"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "updated_by": {
+                    "type": "string"
+                }
+            }
+        },
         "dto.InternshipResponse": {
             "type": "object",
             "properties": {
                 "benefits": {
-                    "description": "Benefits of the internship",
                     "type": "array",
                     "items": {
                         "type": "string"
                     }
                 },
                 "categories": {
-                    "description": "Categories holds the value of the categories edge.",
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/internship.Category"
@@ -1464,69 +2698,48 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "currency": {
-                    "description": "Currency of the internship",
                     "type": "string"
                 },
                 "description": {
-                    "description": "Description holds the value of the \"description\" field.",
                     "type": "string"
                 },
                 "duration_in_weeks": {
-                    "description": "Alternative to months for shorter internships",
                     "type": "integer"
                 },
                 "flat_discount": {
-                    "description": "Flat discount on the internship",
                     "type": "number"
                 },
                 "id": {
-                    "description": "ID of the ent.",
                     "type": "string"
                 },
                 "learning_outcomes": {
-                    "description": "What students will learn in the internship",
                     "type": "array",
                     "items": {
                         "type": "string"
                     }
                 },
                 "level": {
-                    "description": "Level of the internship: beginner, intermediate, advanced",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/types.InternshipLevel"
-                        }
-                    ]
+                    "$ref": "#/definitions/types.InternshipLevel"
                 },
                 "lookup_key": {
-                    "description": "LookupKey holds the value of the \"lookup_key\" field.",
                     "type": "string"
                 },
                 "mode": {
-                    "description": "Internship mode: remote, hybrid, onsite",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/types.InternshipMode"
-                        }
-                    ]
+                    "$ref": "#/definitions/types.InternshipMode"
                 },
                 "percentage_discount": {
-                    "description": "Percentage discount on the internship",
                     "type": "number"
                 },
                 "prerequisites": {
-                    "description": "Prerequisites or recommended knowledge",
                     "type": "array",
                     "items": {
                         "type": "string"
                     }
                 },
                 "price": {
-                    "description": "Price of the internship",
                     "type": "number"
                 },
                 "skills": {
-                    "description": "List of required skills",
                     "type": "array",
                     "items": {
                         "type": "string"
@@ -1535,15 +2748,34 @@ const docTemplate = `{
                 "status": {
                     "$ref": "#/definitions/types.Status"
                 },
+                "subtotal": {
+                    "type": "number"
+                },
                 "title": {
-                    "description": "Title holds the value of the \"title\" field.",
                     "type": "string"
+                },
+                "total": {
+                    "type": "number"
                 },
                 "updated_at": {
                     "type": "string"
                 },
                 "updated_by": {
                     "type": "string"
+                }
+            }
+        },
+        "dto.ListCartResponse": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.CartResponse"
+                    }
+                },
+                "pagination": {
+                    "$ref": "#/definitions/types.PaginationResponse"
                 }
             }
         },
@@ -1568,6 +2800,20 @@ const docTemplate = `{
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/dto.DiscountResponse"
+                    }
+                },
+                "pagination": {
+                    "$ref": "#/definitions/types.PaginationResponse"
+                }
+            }
+        },
+        "dto.ListInternshipBatchResponse": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.InternshipBatchResponse"
                     }
                 },
                 "pagination": {
@@ -1653,6 +2899,29 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.UpdateCartRequest": {
+            "type": "object",
+            "properties": {
+                "expires_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "line_items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.CreateCartLineItemRequest"
+                    }
+                },
+                "metadata": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
         "dto.UpdateCategoryRequest": {
             "type": "object",
             "properties": {
@@ -1692,6 +2961,28 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "valid_until": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.UpdateInternshipBatchRequest": {
+            "type": "object",
+            "properties": {
+                "batch_status": {
+                    "$ref": "#/definitions/types.InternshipBatchStatus"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "end_date": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 255,
+                    "minLength": 3
+                },
+                "start_date": {
                     "type": "string"
                 }
             }
@@ -1849,14 +3140,12 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "benefits": {
-                    "description": "Benefits of the internship",
                     "type": "array",
                     "items": {
                         "type": "string"
                     }
                 },
                 "categories": {
-                    "description": "Categories holds the value of the categories edge.",
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/internship.Category"
@@ -1869,69 +3158,48 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "currency": {
-                    "description": "Currency of the internship",
                     "type": "string"
                 },
                 "description": {
-                    "description": "Description holds the value of the \"description\" field.",
                     "type": "string"
                 },
                 "duration_in_weeks": {
-                    "description": "Alternative to months for shorter internships",
                     "type": "integer"
                 },
                 "flat_discount": {
-                    "description": "Flat discount on the internship",
                     "type": "number"
                 },
                 "id": {
-                    "description": "ID of the ent.",
                     "type": "string"
                 },
                 "learning_outcomes": {
-                    "description": "What students will learn in the internship",
                     "type": "array",
                     "items": {
                         "type": "string"
                     }
                 },
                 "level": {
-                    "description": "Level of the internship: beginner, intermediate, advanced",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/types.InternshipLevel"
-                        }
-                    ]
+                    "$ref": "#/definitions/types.InternshipLevel"
                 },
                 "lookup_key": {
-                    "description": "LookupKey holds the value of the \"lookup_key\" field.",
                     "type": "string"
                 },
                 "mode": {
-                    "description": "Internship mode: remote, hybrid, onsite",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/types.InternshipMode"
-                        }
-                    ]
+                    "$ref": "#/definitions/types.InternshipMode"
                 },
                 "percentage_discount": {
-                    "description": "Percentage discount on the internship",
                     "type": "number"
                 },
                 "prerequisites": {
-                    "description": "Prerequisites or recommended knowledge",
                     "type": "array",
                     "items": {
                         "type": "string"
                     }
                 },
                 "price": {
-                    "description": "Price of the internship",
                     "type": "number"
                 },
                 "skills": {
-                    "description": "List of required skills",
                     "type": "array",
                     "items": {
                         "type": "string"
@@ -1940,9 +3208,14 @@ const docTemplate = `{
                 "status": {
                     "$ref": "#/definitions/types.Status"
                 },
+                "subtotal": {
+                    "type": "number"
+                },
                 "title": {
-                    "description": "Title holds the value of the \"title\" field.",
                     "type": "string"
+                },
+                "total": {
+                    "type": "number"
                 },
                 "updated_at": {
                     "type": "string"
@@ -1951,6 +3224,28 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
+        },
+        "types.CartLineItemEntityType": {
+            "type": "string",
+            "enum": [
+                "internship_batch",
+                "course"
+            ],
+            "x-enum-varnames": [
+                "CartLineItemEntityTypeInternshipBatch",
+                "CartLineItemEntityTypeCourse"
+            ]
+        },
+        "types.CartType": {
+            "type": "string",
+            "enum": [
+                "onetime",
+                "default"
+            ],
+            "x-enum-varnames": [
+                "CartTypeOneTime",
+                "CartTypeDefault"
+            ]
         },
         "types.DiscountType": {
             "type": "string",
@@ -1961,6 +3256,21 @@ const docTemplate = `{
             "x-enum-varnames": [
                 "DiscountTypeFlat",
                 "DiscountTypePercentage"
+            ]
+        },
+        "types.InternshipBatchStatus": {
+            "type": "string",
+            "enum": [
+                "upcoming",
+                "ongoing",
+                "completed",
+                "cancelled"
+            ],
+            "x-enum-varnames": [
+                "InternshipBatchStatusUpcoming",
+                "InternshipBatchStatusOngoing",
+                "InternshipBatchStatusCompleted",
+                "InternshipBatchStatusCancelled"
             ]
         },
         "types.InternshipLevel": {
@@ -2029,11 +3339,13 @@ const docTemplate = `{
         "types.UserRole": {
             "type": "string",
             "enum": [
+                "ADMIN",
                 "STUDENT",
                 "INSTRUCTOR",
                 "ADMIN"
             ],
             "x-enum-varnames": [
+                "DefaultUserRole",
                 "UserRoleStudent",
                 "UserRoleInstructor",
                 "UserRoleAdmin"

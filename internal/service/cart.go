@@ -19,6 +19,7 @@ type CartService interface {
 	DeleteCart(ctx context.Context, id string) error
 	ListCarts(ctx context.Context, filter *types.CartFilter) (*dto.ListCartResponse, error)
 	GetCartLineItems(ctx context.Context, cartId string) ([]*domainCart.CartLineItem, error)
+	GetUserDefaultCart(ctx context.Context) (*dto.CartResponse, error)
 
 	// line item service
 	AddLineItem(ctx context.Context, req *dto.CreateCartLineItemRequest) (*domainCart.CartLineItem, error)
@@ -490,4 +491,32 @@ func (s *cartService) updateCartTotals(ctx context.Context, cartID string) error
 	cart.UpdatedAt = time.Now().UTC()
 
 	return s.CartRepo.Update(ctx, cart)
+}
+
+// GetUserDefaultCart retrieves the default cart for the authenticated user
+func (s *cartService) GetUserDefaultCart(ctx context.Context) (*dto.CartResponse, error) {
+	userID := types.GetUserID(ctx)
+	if userID == "" {
+		return nil, ierr.NewError("user ID not found in context").
+			WithHint("Please ensure you are authenticated").
+			Mark(ierr.ErrValidation)
+	}
+
+	cart, err := s.CartRepo.GetUserDefaultCart(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	if cart == nil {
+		return nil, ierr.NewError("no default cart found").
+			WithHint("User does not have a default cart").
+			WithReportableDetails(map[string]any{
+				"user_id": userID,
+			}).
+			Mark(ierr.ErrNotFound)
+	}
+
+	return &dto.CartResponse{
+		Cart: cart,
+	}, nil
 }

@@ -11,12 +11,14 @@ import (
 )
 
 type Handlers struct {
-	Health     *v1.HealthHandler
-	Auth       *v1.AuthHandler
-	User       *v1.UserHandler
-	Internship *v1.InternshipHandler
-	Category   *v1.CategoryHandler
-	Discount   *v1.DiscountHandler
+	Health          *v1.HealthHandler
+	Auth            *v1.AuthHandler
+	User            *v1.UserHandler
+	Internship      *v1.InternshipHandler
+	InternshipBatch *v1.InternshipBatchHandler
+	Category        *v1.CategoryHandler
+	Discount        *v1.DiscountHandler
+	Cart            *v1.CartHandler
 }
 
 func NewRouter(handlers *Handlers, cfg *config.Configuration, logger *logger.Logger) *gin.Engine {
@@ -84,5 +86,36 @@ func NewRouter(handlers *Handlers, cfg *config.Configuration, logger *logger.Log
 		v1Discount.PUT("/:id", handlers.Discount.UpdateDiscount)
 		v1Discount.DELETE("/:id", handlers.Discount.DeleteDiscount)
 	}
+
+	// Cart routes
+	v1Cart := v1Router.Group("/carts")
+	v1Cart.Use(middleware.AuthenticateMiddleware(cfg, logger))
+	{
+		v1Cart.POST("", handlers.Cart.CreateCart)
+		v1Cart.GET("/default", handlers.Cart.GetDefaultCart)
+		v1Cart.GET("", handlers.Cart.ListCarts)
+		v1Cart.GET("/:id", handlers.Cart.GetCart)
+		v1Cart.PUT("/:id", handlers.Cart.UpdateCart)
+		v1Cart.DELETE("/:id", handlers.Cart.DeleteCart)
+
+		// Cart line items routes
+		v1Cart.GET("/:id/line-items", handlers.Cart.GetCartLineItems)
+		v1Cart.POST("/:id/line-items", handlers.Cart.AddLineItem)
+		v1Cart.GET("/:id/line-items/:line_item_id", handlers.Cart.GetLineItem)
+		v1Cart.DELETE("/:id/line-items/:line_item_id", handlers.Cart.RemoveLineItem)
+	}
+
+	// Internship Batch routes
+	v1InternshipBatch := v1Router.Group("/internshipbatches")
+	{
+		v1InternshipBatch.GET("", handlers.InternshipBatch.ListInternshipBatches)
+		v1InternshipBatch.GET("/:id", handlers.InternshipBatch.GetInternshipBatch)
+
+		v1InternshipBatch.Use(middleware.AuthenticateMiddleware(cfg, logger))
+		v1InternshipBatch.POST("", handlers.InternshipBatch.CreateInternshipBatch)
+		v1InternshipBatch.PUT("/:id", handlers.InternshipBatch.UpdateInternshipBatch)
+		v1InternshipBatch.DELETE("/:id", handlers.InternshipBatch.DeleteInternshipBatch)
+	}
+
 	return router
 }
