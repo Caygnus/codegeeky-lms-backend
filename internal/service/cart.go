@@ -13,11 +13,11 @@ import (
 )
 
 type CartService interface {
-	CreateCart(ctx context.Context, req *dto.CreateCartRequest) (*domainCart.Cart, error)
-	GetCart(ctx context.Context, id string) (*domainCart.Cart, error)
-	UpdateCart(ctx context.Context, id string, req *dto.UpdateCartRequest) (*domainCart.Cart, error)
+	CreateCart(ctx context.Context, req *dto.CreateCartRequest) (*dto.CartResponse, error)
+	GetCart(ctx context.Context, id string) (*dto.CartResponse, error)
+	UpdateCart(ctx context.Context, id string, req *dto.UpdateCartRequest) (*dto.CartResponse, error)
 	DeleteCart(ctx context.Context, id string) error
-	ListCarts(ctx context.Context, filter *types.CartFilter) ([]*domainCart.Cart, error)
+	ListCarts(ctx context.Context, filter *types.CartFilter) (*dto.ListCartResponse, error)
 	GetCartLineItems(ctx context.Context, cartId string) ([]*domainCart.CartLineItem, error)
 
 	// line item service
@@ -37,7 +37,7 @@ func NewCartService(params ServiceParams) CartService {
 	}
 }
 
-func (s *cartService) CreateCart(ctx context.Context, req *dto.CreateCartRequest) (*domainCart.Cart, error) {
+func (s *cartService) CreateCart(ctx context.Context, req *dto.CreateCartRequest) (*dto.CartResponse, error) {
 	if err := req.Validate(); err != nil {
 		return nil, err
 	}
@@ -62,12 +62,12 @@ func (s *cartService) CreateCart(ctx context.Context, req *dto.CreateCartRequest
 	for _, lineItemReq := range req.LineItems {
 		if lineItemReq.EntityType == types.CartLineItemEntityTypeInternshipBatch {
 
-			internshipBatch, err := s.ServiceParams.InternshipBatchRepo.Get(ctx, lineItemReq.EntityID)
+			internshipBatch, err := s.InternshipBatchRepo.Get(ctx, lineItemReq.EntityID)
 			if err != nil {
 				return nil, err
 			}
 
-			internship, err := s.ServiceParams.InternshipRepo.Get(ctx, internshipBatch.InternshipID)
+			internship, err := s.InternshipRepo.Get(ctx, internshipBatch.InternshipID)
 			if err != nil {
 				return nil, err
 			}
@@ -113,34 +113,38 @@ func (s *cartService) CreateCart(ctx context.Context, req *dto.CreateCartRequest
 	// update
 	cart.LineItems = lineItems
 
-	err := s.ServiceParams.CartRepo.CreateWithLineItems(ctx, cart)
+	err := s.CartRepo.CreateWithLineItems(ctx, cart)
 	if err != nil {
 		return nil, err
 	}
 
-	return cart, nil
+	return &dto.CartResponse{
+		Cart: cart,
+	}, nil
 }
 
 // GetCart retrieves a cart by its ID
-func (s *cartService) GetCart(ctx context.Context, id string) (*domainCart.Cart, error) {
+func (s *cartService) GetCart(ctx context.Context, id string) (*dto.CartResponse, error) {
 	if id == "" {
 		return nil, ierr.NewError("cart ID is required").
 			WithHint("Please provide a valid cart ID").
 			Mark(ierr.ErrValidation)
 	}
 
-	cart, err := s.ServiceParams.CartRepo.Get(ctx, id)
+	cart, err := s.CartRepo.Get(ctx, id)
 	if err != nil {
 		return nil, err
 	}
 	// Here we are not checking if the user has permission to access this cart
 	// because userId check is already enforced in the repository
 
-	return cart, nil
+	return &dto.CartResponse{
+		Cart: cart,
+	}, nil
 }
 
 // UpdateCart updates an existing cart
-func (s *cartService) UpdateCart(ctx context.Context, id string, req *dto.UpdateCartRequest) (*domainCart.Cart, error) {
+func (s *cartService) UpdateCart(ctx context.Context, id string, req *dto.UpdateCartRequest) (*dto.CartResponse, error) {
 	if id == "" {
 		return nil, ierr.NewError("cart ID is required").
 			WithHint("Please provide a valid cart ID").
@@ -148,7 +152,7 @@ func (s *cartService) UpdateCart(ctx context.Context, id string, req *dto.Update
 	}
 
 	// Get existing cart
-	existingCart, err := s.ServiceParams.CartRepo.Get(ctx, id)
+	existingCart, err := s.CartRepo.Get(ctx, id)
 	if err != nil {
 		return nil, err
 	}
@@ -163,12 +167,14 @@ func (s *cartService) UpdateCart(ctx context.Context, id string, req *dto.Update
 	}
 
 	// Update cart
-	err = s.ServiceParams.CartRepo.Update(ctx, existingCart)
+	err = s.CartRepo.Update(ctx, existingCart)
 	if err != nil {
 		return nil, err
 	}
 
-	return existingCart, nil
+	return &dto.CartResponse{
+		Cart: existingCart,
+	}, nil
 }
 
 // DeleteCart deletes a cart by its ID
@@ -180,7 +186,7 @@ func (s *cartService) DeleteCart(ctx context.Context, id string) error {
 	}
 
 	// Get existing cart to check permissions
-	existingCart, err := s.ServiceParams.CartRepo.Get(ctx, id)
+	existingCart, err := s.CartRepo.Get(ctx, id)
 	if err != nil {
 		return err
 	}
@@ -201,7 +207,7 @@ func (s *cartService) DeleteCart(ctx context.Context, id string) error {
 }
 
 // ListCarts retrieves a list of carts based on filter criteria
-func (s *cartService) ListCarts(ctx context.Context, filter *types.CartFilter) ([]*domainCart.Cart, error) {
+func (s *cartService) ListCarts(ctx context.Context, filter *types.CartFilter) (*dto.ListCartResponse, error) {
 	if filter == nil {
 		filter = types.NewCartFilter()
 	}
@@ -213,7 +219,28 @@ func (s *cartService) ListCarts(ctx context.Context, filter *types.CartFilter) (
 		return nil, err
 	}
 
-	return s.CartRepo.List(ctx, filter)
+	count, err := s.CartRepo.Count(ctx, filter)
+	if err != nil {
+		return nil, err
+	}
+
+	carts, err := s.CartRepo.List(ctx, filter)
+	if err != nil {
+		return nil, err
+	}
+
+	// Build response
+	response := &dto.ListCartResponse{
+		Items:      make([]*dto.CartResponse, count),
+		Pagination: types.NewPaginationResponse(count, filter.GetLimit(), filter.GetOffset()),
+	}
+
+	// Add items to response
+	for i, cart := range carts {
+		response.Items[i] = &dto.CartResponse{Cart: cart}
+	}
+
+	return response, nil
 }
 
 // GetCartLineItems retrieves all line items for a specific cart

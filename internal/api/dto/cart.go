@@ -121,3 +121,15 @@ func (c *CreateCartLineItemRequest) ToCartLineItem(ctx context.Context) *domainC
 		BaseModel:      types.GetDefaultBaseModel(ctx),
 	}
 }
+
+type CartResponse struct {
+	*domainCart.Cart
+}
+
+func (c *CartResponse) FromDomain(cart *domainCart.Cart) *CartResponse {
+	return &CartResponse{
+		Cart: cart,
+	}
+}
+
+type ListCartResponse = types.ListResponse[*CartResponse]
