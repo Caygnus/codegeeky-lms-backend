@@ -22,6 +22,18 @@ generate-dev-keys:
 	@./scripts/generate-dev-keys.sh
 	@echo "✅ Development key pair generated"
 
+.PHONY: generate-dev-token
+generate-dev-token:
+	@echo "Generating development JWT token..."
+	@echo "Usage: make generate-dev-token JWT_SECRET=your_jwt_secret"
+	@if [ -z "$(JWT_SECRET)" ]; then \
+		echo "❌ Error: JWT_SECRET is required"; \
+		echo "Example: make generate-dev-token JWT_SECRET=your_jwt_secret_here"; \
+		exit 1; \
+	fi
+	@go run cmd/dev-token/main.go "$(JWT_SECRET)"
+	@echo "✅ Development JWT token generated"
+
 .PHONY: install-hooks
 install-hooks:
 	@echo "Installing Git hooks..."

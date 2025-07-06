@@ -33,6 +33,7 @@ func GuestAuthenticateMiddleware(c *gin.Context) {
 
 // AuthenticateMiddleware is a middleware that authenticates requests based on either:
 // 1. JWT token in the Authorization header as a Bearer token
+// 2. Development API key in the Authorization header (only in development mode)
 func AuthenticateMiddleware(cfg *config.Configuration, logger *logger.Logger) gin.HandlerFunc {
 
 	return func(c *gin.Context) {
@@ -47,7 +48,7 @@ func AuthenticateMiddleware(cfg *config.Configuration, logger *logger.Logger) gi
 
 		authProvider := auth.NewSupabaseProvider(cfg, logger, encryptionService)
 
-		// If no API key, check for JWT token
+		// Get authorization header
 		authHeader := c.GetHeader(types.HeaderAuthorization)
 		if authHeader == "" {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
@@ -55,7 +56,18 @@ func AuthenticateMiddleware(cfg *config.Configuration, logger *logger.Logger) gi
 			return
 		}
 
-		// Check if the authorization header is in the correct format
+		// Check if it's a development API key (only in development mode)
+		if cfg.Server.Env == config.EnvLocal || cfg.Server.Env == config.EnvDev {
+			if cfg.Supabase.DevAPIKey != "" && authHeader == "Bearer "+cfg.Supabase.DevAPIKey {
+				// Use default development user
+				setContextValues(c, types.DefaultUserID, types.DefaultUserEmail, types.DefaultUserRole)
+				logger.Debugw("Using development API key for authentication", "user_id", types.DefaultUserID)
+				c.Next()
+				return
+			}
+		}
+
+		// Check if the authorization header is in the correct format for JWT
 		if !strings.HasPrefix(authHeader, "Bearer ") {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid authorization header format"})
 			c.Abort()

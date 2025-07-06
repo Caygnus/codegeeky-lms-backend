@@ -102,9 +102,9 @@ var (
 		},
 		Indexes: []*schema.Index{
 			{
-				Name:    "category_name",
+				Name:    "category_lookup_key",
 				Unique:  true,
-				Columns: []*schema.Column{CategoriesColumns[7]},
+				Columns: []*schema.Column{CategoriesColumns[8]},
 			},
 		},
 	}

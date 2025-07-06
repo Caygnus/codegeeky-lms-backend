@@ -74,6 +74,8 @@ type SupabaseConfig struct {
 	Key        string `mapstructure:"key" validate:"required"`
 	JWTSecret  string `mapstructure:"jwt_secret" validate:"required"`
 	ServiceKey string `mapstructure:"service_key" validate:"required"`
+	// Development API key for bypassing JWT validation in development
+	DevAPIKey string `mapstructure:"dev_api_key"`
 }
 
 type RazorpayConfig struct {

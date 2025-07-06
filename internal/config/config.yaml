@@ -26,6 +26,7 @@ supabase:
   key: "dummy_key"
   jwt_secret: "dummy_jwt_secret"
   service_key: "dummy_service_key"
+  dev_api_key: "dev_api_key_for_development_only"
 
 # secrets
 secrets:

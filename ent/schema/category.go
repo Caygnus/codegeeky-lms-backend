@@ -41,6 +41,7 @@ func (Category) Fields() []ent.Field {
 				"postgres": "varchar(255)",
 			}).
 			NotEmpty(),
+
 		field.String("description").
 			SchemaType(map[string]string{
 				"postgres": "text",
@@ -59,7 +60,7 @@ func (Category) Edges() []ent.Edge {
 // Indexes of the User.
 func (Category) Indexes() []ent.Index {
 	return []ent.Index{
-		index.Fields("name").
+		index.Fields("lookup_key").
 			Unique(),
 	}
 }

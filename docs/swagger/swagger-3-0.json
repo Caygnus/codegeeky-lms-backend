@@ -1,1 +1,2294 @@
-{"openapi":"3.0.1","info":{"title":"CodeGeeky API","description":"API for CodeGeeky","termsOfService":"http://example.com/terms/","contact":{"name":"API Support","email":"support@example.com"},"version":"1.0"},"servers":[{"url":"//localhost:8080/v1"}],"paths":{"/auth/signup":{"post":{"tags":["Auth"],"summary":"Signup","description":"Signup","requestBody":{"description":"Signup request","content":{"application/json":{"schema":{"$ref":"#/components/schemas/dto.SignupRequest"}}},"required":true},"responses":{"201":{"description":"Created","content":{"application/json":{"schema":{"$ref":"#/components/schemas/dto.SignupResponse"}}}}},"x-codegen-request-body-name":"signupRequest"}},"/categories":{"get":{"tags":["Category"],"summary":"List categories","description":"List categories with optional filtering","parameters":[{"name":"category_ids","in":"query","style":"form","explode":false,"schema":{"type":"array","items":{"type":"string"}}},{"name":"end_time","in":"query","schema":{"type":"string"}},{"name":"expand","in":"query","schema":{"type":"string"}},{"name":"internship_ids","in":"query","style":"form","explode":false,"schema":{"type":"array","items":{"type":"string"}}},{"name":"limit","in":"query","schema":{"maximum":1000,"minimum":1,"type":"integer"}},{"name":"name","in":"query","description":"These fields are used to filter categories by name","schema":{"type":"string"}},{"name":"offset","in":"query","schema":{"minimum":0,"type":"integer"}},{"name":"order","in":"query","schema":{"type":"string","enum":["asc","desc"]}},{"name":"sort","in":"query","schema":{"type":"string"}},{"name":"start_time","in":"query","schema":{"type":"string"}},{"name":"status","in":"query","schema":{"type":"string","enum":["published","deleted","archived","inactive","pending"],"x-enum-varnames":["StatusPublished","StatusDeleted","StatusArchived","StatusInactive","StatusPending"]},"x-enum-varnames":["StatusPublished","StatusDeleted","StatusArchived","StatusInactive","StatusPending"]}],"responses":{"200":{"description":"OK","content":{"application/json":{"schema":{"$ref":"#/components/schemas/dto.ListCategoryResponse"}}}},"400":{"description":"Bad Request","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ierr.ErrorResponse"}}}},"500":{"description":"Internal Server Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ierr.ErrorResponse"}}}}}},"post":{"tags":["Category"],"summary":"Create a new category","description":"Create a new category with the provided details","requestBody":{"description":"Category details","content":{"application/json":{"schema":{"$ref":"#/components/schemas/dto.CreateCategoryRequest"}}},"required":true},"responses":{"201":{"description":"Created","content":{"application/json":{"schema":{"$ref":"#/components/schemas/dto.CategoryResponse"}}}},"400":{"description":"Bad Request","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ierr.ErrorResponse"}}}},"500":{"description":"Internal Server Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ierr.ErrorResponse"}}}}},"x-codegen-request-body-name":"category"}},"/categories/{id}":{"get":{"tags":["Category"],"summary":"Get a category by ID","description":"Get a category by its unique identifier","parameters":[{"name":"id","in":"path","description":"Category ID","required":true,"schema":{"type":"string"}}],"responses":{"200":{"description":"OK","content":{"application/json":{"schema":{"$ref":"#/components/schemas/dto.CategoryResponse"}}}},"400":{"description":"Bad Request","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ierr.ErrorResponse"}}}},"404":{"description":"Not Found","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ierr.ErrorResponse"}}}},"500":{"description":"Internal Server Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ierr.ErrorResponse"}}}}}},"put":{"tags":["Category"],"summary":"Update a category","description":"Update a category by its unique identifier","parameters":[{"name":"id","in":"path","description":"Category ID","required":true,"schema":{"type":"string"}}],"requestBody":{"description":"Category details","content":{"application/json":{"schema":{"$ref":"#/components/schemas/dto.UpdateCategoryRequest"}}},"required":true},"responses":{"200":{"description":"OK","content":{"application/json":{"schema":{"$ref":"#/components/schemas/dto.CategoryResponse"}}}},"400":{"description":"Bad Request","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ierr.ErrorResponse"}}}},"404":{"description":"Not Found","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ierr.ErrorResponse"}}}},"500":{"description":"Internal Server Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ierr.ErrorResponse"}}}}},"x-codegen-request-body-name":"category"},"delete":{"tags":["Category"],"summary":"Delete a category","description":"Delete a category by its unique identifier","parameters":[{"name":"id","in":"path","description":"Category ID","required":true,"schema":{"type":"string"}}],"responses":{"204":{"description":"No Content","content":{}},"400":{"description":"Bad Request","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ierr.ErrorResponse"}}}},"404":{"description":"Not Found","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ierr.ErrorResponse"}}}},"500":{"description":"Internal Server Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ierr.ErrorResponse"}}}}}}},"/discounts":{"get":{"tags":["Discount"],"summary":"List discounts","description":"List discounts with optional filtering","parameters":[{"name":"discount_type","in":"query","schema":{"type":"string","enum":["flat","percentage"],"x-enum-varnames":["DiscountTypeFlat","DiscountTypePercentage"]},"x-enum-varnames":["DiscountTypeFlat","DiscountTypePercentage"]},{"name":"end_time","in":"query","schema":{"type":"string"}},{"name":"expand","in":"query","schema":{"type":"string"}},{"name":"is_combinable","in":"query","schema":{"type":"boolean"}},{"name":"limit","in":"query","schema":{"maximum":1000,"minimum":1,"type":"integer"}},{"name":"min_order_value","in":"query","schema":{"type":"number"}},{"name":"offset","in":"query","schema":{"minimum":0,"type":"integer"}},{"name":"order","in":"query","schema":{"type":"string","enum":["asc","desc"]}},{"name":"sort","in":"query","schema":{"type":"string"}},{"name":"start_time","in":"query","schema":{"type":"string"}},{"name":"status","in":"query","schema":{"type":"string","enum":["published","deleted","archived","inactive","pending"],"x-enum-varnames":["StatusPublished","StatusDeleted","StatusArchived","StatusInactive","StatusPending"]},"x-enum-varnames":["StatusPublished","StatusDeleted","StatusArchived","StatusInactive","StatusPending"]},{"name":"valid_from","in":"query","schema":{"type":"string"}},{"name":"valid_until","in":"query","schema":{"type":"string"}}],"responses":{"200":{"description":"OK","content":{"application/json":{"schema":{"$ref":"#/components/schemas/dto.ListDiscountResponse"}}}},"400":{"description":"Bad Request","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ierr.ErrorResponse"}}}},"500":{"description":"Internal Server Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ierr.ErrorResponse"}}}}},"security":[{"ApiKeyAuth":[]}]},"post":{"tags":["Discount"],"summary":"Create a new discount","description":"Create a new discount with the provided details","requestBody":{"description":"Discount details","content":{"application/json":{"schema":{"$ref":"#/components/schemas/dto.CreateDiscountRequest"}}},"required":true},"responses":{"201":{"description":"Created","content":{"application/json":{"schema":{"$ref":"#/components/schemas/dto.DiscountResponse"}}}},"400":{"description":"Bad Request","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ierr.ErrorResponse"}}}},"500":{"description":"Internal Server Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ierr.ErrorResponse"}}}}},"security":[{"ApiKeyAuth":[]}],"x-codegen-request-body-name":"discount"}},"/discounts/code/{code}":{"get":{"tags":["Discount"],"summary":"Get a discount by code","description":"Get a discount by its unique code","parameters":[{"name":"code","in":"path","description":"Discount code","required":true,"schema":{"type":"string"}}],"responses":{"200":{"description":"OK","content":{"application/json":{"schema":{"$ref":"#/components/schemas/dto.DiscountResponse"}}}},"400":{"description":"Bad Request","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ierr.ErrorResponse"}}}},"500":{"description":"Internal Server Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ierr.ErrorResponse"}}}}},"security":[{"ApiKeyAuth":[]}]}},"/discounts/{id}":{"get":{"tags":["Discount"],"summary":"Get a discount by ID","description":"Get a discount by its unique identifier","parameters":[{"name":"id","in":"path","description":"Discount ID","required":true,"schema":{"type":"string"}}],"responses":{"200":{"description":"OK","content":{"application/json":{"schema":{"$ref":"#/components/schemas/dto.DiscountResponse"}}}},"400":{"description":"Bad Request","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ierr.ErrorResponse"}}}},"500":{"description":"Internal Server Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ierr.ErrorResponse"}}}}},"security":[{"ApiKeyAuth":[]}]},"put":{"tags":["Discount"],"summary":"Update a discount by ID","description":"Update a discount by its unique identifier","parameters":[{"name":"id","in":"path","description":"Discount ID","required":true,"schema":{"type":"string"}}],"requestBody":{"description":"Discount details","content":{"application/json":{"schema":{"$ref":"#/components/schemas/dto.UpdateDiscountRequest"}}},"required":true},"responses":{"200":{"description":"OK","content":{"application/json":{"schema":{"$ref":"#/components/schemas/dto.DiscountResponse"}}}},"400":{"description":"Bad Request","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ierr.ErrorResponse"}}}},"500":{"description":"Internal Server Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ierr.ErrorResponse"}}}}},"security":[{"ApiKeyAuth":[]}],"x-codegen-request-body-name":"discount"},"delete":{"tags":["Discount"],"summary":"Delete a discount by ID","description":"Delete a discount by its unique identifier","parameters":[{"name":"id","in":"path","description":"Discount ID","required":true,"schema":{"type":"string"}}],"responses":{"204":{"description":"No Content","content":{}},"400":{"description":"Bad Request","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ierr.ErrorResponse"}}}},"500":{"description":"Internal Server Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ierr.ErrorResponse"}}}}},"security":[{"ApiKeyAuth":[]}]}},"/internships":{"get":{"tags":["Internship"],"summary":"List internships","description":"List internships with optional filtering","parameters":[{"name":"category_ids","in":"query","style":"form","explode":false,"schema":{"type":"array","items":{"type":"string"}}},{"name":"duration_in_weeks","in":"query","description":"These fields are used to filter internships by duration in weeks","schema":{"maximum":52,"minimum":1,"type":"integer"}},{"name":"end_time","in":"query","schema":{"type":"string"}},{"name":"expand","in":"query","schema":{"type":"string"}},{"name":"internship_ids","in":"query","style":"form","explode":false,"schema":{"type":"array","items":{"type":"string"}}},{"name":"levels","in":"query","style":"form","explode":false,"schema":{"type":"array","items":{"type":"string","enum":["beginner","intermediate","advanced"]}}},{"name":"limit","in":"query","schema":{"maximum":1000,"minimum":1,"type":"integer"}},{"name":"max_price","in":"query","description":"These fields are used to filter internships by price","schema":{"type":"number"}},{"name":"min_price","in":"query","schema":{"type":"number"}},{"name":"modes","in":"query","style":"form","explode":false,"schema":{"type":"array","items":{"type":"string","enum":["remote","hybrid","onsite"]}}},{"name":"name","in":"query","description":"These fields are used to filter internships by category, level and mode","schema":{"type":"string"}},{"name":"offset","in":"query","schema":{"minimum":0,"type":"integer"}},{"name":"order","in":"query","schema":{"type":"string","enum":["asc","desc"]}},{"name":"sort","in":"query","schema":{"type":"string"}},{"name":"start_time","in":"query","schema":{"type":"string"}},{"name":"status","in":"query","schema":{"type":"string","enum":["published","deleted","archived","inactive","pending"],"x-enum-varnames":["StatusPublished","StatusDeleted","StatusArchived","StatusInactive","StatusPending"]},"x-enum-varnames":["StatusPublished","StatusDeleted","StatusArchived","StatusInactive","StatusPending"]}],"responses":{"200":{"description":"OK","content":{"application/json":{"schema":{"$ref":"#/components/schemas/dto.ListInternshipResponse"}}}},"400":{"description":"Bad Request","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ierr.ErrorResponse"}}}},"500":{"description":"Internal Server Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ierr.ErrorResponse"}}}}}},"post":{"tags":["Internship"],"summary":"Create a new internship","description":"Create a new internship with the provided details","requestBody":{"description":"Internship details","content":{"application/json":{"schema":{"$ref":"#/components/schemas/dto.CreateInternshipRequest"}}},"required":true},"responses":{"201":{"description":"Created","content":{"application/json":{"schema":{"$ref":"#/components/schemas/dto.InternshipResponse"}}}},"400":{"description":"Bad Request","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ierr.ErrorResponse"}}}},"500":{"description":"Internal Server Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ierr.ErrorResponse"}}}}},"x-codegen-request-body-name":"internship"}},"/internships/{id}":{"get":{"tags":["Internship"],"summary":"Get an internship by ID","description":"Get an internship by its unique identifier","parameters":[{"name":"id","in":"path","description":"Internship ID","required":true,"schema":{"type":"string"}}],"responses":{"200":{"description":"OK","content":{"application/json":{"schema":{"$ref":"#/components/schemas/dto.InternshipResponse"}}}},"400":{"description":"Bad Request","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ierr.ErrorResponse"}}}},"404":{"description":"Not Found","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ierr.ErrorResponse"}}}},"500":{"description":"Internal Server Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ierr.ErrorResponse"}}}}}},"put":{"tags":["Internship"],"summary":"Update an internship","description":"Update an internship by its unique identifier","parameters":[{"name":"id","in":"path","description":"Internship ID","required":true,"schema":{"type":"string"}}],"requestBody":{"description":"Internship details","content":{"application/json":{"schema":{"$ref":"#/components/schemas/dto.UpdateInternshipRequest"}}},"required":true},"responses":{"200":{"description":"OK","content":{"application/json":{"schema":{"$ref":"#/components/schemas/dto.InternshipResponse"}}}},"400":{"description":"Bad Request","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ierr.ErrorResponse"}}}},"404":{"description":"Not Found","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ierr.ErrorResponse"}}}},"500":{"description":"Internal Server Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ierr.ErrorResponse"}}}}},"x-codegen-request-body-name":"internship"},"delete":{"tags":["Internship"],"summary":"Delete an internship","description":"Delete an internship by its unique identifier","parameters":[{"name":"id","in":"path","description":"Internship ID","required":true,"schema":{"type":"string"}}],"responses":{"204":{"description":"No Content","content":{}},"400":{"description":"Bad Request","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ierr.ErrorResponse"}}}},"404":{"description":"Not Found","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ierr.ErrorResponse"}}}},"500":{"description":"Internal Server Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ierr.ErrorResponse"}}}}}}},"/user":{"put":{"tags":["User"],"summary":"Update current user","description":"Update the current user's information","requestBody":{"description":"Update user request","content":{"application/json":{"schema":{"$ref":"#/components/schemas/dto.UpdateUserRequest"}}},"required":true},"responses":{"200":{"description":"OK","content":{"application/json":{"schema":{"$ref":"#/components/schemas/dto.MeResponse"}}}},"400":{"description":"Bad Request","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ierr.ErrorResponse"}}}},"500":{"description":"Internal Server Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ierr.ErrorResponse"}}}}},"x-codegen-request-body-name":"request"}},"/user/me":{"get":{"tags":["User"],"summary":"Get current user","description":"Get the current user's information","responses":{"200":{"description":"OK","content":{"application/json":{"schema":{"$ref":"#/components/schemas/dto.MeResponse"}}}},"401":{"description":"Unauthorized","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ierr.ErrorResponse"}}}},"500":{"description":"Internal Server Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/ierr.ErrorResponse"}}}}}}}},"components":{"schemas":{"dto.CategoryResponse":{"type":"object","properties":{"created_at":{"type":"string"},"created_by":{"type":"string"},"description":{"type":"string","description":"Description holds the value of the \"description\" field."},"id":{"type":"string","description":"ID of the ent."},"internships":{"type":"array","description":"internships holds the value of the internships edge.","items":{"$ref":"#/components/schemas/internship.Internship"}},"lookup_key":{"type":"string","description":"LookupKey holds the value of the \"lookup_key\" field."},"name":{"type":"string","description":"Name holds the value of the \"name\" field."},"status":{"$ref":"#/components/schemas/types.Status"},"updated_at":{"type":"string"},"updated_by":{"type":"string"}}},"dto.CreateCategoryRequest":{"required":["lookup_key","name"],"type":"object","properties":{"description":{"type":"string"},"lookup_key":{"type":"string"},"name":{"type":"string"}}},"dto.CreateDiscountRequest":{"required":["code","discount_type","discount_value"],"type":"object","properties":{"code":{"type":"string"},"description":{"type":"string"},"discount_type":{"$ref":"#/components/schemas/types.DiscountType"},"discount_value":{"type":"number"},"is_active":{"type":"boolean"},"is_combinable":{"type":"boolean"},"max_uses":{"type":"integer"},"metadata":{"$ref":"#/components/schemas/types.Metadata"},"min_order_value":{"type":"number"},"valid_from":{"type":"string"},"valid_until":{"type":"string"}}},"dto.CreateInternshipRequest":{"required":["currency","description","level","lookup_key","mode","price","title"],"type":"object","properties":{"benefits":{"type":"array","items":{"type":"string"}},"category_ids":{"type":"array","items":{"type":"string"}},"currency":{"type":"string"},"description":{"minLength":10,"type":"string"},"duration_in_weeks":{"minimum":0,"type":"integer"},"flat_discount":{"type":"number"},"learning_outcomes":{"type":"array","items":{"type":"string"}},"level":{"$ref":"#/components/schemas/types.InternshipLevel"},"lookup_key":{"type":"string"},"mode":{"$ref":"#/components/schemas/types.InternshipMode"},"percentage_discount":{"type":"number"},"prerequisites":{"type":"array","items":{"type":"string"}},"price":{"type":"number"},"skills":{"type":"array","items":{"type":"string"}},"title":{"maxLength":255,"minLength":3,"type":"string"}}},"dto.DiscountResponse":{"type":"object","properties":{"code":{"type":"string"},"created_at":{"type":"string"},"created_by":{"type":"string"},"description":{"type":"string"},"discount_type":{"$ref":"#/components/schemas/types.DiscountType"},"discount_value":{"type":"number"},"id":{"type":"string"},"is_active":{"type":"boolean"},"is_combinable":{"type":"boolean"},"max_uses":{"type":"integer"},"metadata":{"$ref":"#/components/schemas/types.Metadata"},"min_order_value":{"type":"number"},"status":{"$ref":"#/components/schemas/types.Status"},"updated_at":{"type":"string"},"updated_by":{"type":"string"},"valid_from":{"type":"string"},"valid_until":{"type":"string"}}},"dto.InternshipResponse":{"type":"object","properties":{"benefits":{"type":"array","description":"Benefits of the internship","items":{"type":"string"}},"categories":{"type":"array","description":"Categories holds the value of the categories edge.","items":{"$ref":"#/components/schemas/internship.Category"}},"created_at":{"type":"string"},"created_by":{"type":"string"},"currency":{"type":"string","description":"Currency of the internship"},"description":{"type":"string","description":"Description holds the value of the \"description\" field."},"duration_in_weeks":{"type":"integer","description":"Alternative to months for shorter internships"},"flat_discount":{"type":"number","description":"Flat discount on the internship"},"id":{"type":"string","description":"ID of the ent."},"learning_outcomes":{"type":"array","description":"What students will learn in the internship","items":{"type":"string"}},"level":{"$ref":"#/components/schemas/types.InternshipLevel"},"lookup_key":{"type":"string","description":"LookupKey holds the value of the \"lookup_key\" field."},"mode":{"$ref":"#/components/schemas/types.InternshipMode"},"percentage_discount":{"type":"number","description":"Percentage discount on the internship"},"prerequisites":{"type":"array","description":"Prerequisites or recommended knowledge","items":{"type":"string"}},"price":{"type":"number","description":"Price of the internship"},"skills":{"type":"array","description":"List of required skills","items":{"type":"string"}},"status":{"$ref":"#/components/schemas/types.Status"},"title":{"type":"string","description":"Title holds the value of the \"title\" field."},"updated_at":{"type":"string"},"updated_by":{"type":"string"}}},"dto.ListCategoryResponse":{"type":"object","properties":{"items":{"type":"array","items":{"$ref":"#/components/schemas/dto.CategoryResponse"}},"pagination":{"$ref":"#/components/schemas/types.PaginationResponse"}}},"dto.ListDiscountResponse":{"type":"object","properties":{"items":{"type":"array","items":{"$ref":"#/components/schemas/dto.DiscountResponse"}},"pagination":{"$ref":"#/components/schemas/types.PaginationResponse"}}},"dto.ListInternshipResponse":{"type":"object","properties":{"items":{"type":"array","items":{"$ref":"#/components/schemas/dto.InternshipResponse"}},"pagination":{"$ref":"#/components/schemas/types.PaginationResponse"}}},"dto.MeResponse":{"type":"object","properties":{"email":{"type":"string"},"full_name":{"type":"string"},"id":{"type":"string"},"phone":{"type":"string"},"role":{"type":"string"}}},"dto.SignupRequest":{"required":["access_token","email","full_name","role"],"type":"object","properties":{"access_token":{"type":"string","description":"access token"},"email":{"type":"string","description":"basic info"},"full_name":{"type":"string"},"phone":{"type":"string"},"role":{"$ref":"#/components/schemas/types.UserRole"}}},"dto.SignupResponse":{"type":"object","properties":{"access_token":{"type":"string"},"id":{"type":"string"}}},"dto.UpdateCategoryRequest":{"type":"object","properties":{"description":{"type":"string"},"lookup_key":{"type":"string"},"name":{"type":"string"}}},"dto.UpdateDiscountRequest":{"type":"object","properties":{"description":{"type":"string"},"is_active":{"type":"boolean"},"is_combinable":{"type":"boolean"},"max_uses":{"type":"integer"},"metadata":{"$ref":"#/components/schemas/types.Metadata"},"min_order_value":{"type":"number"},"valid_from":{"type":"string"},"valid_until":{"type":"string"}}},"dto.UpdateInternshipRequest":{"type":"object","properties":{"benefits":{"type":"array","items":{"type":"string"}},"category_ids":{"type":"array","items":{"type":"string"}},"currency":{"type":"string"},"description":{"minLength":10,"type":"string"},"duration_in_weeks":{"minimum":0,"type":"integer"},"flat_discount":{"type":"number"},"learning_outcomes":{"type":"array","items":{"type":"string"}},"level":{"$ref":"#/components/schemas/types.InternshipLevel"},"lookup_key":{"type":"string"},"mode":{"$ref":"#/components/schemas/types.InternshipMode"},"percentage_discount":{"type":"number"},"prerequisites":{"type":"array","items":{"type":"string"}},"price":{"type":"number"},"skills":{"type":"array","items":{"type":"string"}},"title":{"maxLength":255,"minLength":3,"type":"string"}}},"dto.UpdateUserRequest":{"type":"object","properties":{"full_name":{"type":"string"},"phone":{"type":"string"}}},"ierr.ErrorDetail":{"type":"object","properties":{"details":{"type":"object","additionalProperties":{"type":"object"}},"internal_error":{"type":"string"},"message":{"type":"string"}}},"ierr.ErrorResponse":{"type":"object","properties":{"error":{"$ref":"#/components/schemas/ierr.ErrorDetail"},"success":{"type":"boolean"}}},"internship.Category":{"type":"object","properties":{"created_at":{"type":"string"},"created_by":{"type":"string"},"description":{"type":"string","description":"Description holds the value of the \"description\" field."},"id":{"type":"string","description":"ID of the ent."},"internships":{"type":"array","description":"internships holds the value of the internships edge.","items":{"$ref":"#/components/schemas/internship.Internship"}},"lookup_key":{"type":"string","description":"LookupKey holds the value of the \"lookup_key\" field."},"name":{"type":"string","description":"Name holds the value of the \"name\" field."},"status":{"$ref":"#/components/schemas/types.Status"},"updated_at":{"type":"string"},"updated_by":{"type":"string"}}},"internship.Internship":{"type":"object","properties":{"benefits":{"type":"array","description":"Benefits of the internship","items":{"type":"string"}},"categories":{"type":"array","description":"Categories holds the value of the categories edge.","items":{"$ref":"#/components/schemas/internship.Category"}},"created_at":{"type":"string"},"created_by":{"type":"string"},"currency":{"type":"string","description":"Currency of the internship"},"description":{"type":"string","description":"Description holds the value of the \"description\" field."},"duration_in_weeks":{"type":"integer","description":"Alternative to months for shorter internships"},"flat_discount":{"type":"number","description":"Flat discount on the internship"},"id":{"type":"string","description":"ID of the ent."},"learning_outcomes":{"type":"array","description":"What students will learn in the internship","items":{"type":"string"}},"level":{"$ref":"#/components/schemas/types.InternshipLevel"},"lookup_key":{"type":"string","description":"LookupKey holds the value of the \"lookup_key\" field."},"mode":{"$ref":"#/components/schemas/types.InternshipMode"},"percentage_discount":{"type":"number","description":"Percentage discount on the internship"},"prerequisites":{"type":"array","description":"Prerequisites or recommended knowledge","items":{"type":"string"}},"price":{"type":"number","description":"Price of the internship"},"skills":{"type":"array","description":"List of required skills","items":{"type":"string"}},"status":{"$ref":"#/components/schemas/types.Status"},"title":{"type":"string","description":"Title holds the value of the \"title\" field."},"updated_at":{"type":"string"},"updated_by":{"type":"string"}}},"types.DiscountType":{"type":"string","enum":["flat","percentage"],"x-enum-varnames":["DiscountTypeFlat","DiscountTypePercentage"]},"types.InternshipLevel":{"type":"string","enum":["beginner","intermediate","advanced"],"x-enum-varnames":["InternshipLevelBeginner","InternshipLevelIntermediate","InternshipLevelAdvanced"]},"types.InternshipMode":{"type":"string","enum":["remote","hybrid","onsite"],"x-enum-varnames":["InternshipModeRemote","InternshipModeHybrid","InternshipModeOnsite"]},"types.Metadata":{"type":"object","additionalProperties":{"type":"string"}},"types.PaginationResponse":{"type":"object","properties":{"limit":{"type":"integer"},"offset":{"type":"integer"},"total":{"type":"integer"}}},"types.Status":{"type":"string","enum":["published","deleted","archived","inactive","pending"],"x-enum-varnames":["StatusPublished","StatusDeleted","StatusArchived","StatusInactive","StatusPending"]},"types.UserRole":{"type":"string","enum":["STUDENT","INSTRUCTOR","ADMIN"],"x-enum-varnames":["UserRoleStudent","UserRoleInstructor","UserRoleAdmin"]}},"securitySchemes":{"Authorization":{"type":"apiKey","description":"Enter the token with the `Bearer ` prefix, e.g. `Bearer <token>`.","name":"Authorization","in":"header"}}},"x-original-swagger-version":"2.0"}
+{
+    "openapi": "3.0.1",
+    "info": {
+        "title": "CodeGeeky API",
+        "description": "API for CodeGeeky",
+        "termsOfService": "http://example.com/terms/",
+        "contact": {
+            "name": "API Support",
+            "email": "support@example.com"
+        },
+        "version": "1.0"
+    },
+    "servers": [
+        {
+            "url": "//localhost:8080/v1"
+        }
+    ],
+    "paths": {
+        "/auth/signup": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Signup",
+                "description": "Signup",
+                "requestBody": {
+                    "description": "Signup request",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/dto.SignupRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/dto.SignupResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "x-codegen-request-body-name": "signupRequest"
+            }
+        },
+        "/categories": {
+            "get": {
+                "tags": [
+                    "Category"
+                ],
+                "summary": "List categories",
+                "description": "List categories with optional filtering",
+                "parameters": [
+                    {
+                        "name": "category_ids",
+                        "in": "query",
+                        "style": "form",
+                        "explode": false,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    {
+                        "name": "end_time",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "expand",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "internship_ids",
+                        "in": "query",
+                        "style": "form",
+                        "explode": false,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "schema": {
+                            "maximum": 1000,
+                            "minimum": 1,
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "name",
+                        "in": "query",
+                        "description": "These fields are used to filter categories by name",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "offset",
+                        "in": "query",
+                        "schema": {
+                            "minimum": 0,
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "order",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "asc",
+                                "desc"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "sort",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "start_time",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "published",
+                                "deleted",
+                                "archived",
+                                "inactive",
+                                "pending"
+                            ],
+                            "x-enum-varnames": [
+                                "StatusPublished",
+                                "StatusDeleted",
+                                "StatusArchived",
+                                "StatusInactive",
+                                "StatusPending"
+                            ]
+                        },
+                        "x-enum-varnames": [
+                            "StatusPublished",
+                            "StatusDeleted",
+                            "StatusArchived",
+                            "StatusInactive",
+                            "StatusPending"
+                        ]
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/dto.ListCategoryResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ierr.ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ierr.ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Category"
+                ],
+                "summary": "Create a new category",
+                "description": "Create a new category with the provided details",
+                "requestBody": {
+                    "description": "Category details",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/dto.CreateCategoryRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/dto.CategoryResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ierr.ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ierr.ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "x-codegen-request-body-name": "category"
+            }
+        },
+        "/categories/{id}": {
+            "get": {
+                "tags": [
+                    "Category"
+                ],
+                "summary": "Get a category by ID",
+                "description": "Get a category by its unique identifier",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Category ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/dto.CategoryResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ierr.ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ierr.ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ierr.ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Category"
+                ],
+                "summary": "Update a category",
+                "description": "Update a category by its unique identifier",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Category ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "description": "Category details",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/dto.UpdateCategoryRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/dto.CategoryResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ierr.ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ierr.ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ierr.ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "x-codegen-request-body-name": "category"
+            },
+            "delete": {
+                "tags": [
+                    "Category"
+                ],
+                "summary": "Delete a category",
+                "description": "Delete a category by its unique identifier",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Category ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content",
+                        "content": {}
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ierr.ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ierr.ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ierr.ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/discounts": {
+            "get": {
+                "tags": [
+                    "Discount"
+                ],
+                "summary": "List discounts",
+                "description": "List discounts with optional filtering",
+                "parameters": [
+                    {
+                        "name": "discount_type",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "flat",
+                                "percentage"
+                            ],
+                            "x-enum-varnames": [
+                                "DiscountTypeFlat",
+                                "DiscountTypePercentage"
+                            ]
+                        },
+                        "x-enum-varnames": [
+                            "DiscountTypeFlat",
+                            "DiscountTypePercentage"
+                        ]
+                    },
+                    {
+                        "name": "end_time",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "expand",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "is_combinable",
+                        "in": "query",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "schema": {
+                            "maximum": 1000,
+                            "minimum": 1,
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "min_order_value",
+                        "in": "query",
+                        "schema": {
+                            "type": "number"
+                        }
+                    },
+                    {
+                        "name": "offset",
+                        "in": "query",
+                        "schema": {
+                            "minimum": 0,
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "order",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "asc",
+                                "desc"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "sort",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "start_time",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "published",
+                                "deleted",
+                                "archived",
+                                "inactive",
+                                "pending"
+                            ],
+                            "x-enum-varnames": [
+                                "StatusPublished",
+                                "StatusDeleted",
+                                "StatusArchived",
+                                "StatusInactive",
+                                "StatusPending"
+                            ]
+                        },
+                        "x-enum-varnames": [
+                            "StatusPublished",
+                            "StatusDeleted",
+                            "StatusArchived",
+                            "StatusInactive",
+                            "StatusPending"
+                        ]
+                    },
+                    {
+                        "name": "valid_from",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "valid_until",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/dto.ListDiscountResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ierr.ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ierr.ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Discount"
+                ],
+                "summary": "Create a new discount",
+                "description": "Create a new discount with the provided details",
+                "requestBody": {
+                    "description": "Discount details",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/dto.CreateDiscountRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/dto.DiscountResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ierr.ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ierr.ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "x-codegen-request-body-name": "discount"
+            }
+        },
+        "/discounts/code/{code}": {
+            "get": {
+                "tags": [
+                    "Discount"
+                ],
+                "summary": "Get a discount by code",
+                "description": "Get a discount by its unique code",
+                "parameters": [
+                    {
+                        "name": "code",
+                        "in": "path",
+                        "description": "Discount code",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/dto.DiscountResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ierr.ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ierr.ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ]
+            }
+        },
+        "/discounts/{id}": {
+            "get": {
+                "tags": [
+                    "Discount"
+                ],
+                "summary": "Get a discount by ID",
+                "description": "Get a discount by its unique identifier",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Discount ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/dto.DiscountResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ierr.ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ierr.ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Discount"
+                ],
+                "summary": "Update a discount by ID",
+                "description": "Update a discount by its unique identifier",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Discount ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "description": "Discount details",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/dto.UpdateDiscountRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/dto.DiscountResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ierr.ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ierr.ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "x-codegen-request-body-name": "discount"
+            },
+            "delete": {
+                "tags": [
+                    "Discount"
+                ],
+                "summary": "Delete a discount by ID",
+                "description": "Delete a discount by its unique identifier",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Discount ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content",
+                        "content": {}
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ierr.ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ierr.ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ]
+            }
+        },
+        "/internships": {
+            "get": {
+                "tags": [
+                    "Internship"
+                ],
+                "summary": "List internships",
+                "description": "List internships with optional filtering",
+                "parameters": [
+                    {
+                        "name": "category_ids",
+                        "in": "query",
+                        "style": "form",
+                        "explode": false,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    {
+                        "name": "duration_in_weeks",
+                        "in": "query",
+                        "description": "These fields are used to filter internships by duration in weeks",
+                        "schema": {
+                            "maximum": 52,
+                            "minimum": 1,
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "end_time",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "expand",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "internship_ids",
+                        "in": "query",
+                        "style": "form",
+                        "explode": false,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    {
+                        "name": "levels",
+                        "in": "query",
+                        "style": "form",
+                        "explode": false,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string",
+                                "enum": [
+                                    "beginner",
+                                    "intermediate",
+                                    "advanced"
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "schema": {
+                            "maximum": 1000,
+                            "minimum": 1,
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "max_price",
+                        "in": "query",
+                        "description": "These fields are used to filter internships by price",
+                        "schema": {
+                            "type": "number"
+                        }
+                    },
+                    {
+                        "name": "min_price",
+                        "in": "query",
+                        "schema": {
+                            "type": "number"
+                        }
+                    },
+                    {
+                        "name": "modes",
+                        "in": "query",
+                        "style": "form",
+                        "explode": false,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string",
+                                "enum": [
+                                    "remote",
+                                    "hybrid",
+                                    "onsite"
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "name": "name",
+                        "in": "query",
+                        "description": "These fields are used to filter internships by category, level and mode",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "offset",
+                        "in": "query",
+                        "schema": {
+                            "minimum": 0,
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "order",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "asc",
+                                "desc"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "sort",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "start_time",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "published",
+                                "deleted",
+                                "archived",
+                                "inactive",
+                                "pending"
+                            ],
+                            "x-enum-varnames": [
+                                "StatusPublished",
+                                "StatusDeleted",
+                                "StatusArchived",
+                                "StatusInactive",
+                                "StatusPending"
+                            ]
+                        },
+                        "x-enum-varnames": [
+                            "StatusPublished",
+                            "StatusDeleted",
+                            "StatusArchived",
+                            "StatusInactive",
+                            "StatusPending"
+                        ]
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/dto.ListInternshipResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ierr.ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ierr.ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Internship"
+                ],
+                "summary": "Create a new internship",
+                "description": "Create a new internship with the provided details",
+                "requestBody": {
+                    "description": "Internship details",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/dto.CreateInternshipRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/dto.InternshipResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ierr.ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ierr.ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "x-codegen-request-body-name": "internship"
+            }
+        },
+        "/internships/{id}": {
+            "get": {
+                "tags": [
+                    "Internship"
+                ],
+                "summary": "Get an internship by ID",
+                "description": "Get an internship by its unique identifier",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Internship ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/dto.InternshipResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ierr.ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ierr.ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ierr.ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Internship"
+                ],
+                "summary": "Update an internship",
+                "description": "Update an internship by its unique identifier",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Internship ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "description": "Internship details",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/dto.UpdateInternshipRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/dto.InternshipResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ierr.ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ierr.ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ierr.ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "x-codegen-request-body-name": "internship"
+            },
+            "delete": {
+                "tags": [
+                    "Internship"
+                ],
+                "summary": "Delete an internship",
+                "description": "Delete an internship by its unique identifier",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Internship ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content",
+                        "content": {}
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ierr.ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ierr.ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ierr.ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/user": {
+            "put": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Update current user",
+                "description": "Update the current user's information",
+                "requestBody": {
+                    "description": "Update user request",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/dto.UpdateUserRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/dto.MeResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ierr.ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ierr.ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "x-codegen-request-body-name": "request"
+            }
+        },
+        "/user/me": {
+            "get": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Get current user",
+                "description": "Get the current user's information",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/dto.MeResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ierr.ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ierr.ErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "dto.CategoryResponse": {
+                "type": "object",
+                "properties": {
+                    "created_at": {
+                        "type": "string"
+                    },
+                    "created_by": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string",
+                        "description": "Description holds the value of the \"description\" field."
+                    },
+                    "id": {
+                        "type": "string",
+                        "description": "ID of the ent."
+                    },
+                    "internships": {
+                        "type": "array",
+                        "description": "internships holds the value of the internships edge.",
+                        "items": {
+                            "$ref": "#/components/schemas/internship.Internship"
+                        }
+                    },
+                    "lookup_key": {
+                        "type": "string",
+                        "description": "LookupKey holds the value of the \"lookup_key\" field."
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "Name holds the value of the \"name\" field."
+                    },
+                    "status": {
+                        "$ref": "#/components/schemas/types.Status"
+                    },
+                    "updated_at": {
+                        "type": "string"
+                    },
+                    "updated_by": {
+                        "type": "string"
+                    }
+                }
+            },
+            "dto.CreateCategoryRequest": {
+                "required": [
+                    "lookup_key",
+                    "name"
+                ],
+                "type": "object",
+                "properties": {
+                    "description": {
+                        "type": "string"
+                    },
+                    "lookup_key": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    }
+                }
+            },
+            "dto.CreateDiscountRequest": {
+                "required": [
+                    "code",
+                    "discount_type",
+                    "discount_value"
+                ],
+                "type": "object",
+                "properties": {
+                    "code": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "discount_type": {
+                        "$ref": "#/components/schemas/types.DiscountType"
+                    },
+                    "discount_value": {
+                        "type": "number"
+                    },
+                    "is_active": {
+                        "type": "boolean"
+                    },
+                    "is_combinable": {
+                        "type": "boolean"
+                    },
+                    "max_uses": {
+                        "type": "integer"
+                    },
+                    "metadata": {
+                        "$ref": "#/components/schemas/types.Metadata"
+                    },
+                    "min_order_value": {
+                        "type": "number"
+                    },
+                    "valid_from": {
+                        "type": "string"
+                    },
+                    "valid_until": {
+                        "type": "string"
+                    }
+                }
+            },
+            "dto.CreateInternshipRequest": {
+                "required": [
+                    "currency",
+                    "description",
+                    "level",
+                    "lookup_key",
+                    "mode",
+                    "price",
+                    "title"
+                ],
+                "type": "object",
+                "properties": {
+                    "benefits": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "category_ids": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "currency": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "minLength": 10,
+                        "type": "string"
+                    },
+                    "duration_in_weeks": {
+                        "minimum": 0,
+                        "type": "integer"
+                    },
+                    "flat_discount": {
+                        "type": "number"
+                    },
+                    "learning_outcomes": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "level": {
+                        "$ref": "#/components/schemas/types.InternshipLevel"
+                    },
+                    "lookup_key": {
+                        "type": "string"
+                    },
+                    "mode": {
+                        "$ref": "#/components/schemas/types.InternshipMode"
+                    },
+                    "percentage_discount": {
+                        "type": "number"
+                    },
+                    "prerequisites": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "price": {
+                        "type": "number"
+                    },
+                    "skills": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "title": {
+                        "maxLength": 255,
+                        "minLength": 3,
+                        "type": "string"
+                    }
+                }
+            },
+            "dto.DiscountResponse": {
+                "type": "object",
+                "properties": {
+                    "code": {
+                        "type": "string"
+                    },
+                    "created_at": {
+                        "type": "string"
+                    },
+                    "created_by": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "discount_type": {
+                        "$ref": "#/components/schemas/types.DiscountType"
+                    },
+                    "discount_value": {
+                        "type": "number"
+                    },
+                    "id": {
+                        "type": "string"
+                    },
+                    "is_active": {
+                        "type": "boolean"
+                    },
+                    "is_combinable": {
+                        "type": "boolean"
+                    },
+                    "max_uses": {
+                        "type": "integer"
+                    },
+                    "metadata": {
+                        "$ref": "#/components/schemas/types.Metadata"
+                    },
+                    "min_order_value": {
+                        "type": "number"
+                    },
+                    "status": {
+                        "$ref": "#/components/schemas/types.Status"
+                    },
+                    "updated_at": {
+                        "type": "string"
+                    },
+                    "updated_by": {
+                        "type": "string"
+                    },
+                    "valid_from": {
+                        "type": "string"
+                    },
+                    "valid_until": {
+                        "type": "string"
+                    }
+                }
+            },
+            "dto.InternshipResponse": {
+                "type": "object",
+                "properties": {
+                    "benefits": {
+                        "type": "array",
+                        "description": "Benefits of the internship",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "categories": {
+                        "type": "array",
+                        "description": "Categories holds the value of the categories edge.",
+                        "items": {
+                            "$ref": "#/components/schemas/internship.Category"
+                        }
+                    },
+                    "created_at": {
+                        "type": "string"
+                    },
+                    "created_by": {
+                        "type": "string"
+                    },
+                    "currency": {
+                        "type": "string",
+                        "description": "Currency of the internship"
+                    },
+                    "description": {
+                        "type": "string",
+                        "description": "Description holds the value of the \"description\" field."
+                    },
+                    "duration_in_weeks": {
+                        "type": "integer",
+                        "description": "Alternative to months for shorter internships"
+                    },
+                    "flat_discount": {
+                        "type": "number",
+                        "description": "Flat discount on the internship"
+                    },
+                    "id": {
+                        "type": "string",
+                        "description": "ID of the ent."
+                    },
+                    "learning_outcomes": {
+                        "type": "array",
+                        "description": "What students will learn in the internship",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "level": {
+                        "$ref": "#/components/schemas/types.InternshipLevel"
+                    },
+                    "lookup_key": {
+                        "type": "string",
+                        "description": "LookupKey holds the value of the \"lookup_key\" field."
+                    },
+                    "mode": {
+                        "$ref": "#/components/schemas/types.InternshipMode"
+                    },
+                    "percentage_discount": {
+                        "type": "number",
+                        "description": "Percentage discount on the internship"
+                    },
+                    "prerequisites": {
+                        "type": "array",
+                        "description": "Prerequisites or recommended knowledge",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "price": {
+                        "type": "number",
+                        "description": "Price of the internship"
+                    },
+                    "skills": {
+                        "type": "array",
+                        "description": "List of required skills",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "status": {
+                        "$ref": "#/components/schemas/types.Status"
+                    },
+                    "title": {
+                        "type": "string",
+                        "description": "Title holds the value of the \"title\" field."
+                    },
+                    "updated_at": {
+                        "type": "string"
+                    },
+                    "updated_by": {
+                        "type": "string"
+                    }
+                }
+            },
+            "dto.ListCategoryResponse": {
+                "type": "object",
+                "properties": {
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/dto.CategoryResponse"
+                        }
+                    },
+                    "pagination": {
+                        "$ref": "#/components/schemas/types.PaginationResponse"
+                    }
+                }
+            },
+            "dto.ListDiscountResponse": {
+                "type": "object",
+                "properties": {
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/dto.DiscountResponse"
+                        }
+                    },
+                    "pagination": {
+                        "$ref": "#/components/schemas/types.PaginationResponse"
+                    }
+                }
+            },
+            "dto.ListInternshipResponse": {
+                "type": "object",
+                "properties": {
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/dto.InternshipResponse"
+                        }
+                    },
+                    "pagination": {
+                        "$ref": "#/components/schemas/types.PaginationResponse"
+                    }
+                }
+            },
+            "dto.MeResponse": {
+                "type": "object",
+                "properties": {
+                    "email": {
+                        "type": "string"
+                    },
+                    "full_name": {
+                        "type": "string"
+                    },
+                    "id": {
+                        "type": "string"
+                    },
+                    "phone": {
+                        "type": "string"
+                    },
+                    "role": {
+                        "type": "string"
+                    }
+                }
+            },
+            "dto.SignupRequest": {
+                "required": [
+                    "access_token",
+                    "email",
+                    "full_name",
+                    "role"
+                ],
+                "type": "object",
+                "properties": {
+                    "access_token": {
+                        "type": "string",
+                        "description": "access token"
+                    },
+                    "email": {
+                        "type": "string",
+                        "description": "basic info"
+                    },
+                    "full_name": {
+                        "type": "string"
+                    },
+                    "phone": {
+                        "type": "string"
+                    },
+                    "role": {
+                        "$ref": "#/components/schemas/types.UserRole"
+                    }
+                }
+            },
+            "dto.SignupResponse": {
+                "type": "object",
+                "properties": {
+                    "access_token": {
+                        "type": "string"
+                    },
+                    "id": {
+                        "type": "string"
+                    }
+                }
+            },
+            "dto.UpdateCategoryRequest": {
+                "type": "object",
+                "properties": {
+                    "description": {
+                        "type": "string"
+                    },
+                    "lookup_key": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    }
+                }
+            },
+            "dto.UpdateDiscountRequest": {
+                "type": "object",
+                "properties": {
+                    "description": {
+                        "type": "string"
+                    },
+                    "is_active": {
+                        "type": "boolean"
+                    },
+                    "is_combinable": {
+                        "type": "boolean"
+                    },
+                    "max_uses": {
+                        "type": "integer"
+                    },
+                    "metadata": {
+                        "$ref": "#/components/schemas/types.Metadata"
+                    },
+                    "min_order_value": {
+                        "type": "number"
+                    },
+                    "valid_from": {
+                        "type": "string"
+                    },
+                    "valid_until": {
+                        "type": "string"
+                    }
+                }
+            },
+            "dto.UpdateInternshipRequest": {
+                "type": "object",
+                "properties": {
+                    "benefits": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "category_ids": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "currency": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "minLength": 10,
+                        "type": "string"
+                    },
+                    "duration_in_weeks": {
+                        "minimum": 0,
+                        "type": "integer"
+                    },
+                    "flat_discount": {
+                        "type": "number"
+                    },
+                    "learning_outcomes": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "level": {
+                        "$ref": "#/components/schemas/types.InternshipLevel"
+                    },
+                    "lookup_key": {
+                        "type": "string"
+                    },
+                    "mode": {
+                        "$ref": "#/components/schemas/types.InternshipMode"
+                    },
+                    "percentage_discount": {
+                        "type": "number"
+                    },
+                    "prerequisites": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "price": {
+                        "type": "number"
+                    },
+                    "skills": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "title": {
+                        "maxLength": 255,
+                        "minLength": 3,
+                        "type": "string"
+                    }
+                }
+            },
+            "dto.UpdateUserRequest": {
+                "type": "object",
+                "properties": {
+                    "full_name": {
+                        "type": "string"
+                    },
+                    "phone": {
+                        "type": "string"
+                    }
+                }
+            },
+            "ierr.ErrorDetail": {
+                "type": "object",
+                "properties": {
+                    "details": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "object"
+                        }
+                    },
+                    "internal_error": {
+                        "type": "string"
+                    },
+                    "message": {
+                        "type": "string"
+                    }
+                }
+            },
+            "ierr.ErrorResponse": {
+                "type": "object",
+                "properties": {
+                    "error": {
+                        "$ref": "#/components/schemas/ierr.ErrorDetail"
+                    },
+                    "success": {
+                        "type": "boolean"
+                    }
+                }
+            },
+            "internship.Category": {
+                "type": "object",
+                "properties": {
+                    "created_at": {
+                        "type": "string"
+                    },
+                    "created_by": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string",
+                        "description": "Description holds the value of the \"description\" field."
+                    },
+                    "id": {
+                        "type": "string",
+                        "description": "ID of the ent."
+                    },
+                    "internships": {
+                        "type": "array",
+                        "description": "internships holds the value of the internships edge.",
+                        "items": {
+                            "$ref": "#/components/schemas/internship.Internship"
+                        }
+                    },
+                    "lookup_key": {
+                        "type": "string",
+                        "description": "LookupKey holds the value of the \"lookup_key\" field."
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "Name holds the value of the \"name\" field."
+                    },
+                    "status": {
+                        "$ref": "#/components/schemas/types.Status"
+                    },
+                    "updated_at": {
+                        "type": "string"
+                    },
+                    "updated_by": {
+                        "type": "string"
+                    }
+                }
+            },
+            "internship.Internship": {
+                "type": "object",
+                "properties": {
+                    "benefits": {
+                        "type": "array",
+                        "description": "Benefits of the internship",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "categories": {
+                        "type": "array",
+                        "description": "Categories holds the value of the categories edge.",
+                        "items": {
+                            "$ref": "#/components/schemas/internship.Category"
+                        }
+                    },
+                    "created_at": {
+                        "type": "string"
+                    },
+                    "created_by": {
+                        "type": "string"
+                    },
+                    "currency": {
+                        "type": "string",
+                        "description": "Currency of the internship"
+                    },
+                    "description": {
+                        "type": "string",
+                        "description": "Description holds the value of the \"description\" field."
+                    },
+                    "duration_in_weeks": {
+                        "type": "integer",
+                        "description": "Alternative to months for shorter internships"
+                    },
+                    "flat_discount": {
+                        "type": "number",
+                        "description": "Flat discount on the internship"
+                    },
+                    "id": {
+                        "type": "string",
+                        "description": "ID of the ent."
+                    },
+                    "learning_outcomes": {
+                        "type": "array",
+                        "description": "What students will learn in the internship",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "level": {
+                        "$ref": "#/components/schemas/types.InternshipLevel"
+                    },
+                    "lookup_key": {
+                        "type": "string",
+                        "description": "LookupKey holds the value of the \"lookup_key\" field."
+                    },
+                    "mode": {
+                        "$ref": "#/components/schemas/types.InternshipMode"
+                    },
+                    "percentage_discount": {
+                        "type": "number",
+                        "description": "Percentage discount on the internship"
+                    },
+                    "prerequisites": {
+                        "type": "array",
+                        "description": "Prerequisites or recommended knowledge",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "price": {
+                        "type": "number",
+                        "description": "Price of the internship"
+                    },
+                    "skills": {
+                        "type": "array",
+                        "description": "List of required skills",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "status": {
+                        "$ref": "#/components/schemas/types.Status"
+                    },
+                    "title": {
+                        "type": "string",
+                        "description": "Title holds the value of the \"title\" field."
+                    },
+                    "updated_at": {
+                        "type": "string"
+                    },
+                    "updated_by": {
+                        "type": "string"
+                    }
+                }
+            },
+            "types.DiscountType": {
+                "type": "string",
+                "enum": [
+                    "flat",
+                    "percentage"
+                ],
+                "x-enum-varnames": [
+                    "DiscountTypeFlat",
+                    "DiscountTypePercentage"
+                ]
+            },
+            "types.InternshipLevel": {
+                "type": "string",
+                "enum": [
+                    "beginner",
+                    "intermediate",
+                    "advanced"
+                ],
+                "x-enum-varnames": [
+                    "InternshipLevelBeginner",
+                    "InternshipLevelIntermediate",
+                    "InternshipLevelAdvanced"
+                ]
+            },
+            "types.InternshipMode": {
+                "type": "string",
+                "enum": [
+                    "remote",
+                    "hybrid",
+                    "onsite"
+                ],
+                "x-enum-varnames": [
+                    "InternshipModeRemote",
+                    "InternshipModeHybrid",
+                    "InternshipModeOnsite"
+                ]
+            },
+            "types.Metadata": {
+                "type": "object",
+                "additionalProperties": {
+                    "type": "string"
+                }
+            },
+            "types.PaginationResponse": {
+                "type": "object",
+                "properties": {
+                    "limit": {
+                        "type": "integer"
+                    },
+                    "offset": {
+                        "type": "integer"
+                    },
+                    "total": {
+                        "type": "integer"
+                    }
+                }
+            },
+            "types.Status": {
+                "type": "string",
+                "enum": [
+                    "published",
+                    "deleted",
+                    "archived",
+                    "inactive",
+                    "pending"
+                ],
+                "x-enum-varnames": [
+                    "StatusPublished",
+                    "StatusDeleted",
+                    "StatusArchived",
+                    "StatusInactive",
+                    "StatusPending"
+                ]
+            },
+            "types.UserRole": {
+                "type": "string",
+                "enum": [
+                    "STUDENT",
+                    "INSTRUCTOR",
+                    "ADMIN"
+                ],
+                "x-enum-varnames": [
+                    "UserRoleStudent",
+                    "UserRoleInstructor",
+                    "UserRoleAdmin"
+                ]
+            }
+        },
+        "securitySchemes": {
+            "Authorization": {
+                "type": "apiKey",
+                "description": "Enter the token with the `Bearer ` prefix, e.g. `Bearer <token>`.",
+                "name": "Authorization",
+                "in": "header"
+            }
+        }
+    },
+    "x-original-swagger-version": "2.0"
+}
