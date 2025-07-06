@@ -21,6 +21,11 @@ var commands = []Command{
 		Description: "Generate the Ent schema",
 		Run:         internal.GenerateEnt,
 	},
+	{
+		Name:        "seed-data",
+		Description: "Seed the database with sample data (categories, internships, discounts)",
+		Run:         internal.SeedData,
+	},
 }
 
 func main() {
@@ -41,6 +46,7 @@ func main() {
 		fmt.Println("\nExamples:")
 		fmt.Println("  go run scripts/main.go -list                    # List all available commands")
 		fmt.Println("  go run scripts/main.go -cmd generate-ent        # Generate Ent schema")
+		fmt.Println("  go run scripts/main.go -cmd seed-data           # Seed database with sample data")
 		fmt.Println("\nNote: Ensure your database configuration is properly set up before running database commands.")
 	}
 

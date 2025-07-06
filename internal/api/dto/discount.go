@@ -31,12 +31,6 @@ func (r *CreateDiscountRequest) Validate() error {
 		return err
 	}
 
-	if r.ValidFrom != nil && r.ValidFrom.Before(time.Now()) {
-		return ierr.NewError("valid_from must be in the future").
-			WithHint("Valid from must be in the future").
-			Mark(ierr.ErrValidation)
-	}
-
 	if r.ValidFrom != nil && r.ValidUntil != nil && r.ValidFrom.After(lo.FromPtr(r.ValidUntil)) {
 		return ierr.NewError("valid_from must be before valid_until").
 			WithHint("Valid from must be before valid until").
