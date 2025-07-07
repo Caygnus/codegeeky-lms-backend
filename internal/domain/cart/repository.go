@@ -16,6 +16,9 @@ type Repository interface {
 	List(ctx context.Context, filter *types.CartFilter) ([]*Cart, error)
 	ListAll(ctx context.Context, filter *types.CartFilter) ([]*Cart, error)
 
+	// user carts
+	GetUserDefaultCart(ctx context.Context, userID string) (*Cart, error)
+
 	// cart line items
 	CreateCartLineItem(ctx context.Context, cartLineItem *CartLineItem) error
 	GetCartLineItem(ctx context.Context, id string) (*CartLineItem, error)

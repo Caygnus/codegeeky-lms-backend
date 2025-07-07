@@ -45,7 +45,7 @@ type Cart struct {
 	// Total holds the value of the "total" field.
 	Total decimal.Decimal `json:"total,omitempty"`
 	// ExpiresAt holds the value of the "expires_at" field.
-	ExpiresAt time.Time `json:"expires_at,omitempty"`
+	ExpiresAt *time.Time `json:"expires_at,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the CartQuery when eager-loading is set.
 	Edges        CartEdges `json:"edges"`
@@ -195,7 +195,8 @@ func (c *Cart) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field expires_at", values[i])
 			} else if value.Valid {
-				c.ExpiresAt = value.Time
+				c.ExpiresAt = new(time.Time)
+				*c.ExpiresAt = value.Time
 			}
 		default:
 			c.selectValues.Set(columns[i], values[i])
@@ -279,8 +280,10 @@ func (c *Cart) String() string {
 	builder.WriteString("total=")
 	builder.WriteString(fmt.Sprintf("%v", c.Total))
 	builder.WriteString(", ")
-	builder.WriteString("expires_at=")
-	builder.WriteString(c.ExpiresAt.Format(time.ANSIC))
+	if v := c.ExpiresAt; v != nil {
+		builder.WriteString("expires_at=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
 	builder.WriteByte(')')
 	return builder.String()
 }

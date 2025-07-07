@@ -161,7 +161,7 @@ func (h *InternshipHandler) DeleteInternship(c *gin.Context) {
 // @Produce json
 // @Param filter query types.InternshipFilter true "Filter options"
 // @Success 200 {object} dto.ListInternshipResponse
-// @Failure 400 {object} ierr.ErrorResponse		
+// @Failure 400 {object} ierr.ErrorResponse
 // @Failure 500 {object} ierr.ErrorResponse
 // @Router /internships [get]
 func (h *InternshipHandler) ListInternships(c *gin.Context) {

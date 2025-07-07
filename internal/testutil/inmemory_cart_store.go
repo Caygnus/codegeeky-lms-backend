@@ -379,6 +379,42 @@ func (s *InMemoryCartStore) ListCartLineItems(ctx context.Context, cartId string
 	return items, nil
 }
 
+func (s *InMemoryCartStore) GetUserDefaultCart(ctx context.Context, userID string) (*cart.Cart, error) {
+	// Get all carts for the user
+	allCarts, err := s.InMemoryStore.List(ctx, nil, nil, nil)
+	if err != nil {
+		return nil, ierr.WithError(err).
+			WithHint("Failed to get user default cart").
+			WithReportableDetails(map[string]any{
+				"user_id": userID,
+			}).
+			Mark(ierr.ErrDatabase)
+	}
+
+	// Filter for the user's default cart
+	for _, c := range allCarts {
+		if c.UserID == userID &&
+			c.Type == types.CartTypeDefault &&
+			c.Status == types.StatusPublished {
+			// Load line items for the cart
+			lineItems, err := s.ListCartLineItems(ctx, c.ID)
+			if err != nil {
+				return nil, err
+			}
+			c.LineItems = lineItems
+			return c, nil
+		}
+	}
+
+	// No default cart found
+	return nil, ierr.NewError("user default cart not found").
+		WithHint("No default cart exists for this user").
+		WithReportableDetails(map[string]any{
+			"user_id": userID,
+		}).
+		Mark(ierr.ErrNotFound)
+}
+
 // Clear clears both cart and line item stores
 func (s *InMemoryCartStore) Clear() {
 	s.InMemoryStore.Clear()

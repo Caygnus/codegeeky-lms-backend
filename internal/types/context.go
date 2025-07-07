@@ -19,7 +19,7 @@ const (
 	// Default values
 	DefaultUserID    = "00000000-0000-0000-0000-000000000000"
 	DefaultRequestID = "00000000-0000-0000-0000-000000000000"
-	DefaultUserEmail = "test@test.com"
+	DefaultUserEmail = "demo-user@test.com"
 	DefaultUserRole  = UserRoleAdmin
 	DefaultIsGuest   = true
 )

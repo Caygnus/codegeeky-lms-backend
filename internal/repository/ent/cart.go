@@ -12,6 +12,7 @@ import (
 	"github.com/omkar273/codegeeky/internal/logger"
 	"github.com/omkar273/codegeeky/internal/postgres"
 	"github.com/omkar273/codegeeky/internal/types"
+	"github.com/samber/lo"
 )
 
 type cartRepository struct {
@@ -45,7 +46,7 @@ func (r *cartRepository) Create(ctx context.Context, cartData *domainCart.Cart) 
 		SetDiscountAmount(cartData.DiscountAmount).
 		SetTaxAmount(cartData.TaxAmount).
 		SetTotal(cartData.Total).
-		SetExpiresAt(cartData.ExpiresAt).
+		SetExpiresAt(lo.FromPtr(cartData.ExpiresAt)).
 		SetMetadata(cartData.Metadata).
 		SetStatus(string(types.StatusPublished)).
 		SetCreatedAt(cartData.CreatedAt).
@@ -94,7 +95,7 @@ func (r *cartRepository) CreateWithLineItems(ctx context.Context, cartData *doma
 			SetDiscountAmount(cartData.DiscountAmount).
 			SetTaxAmount(cartData.TaxAmount).
 			SetTotal(cartData.Total).
-			SetExpiresAt(cartData.ExpiresAt).
+			SetExpiresAt(lo.FromPtr(cartData.ExpiresAt)).
 			SetMetadata(cartData.Metadata).
 			SetStatus(string(types.StatusPublished)).
 			SetCreatedAt(cartData.CreatedAt).
@@ -161,7 +162,10 @@ func (r *cartRepository) Get(ctx context.Context, id string) (*domainCart.Cart, 
 	r.logger.Debugw("getting cart", "cart_id", id)
 
 	entCart, err := client.Cart.Query().
-		Where(cart.ID(id)).
+		Where(
+			cart.ID(id),
+			cart.UserID(types.GetUserID(ctx)),
+		).
 		WithLineItems().
 		Only(ctx)
 
@@ -195,6 +199,7 @@ func (r *cartRepository) Update(ctx context.Context, cartData *domainCart.Cart) 
 	)
 
 	_, err := client.Cart.UpdateOneID(cartData.ID).
+		Where(cart.UserID(types.GetUserID(ctx))).
 		SetMetadata(cartData.Metadata).
 		SetStatus(string(cartData.Status)).
 		SetUpdatedAt(time.Now().UTC()).
@@ -240,6 +245,7 @@ func (r *cartRepository) Delete(ctx context.Context, id string) error {
 
 		// Then delete cart
 		_, err = client.Cart.UpdateOneID(id).
+			Where(cart.UserID(types.GetUserID(ctx))).
 			SetStatus(string(types.StatusDeleted)).
 			SetUpdatedAt(time.Now().UTC()).
 			SetUpdatedBy(types.GetUserID(ctx)).
@@ -298,6 +304,7 @@ func (r *cartRepository) List(ctx context.Context, filter *types.CartFilter) ([]
 	query = r.queryOpts.ApplyEntityQueryOptions(ctx, filter, query)
 
 	carts, err := query.
+		Where(cart.UserID(types.GetUserID(ctx))).
 		WithLineItems().
 		All(ctx)
 	if err != nil {
@@ -415,6 +422,7 @@ func (r *cartRepository) UpdateCartLineItem(ctx context.Context, cartLineItem *d
 	)
 
 	_, err := client.CartLineItems.UpdateOneID(cartLineItem.ID).
+		Where(cartlineitems.CartID(cartLineItem.CartID)).
 		SetQuantity(cartLineItem.Quantity).
 		SetPerUnitPrice(cartLineItem.PerUnitPrice).
 		SetTaxAmount(cartLineItem.TaxAmount).
@@ -453,6 +461,9 @@ func (r *cartRepository) DeleteCartLineItem(ctx context.Context, id string) erro
 	r.logger.Debugw("deleting cart line item", "line_item_id", id)
 
 	_, err := client.CartLineItems.UpdateOneID(id).
+		Where(
+			cartlineitems.ID(id),
+		).
 		SetStatus(string(types.StatusDeleted)).
 		SetUpdatedAt(time.Now().UTC()).
 		SetUpdatedBy(types.GetUserID(ctx)).
@@ -501,6 +512,32 @@ func (r *cartRepository) ListCartLineItems(ctx context.Context, cartId string) (
 
 	cartLineItem := &domainCart.CartLineItem{}
 	return cartLineItem.FromEntList(cartLineItems), nil
+}
+
+func (r *cartRepository) GetUserDefaultCart(ctx context.Context, userID string) (*domainCart.Cart, error) {
+	client := r.client.Querier(ctx)
+
+	r.logger.Debugw("getting user default cart", "user_id", userID)
+
+	entCart, err := client.Cart.Query().
+		Where(
+			cart.UserID(userID),
+			cart.Type(string(types.CartTypeDefault)),
+			cart.Status(string(types.StatusPublished)),
+		).
+		Only(ctx)
+
+	if err != nil {
+		return nil, ierr.WithError(err).
+			WithHint("Failed to get user default cart").
+			WithReportableDetails(map[string]any{
+				"user_id": userID,
+			}).
+			Mark(ierr.ErrDatabase)
+	}
+
+	cartData := &domainCart.Cart{}
+	return cartData.FromEnt(entCart), nil
 }
 
 // CartQuery type alias for better readability

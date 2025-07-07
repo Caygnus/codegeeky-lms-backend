@@ -95,6 +95,9 @@ func main() {
 			// internship batch repository
 			repository.NewInternshipBatchRepository,
 
+			// cart repository
+			repository.NewCartRepository,
+
 			// pubsub router
 			pubsubRouter.NewRouter,
 		),
@@ -118,6 +121,7 @@ func main() {
 		service.NewPricingService,
 		service.NewPaymentService,
 		service.NewInternshipEnrollmentService,
+		service.NewCartService,
 	))
 
 	// factory layer
@@ -160,16 +164,20 @@ func provideHandlers(
 	authService service.AuthService,
 	userService service.UserService,
 	internshipService service.InternshipService,
+	internshipBatchService service.InternshipBatchService,
 	categoryService service.CategoryService,
 	discountService service.DiscountService,
+	cartService service.CartService,
 ) *api.Handlers {
 	return &api.Handlers{
-		Health:     v1.NewHealthHandler(logger),
-		Auth:       v1.NewAuthHandler(authService),
-		User:       v1.NewUserHandler(userService),
-		Internship: v1.NewInternshipHandler(internshipService, logger),
-		Category:   v1.NewCategoryHandler(categoryService, logger),
-		Discount:   v1.NewDiscountHandler(discountService, logger),
+		Health:          v1.NewHealthHandler(logger),
+		Auth:            v1.NewAuthHandler(authService),
+		User:            v1.NewUserHandler(userService),
+		Internship:      v1.NewInternshipHandler(internshipService, logger),
+		InternshipBatch: v1.NewInternshipBatchHandler(internshipBatchService, logger),
+		Category:        v1.NewCategoryHandler(categoryService, logger),
+		Discount:        v1.NewDiscountHandler(discountService, logger),
+		Cart:            v1.NewCartHandler(cartService, logger),
 	}
 }
 
