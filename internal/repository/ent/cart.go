@@ -462,7 +462,7 @@ func (r *cartRepository) DeleteCartLineItem(ctx context.Context, id string) erro
 
 	_, err := client.CartLineItems.UpdateOneID(id).
 		Where(
-			cartlineitems.CartID(id),
+			cartlineitems.ID(id),
 		).
 		SetStatus(string(types.StatusDeleted)).
 		SetUpdatedAt(time.Now().UTC()).
