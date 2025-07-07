@@ -3342,7 +3342,6 @@ const docTemplate = `{
                 "ADMIN",
                 "STUDENT",
                 "INSTRUCTOR",
-                "ADMIN"
             ],
             "x-enum-varnames": [
                 "DefaultUserRole",
